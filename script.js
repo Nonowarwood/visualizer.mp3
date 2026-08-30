@@ -359,6 +359,11 @@ function rebuild(){
      mois, puis un an de silence. Chaque trait est posé à sa date. */
   var ys=view.map(function(idx){return REL[idx].y||0;}).filter(Boolean);
   var y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys),span=Math.max(1,y1-y0);
+  $('#rlistIn').innerHTML=view.map(function(idx,p){
+    var r=REL[idx];
+    return '<li aria-current="false"><button type="button" data-p="'+p+'">'
+      +'<b>'+pad(p+1)+'</b><span>'+esc(r.t)+'</span><i>'+r.y+'</i></button></li>';
+  }).join('');
   $('#scrub').innerHTML=view.map(function(idx,p){
     var f=((REL[idx].y||y0)-y0)/span;
     return '<button type="button" data-p="'+p+'" aria-current="false" style="--x:'
@@ -398,6 +403,17 @@ function hud(){
   [].slice.call($('#scrub').children).forEach(function(b,p){
     b.setAttribute('aria-current',p===CUR?'true':'false');
   });
+  var rows=$('#rlistIn').children;
+  for(var q=0;q<rows.length;q++)rows[q].setAttribute('aria-current',q===CUR?'true':'false');
+  if(LIST&&rows[CUR]){
+    /* La ligne courante est ramenée dans le cadre, mais seulement si elle en est
+       sortie : la rappeler à chaque pas ferait sauter la liste sous le curseur
+       de qui la parcourt à la main. */
+    var el=rows[CUR],box=$('#rlist');
+    var top=el.offsetTop,bot=top+el.offsetHeight;
+    if(top<box.scrollTop)box.scrollTop=top-6;
+    else if(bot>box.scrollTop+box.clientHeight)box.scrollTop=bot-box.clientHeight+6;
+  }
 }
 
 var lineT=0;
@@ -1182,6 +1198,25 @@ $('#mSurvey').addEventListener('click',function(){setState(STATE==='survey'?'par
 $('#mPhotos').addEventListener('click',function(){
   if(STATE==='photos')setState('parcours'); else openPhotos();
 });
+/* La liste appariée : le Cover Flow montre, elle nomme. Le choix est retenu —
+   c'est une façon de naviguer, pas un coup d'œil. */
+var LIST=false;
+try{LIST=localStorage.getItem('wte-list')==='1';}catch(e){}
+function applyList(){
+  document.documentElement.setAttribute('data-list',LIST?'on':'off');
+  $('#mList').setAttribute('aria-pressed',LIST?'true':'false');
+  try{localStorage.setItem('wte-list',LIST?'1':'0');}catch(e){}
+  /* Le champ vient de changer de largeur : ses marges de bout et la position de
+     la pochette centrale se recalculent, sinon elle reste décalée du bord. */
+  sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
+  hud();
+}
+$('#mList').addEventListener('click',function(){LIST=!LIST;applyList();});
+$('#rlist').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-p]');
+  if(b)goTo(parseInt(b.getAttribute('data-p'),10));
+});
+
 $('#psets').addEventListener('click',function(e){
   var b=e.target.closest('button');
   if(b)goSet(parseInt(b.getAttribute('data-s'),10));
@@ -1215,6 +1250,7 @@ function applyTheme(){
 }
 $('#mTheme').addEventListener('click',function(){ti=(ti+1)%tm.length;applyTheme();});
 applyTheme();
+applyList();
 
 document.addEventListener('keydown',function(e){
   if(STATE==='intro'){enter();return;}
@@ -1228,6 +1264,7 @@ document.addEventListener('keydown',function(e){
     if(!$('#loupe').hidden)loupeOff();
     else if(amenu.classList.contains('on'))amenuOpen(false); else close();}
   else if(k==='g'||k==='G'){e.preventDefault();setState(STATE==='survey'?'parcours':'survey');}
+  else if(k==='l'||k==='L'){e.preventDefault();LIST=!LIST;applyList();}
   else if(k==='Home'){e.preventDefault();goTo(0);}
   else if(k==='End'){e.preventDefault();goTo(view.length-1);}
 });

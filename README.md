@@ -49,7 +49,8 @@ aucun logo ni aucune ressource de constructeur n'est reproduit — tout est rede
 | **planche** | les parutions filtrées, en grille | touche `G` ou le bouton |
 | **fiche** | une parution seule, avec ses métadonnées | `↵` ou clic sur la pochette centrale |
 
-Clavier : `←` `→` parcourir · `↵` ouvrir · `G` planche · `esc` revenir · `début` / `fin`.
+Clavier : `←` `→` parcourir · `↵` ouvrir · `G` planche · `L` liste · `esc` revenir ·
+`début` / `fin`.
 On sort d'une fiche par sa croix, par `esc`, ou en touchant un filtre : filtrer
 depuis une fiche la laisserait parler d'une liste qu'on ne voit plus.
 Souris : molette, glisser, clic, et la réglette de position en bas.
@@ -434,6 +435,38 @@ collision sur les vingt-deux parutions actuelles.
 Au démarrage, l'adresse a le dernier mot — mais **le splash garde la main** :
 la destination est mise de côté et appliquée à l'entrée, sinon l'intro serait
 écrasée avant d'avoir été vue.
+
+## La liste appariée
+
+Les guides d'interface sont d'accord sur un point : **un Cover Flow ne devrait pas
+rester seul.** Il se double normalement d'une liste du même contenu, la liste
+servant à naviguer pendant que le Cover Flow sert d'aperçu — surtout sur un écran
+non tactile, où l'on n'a pas de doigt pour balayer.
+
+Le site n'avait que le Cover Flow. La planche existait bien, mais c'est une **vue
+séparée** : on la regarde *à la place*, pas *avec*. On parcourait donc à l'aveugle,
+sans savoir ce qu'on survolait avant que la pochette n'arrive au centre, ni ce qui
+venait dix rangs plus loin.
+
+Le bouton `liste`, ou la touche `L`, ouvre un panneau à gauche : rang, titre,
+année. Cliquer une ligne y mène ; la ligne courante suit le Cover Flow. **Le Cover
+Flow n'est pas poussé de côté** — c'est le champ lui-même qui se raccourcit, et
+comme tout s'y centre sur sa largeur, la pochette centrale se replace d'elle-même
+sans une seule mesure à corriger ailleurs.
+
+Deux choix qui méritent d'être dits :
+
+- **la largeur du champ change d'un coup, sans transition**, alors que le panneau
+  glisse. La mesurer pendant qu'elle bouge donnerait un centrage faux — c'est le
+  même piège que le vol FLIP. La place est donc faite d'abord, le panneau la
+  remplit ensuite ;
+- **la ligne courante n'est ramenée dans le cadre que si elle en est sortie.** La
+  rappeler à chaque pas ferait sauter la liste sous le curseur de qui la parcourt
+  à la main.
+
+Le choix est retenu d'une visite à l'autre : c'est une façon de naviguer, pas un
+coup d'œil. Sous 900 px de large, la liste disparaît — elle mangerait la pochette
+qu'elle est censée servir.
 
 ## Finitions
 
