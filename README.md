@@ -104,18 +104,51 @@ Quatre nombres font l'allure, en tête de la section dans `script.js`. Ils sont
 |---|---|
 | `P_STEP` | l'angle d'un cran, en degrés — plus il est grand, plus les voisines se tournent |
 | `P_RISE` | la montée par cran : c'est elle qui fait la pente, et elle seule décide de la hauteur occupée |
-| `P_R` | le rayon : il règle le recouvrement. À 1,6 les cartes se chevauchent à moitié et forment un mur ; à 2,6 il reste un quart de recouvrement, et de l'air |
-| `P_WIN` | combien de cartes de chaque côté restent posées |
+| `P_R` | le rayon : il règle le recouvrement |
+| `P_WIN` | combien de cartes de chaque côté restent posées — ramené à 5 sous 700 px de large, où neuf ne laisseraient que des miettes |
 
-Deux conséquences à connaître :
+### Deux plans ne peuvent pas se recouvrir sans se couper
 
-- **la vue passe au noir dans les deux thèmes.** C'est le fond sombre qui creuse
-  l'hélice ; sur le fond clair du reste du site, les cartes s'aplatiraient. Les
-  textes de cette vue ont donc leurs propres couleurs, fixes ;
-- **les cartes sont rognées au même format.** C'est le rognage commun qui fait le
-  jeu de cartes. La photo entière se retrouve **au clic sur la carte de devant**,
-  qui l'ouvre en grand — la même visionneuse que les pochettes. Cliquer une carte
-  de côté l'amène simplement au centre.
+C'est le piège de toute la vue, et il tranchait les photos en plein milieu.
+
+Avec `transform-style: preserve-3d`, les cartes sont de **vrais plans dans un même
+espace**. Or deux plans tangents à un cylindre, écartés d'un angle θ, se croisent
+à `R·tan(θ/2)` de leur centre : dès que la demi-carte dépasse cette distance, ils
+se traversent, et le navigateur les découpe le long de leur ligne d'intersection.
+
+Au pas de 17°, il aurait fallu un rayon de **3,35 côtés de carte** pour l'éviter —
+c'est-à-dire aucun recouvrement, c'est-à-dire pas de jeu de cartes. Le problème
+n'était donc pas un mauvais réglage : il était structurel.
+
+La sortie est de **laisser l'anneau plat** et de porter la perspective sur lui.
+Chaque carte est alors rendue seule, avec sa perspective, puis composée à plat :
+elles se recouvrent par ordre de plan, sans jamais se couper.
+
+### Chaque photo garde son format
+
+Pas de rognage : un paysage reste un paysage, un portrait reste un portrait. Les
+proportions sont mesurées sur l'image même, **cinq crans avant qu'elle n'entre
+dans la fenêtre** — sans quoi une carte découvrirait son format sous les yeux et
+changerait de taille en arrivant.
+
+La taille est **normalisée par l'aire** plutôt que par un côté : `w = S·√r` et
+`h = S/√r`, dont le produit vaut `S²` quel que soit le format. Un paysage et un
+portrait occupent ainsi la même place, sans que l'un écrase l'autre.
+
+Le **cadre** est borné entre 0,5 et 2,2, pas l'image. Une des 73 photos est un
+panorama de rapport 6 : `object-fit: contain` la pose en entier dans un cadre de
+2,2, avec des bandes au-dessus et au-dessous, invisibles sur ce fond presque noir.
+Sans cette borne, cette seule photo rétrécirait toutes les autres, puisque c'est
+le format le plus large qui commande la mise à l'échelle.
+
+Cliquer la carte de devant l'ouvre en grand — la même visionneuse que les
+pochettes. Cliquer une carte de côté l'amène simplement au centre.
+
+### Le noir
+
+**La vue passe au noir dans les deux thèmes.** C'est le fond sombre qui creuse
+l'hélice ; sur le fond clair du reste du site, les cartes s'aplatiraient. Les
+textes de cette vue ont donc leurs propres couleurs, fixes.
 
 Les sources ne sont posées qu'à l'approche : soixante-treize images chargées d'un
 coup pèseraient les quinze mégaoctets du dossier.

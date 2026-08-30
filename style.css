@@ -240,23 +240,32 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 
    Les transformées sont écrites en JS et la transition les interpole : les
    cartes glissent le long de l'hélice au lieu de sauter d'une place à l'autre. */
-/* `--pw` est écrite en JS : la carte est taillée pour que l'hélice tienne dans
-   la fenêtre, ce qu'une taille fixe ne pouvait pas garantir. */
-.pstage{position:absolute;inset:0;--pw:180px;
-  perspective:1600px;perspective-origin:50% 50%;
-  transform-style:preserve-3d;cursor:grab}
+.pstage{position:absolute;inset:0;cursor:grab}
 .pstage:active{cursor:grabbing}
-.pring{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+/* La perspective est portée par l'anneau, et l'anneau reste **plat**.
+   C'est le point de toute la vue : avec `preserve-3d`, les cartes sont de vrais
+   plans dans un même espace, et deux plans tangents à un cylindre se traversent
+   dès qu'ils se recouvrent — le navigateur les découpe alors le long de leur
+   ligne d'intersection, ce qui tranchait les photos en plein milieu. Il aurait
+   fallu un rayon de 3,35 largeurs de carte pour l'éviter, c'est-à-dire aucun
+   recouvrement, c'est-à-dire pas de jeu de cartes.
+
+   En laissant l'anneau plat, chaque carte est rendue seule, avec sa perspective,
+   puis composée à plat : elles se recouvrent par ordre de plan, sans jamais se
+   couper. */
+.pring{position:absolute;left:50%;top:50%;width:0;height:0;
+  perspective:1600px;perspective-origin:50% 50%}
 .pcard{position:absolute;display:block;
-  /* Format unique : c'est le rognage commun qui fait le jeu de cartes. La photo
-     entière se retrouve en grand, au clic sur celle de devant. */
-  width:var(--pw);height:calc(var(--pw)*1.25);
-  margin-left:calc(var(--pw)*-0.5);margin-top:calc(var(--pw)*-0.625);
-  background:#111;overflow:hidden;backface-visibility:hidden;
+  /* Taille et proportions écrites en JS, d'après l'image elle-même : un paysage
+     reste un paysage, un portrait reste un portrait. */
+  width:var(--w,180px);height:var(--h,180px);
+  margin-left:calc(var(--w,180px)*-0.5);margin-top:calc(var(--h,180px)*-0.5);
+  background:#0E0F12;
   box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 50px -26px rgba(0,0,0,.85);
-  transition:transform .6s var(--e-out),filter .6s var(--e),opacity .6s var(--e)}
+  transition:transform .6s var(--e-out),filter .6s var(--e),opacity .6s var(--e),
+    width .4s var(--e-out),height .4s var(--e-out)}
 .pcard[hidden]{display:none}
-.pcard img{width:100%;height:100%;object-fit:cover;display:block}
+.pcard img{width:100%;height:100%;object-fit:contain;display:block}
 .pcard.front{cursor:zoom-in;
   box-shadow:0 0 0 1px rgba(0,0,0,.5),0 44px 70px -28px rgba(0,0,0,.9)}
 .pnav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;

@@ -788,17 +788,18 @@ function buildPhotos(){
    Les cartes ne sont pas redessinées à chaque pas : elles existent une fois et
    ne changent que de transformée, si bien que la transition CSS les fait glisser
    le long de l'hélice au lieu de les faire réapparaître ailleurs. */
-/* Les nombres qui font l'allure. Ils sont sans unité — en largeurs de carte —
+/* Les nombres qui font l'allure. Ils sont sans unité — en côtés de carte —
    parce que c'est la carte qui s'adapte à la fenêtre, et non l'inverse :
    P_STEP  l'angle d'un cran, en degrés ;
    P_RISE  la montée par cran — c'est elle qui fait la pente ;
    P_R     le rayon — il règle le recouvrement ;
    P_WIN   combien de cartes de chaque côté restent posées. */
-var P_STEP=17, P_WIN=9, P_R=2.6, P_RISE=0.20, P_MAXW=230;
-var pCards=[];
+var P_STEP=17, P_WIN=9, P_R=2.2, P_RISE=0.20, P_MAXS=250;
+var pCards=[], pAR={}, pARmin=1, pARmax=1;
 
 function buildRing(){
   var list=photoList();
+  pAR={};pARmin=1;pARmax=1;
   $('#pstage').innerHTML='<div class="pring" id="pring">'
     +list.map(function(_,k){
       return '<i class="pcard" data-k="'+k+'"><img alt="" decoding="async"></i>';
@@ -806,19 +807,46 @@ function buildRing(){
   pCards=[].slice.call(document.querySelectorAll('#pring .pcard'));
 }
 
-/* La carte est taillée pour que l'hélice tienne dans la fenêtre, au lieu d'avoir
-   une taille fixe qui la faisait déborder en haut et en bas. Les débords se
-   calculent en largeurs de carte ; la perspective n'entre pas dans le calcul
-   parce qu'elle ne fait que **rétrécir** — la carte de devant, seule à l'échelle
-   1, est déjà le pire cas. */
+/* Les proportions sont mesurées sur l'image, à l'écart du document : une carte
+   qui découvrirait son format en entrant dans la fenêtre changerait de taille
+   sous les yeux. On mesure donc plus large que ce qu'on montre. */
+function measure(k,url){
+  if(pAR[k]!==undefined)return;
+  pAR[k]=null;
+  var im=new Image();
+  im.onload=function(){
+    var ar=(im.naturalWidth||1)/(im.naturalHeight||1);
+    pAR[k]=Math.max(0.4,Math.min(2.6,ar));
+    if(pAR[k]<pARmin)pARmin=pAR[k];
+    if(pAR[k]>pARmax)pARmax=pAR[k];
+    if(STATE==='photos')placeRing();
+  };
+  im.onerror=function(){pAR[k]=1;};
+  im.src=url;
+}
+
+/* Normalisation par l'aire plutôt que par un côté : un paysage et un portrait
+   du même nombre de pixels occupent la même place, sans que l'un écrase l'autre.
+   w = S·√r et h = S/√r — leur produit vaut S² quel que soit le format. */
+function cardBox(k,S){
+  var r=pAR[k]||1,q=Math.sqrt(r);
+  return [S*q,S/q];
+}
+
+/* La carte est taillée pour que l'hélice tienne dans la fenêtre. Les débords se
+   comptent en côtés de carte ; la perspective n'entre pas dans le calcul parce
+   qu'elle ne fait que **rétrécir** — la carte de devant, seule à l'échelle 1,
+   est déjà le pire cas. Les formats extrêmes rencontrés élargissent la marge. */
 function fitCard(W,H,win){
-  var ex=0,ey=0;
+  var ex=0,ey=0,qw=Math.sqrt(pARmax),qh=1/Math.sqrt(pARmin);
   for(var n=-win;n<=win;n++){
     var r=n*P_STEP*Math.PI/180;
-    ex=Math.max(ex,Math.abs(P_R*Math.sin(r))+0.5);
-    ey=Math.max(ey,Math.abs(n*P_RISE)+0.625);
+    ex=Math.max(ex,Math.abs(P_R*Math.sin(r))+0.5*qw);
+    ey=Math.max(ey,Math.abs(n*P_RISE)+0.5*qh);
   }
-  return Math.max(84,Math.min(P_MAXW,(W*0.92)/(2*ex),(H*0.92)/(2*ey)));
+  /* Pas de plancher au-dessus de ce que la fenêtre permet : mieux vaut de
+     petites cartes qu'une hélice qui déborde. */
+  return Math.max(40,Math.min(P_MAXS,(W*0.92)/(2*ex),(H*0.92)/(2*ey)));
 }
 
 function placeRing(){
@@ -828,20 +856,24 @@ function placeRing(){
   /* La fenêtre boucle : en début et en fin de liste, elle était tronquée d'un
      côté et l'hélice partait de travers. Elle ne peut pas dépasser la moitié de
      la liste, sinon une même photo devrait tenir deux places à la fois. */
-  var win=Math.min(P_WIN,Math.floor((len-1)/2));
-  var pw=fitCard(st.clientWidth||innerWidth,st.clientHeight||innerHeight,win);
-  st.style.setProperty('--pw',pw.toFixed(1)+'px');
-  var R=(pw*P_R).toFixed(1),rise=pw*P_RISE,seen={};
+  /* Sur une fenêtre étroite, une chaîne plus courte : neuf cartes de chaque
+     côté n'y laisseraient que des miettes. */
+  var win=Math.min(P_WIN,Math.floor((len-1)/2),
+    (st.clientWidth||innerWidth)<700?5:P_WIN);
+  var S=fitCard(st.clientWidth||innerWidth,st.clientHeight||innerHeight,win);
+  var R=(S*P_R).toFixed(1),rise=S*P_RISE,seen={};
+  /* On mesure cinq crans plus loin qu'on ne montre. */
+  for(var m=-win-5;m<=win+5;m++)measure(((pIdx+m)%len+len)%len,list[((pIdx+m)%len+len)%len]);
   for(var n=-win;n<=win;n++){
     var k=((pIdx+n)%len+len)%len;
     if(seen[k])continue;
     seen[k]=1;
-    var el=pCards[k],a=n*P_STEP,aa=Math.abs(a);
+    var el=pCards[k],a=n*P_STEP,aa=Math.abs(a),box=cardBox(k,S);
     el.hidden=false;
-    /* La source n'est posée qu'à l'approche : soixante-treize images chargées
-       d'un coup à l'ouverture pèseraient les quinze mégaoctets du dossier. */
     var im=el.firstChild;
     if(!im.getAttribute('src'))im.src=list[k];
+    el.style.setProperty('--w',box[0].toFixed(1)+'px');
+    el.style.setProperty('--h',box[1].toFixed(1)+'px');
     el.style.transform='translateY('+(-n*rise).toFixed(1)+'px) rotateY('+a
       +'deg) translateZ('+R+'px)';
     el.style.filter='brightness('+(1-Math.min(aa/105,0.74)).toFixed(3)+')';
