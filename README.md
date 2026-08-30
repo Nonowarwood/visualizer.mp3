@@ -736,8 +736,21 @@ tour. Le passage par ±180° est ramené dans l'intervalle, sinon un demi-tour
 compterait pour seize crans d'un coup. Les quatre zones font ce que font les
 touches, à une nuance près : **tant qu'une piste joue, `◂◂` `▸▸` changent de
 morceau** plutôt que de parcourir le catalogue — c'est ce que font ces deux touches
-sur un baladeur. Sinon elles parcourent. `menu` revient, `▸❙❙` ouvre ou lance la
-première piste, le centre vaut `↵`.
+sur un baladeur. `▸❙❙` ouvre ou lance la première piste, le centre vaut `↵`.
+
+**La molette, elle, ne commande jamais la lecture.** Elle parcourt, c'est son
+office. Les deux passaient d'abord par la même fonction, si bien qu'elle héritait
+du comportement des touches et sautait de morceau dès qu'une piste jouait.
+
+### Remonter jusqu'aux artistes
+
+`menu` remonte d'un cran : d'une fiche au parcours, du parcours à un **menu des
+artistes**. Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de
+remplacer ce qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus
+qu'une liste, la ligne courante vernie, un chevron pour dire qu'on descendra.
+
+La molette y déplace la sélection au lieu de parcourir : le même geste, appliqué à
+ce que l'écran montre. Le centre choisit et redescend.
 
 Les mesures sont **virtuelles** — châssis 736 × 1220, écran 595 × 452 — et un seul
 facteur met les deux à l'échelle **depuis le même coin haut-gauche**. L'écran tombe

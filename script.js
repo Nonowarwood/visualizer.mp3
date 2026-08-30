@@ -725,19 +725,66 @@ addEventListener('resize',function(){
 
 /* Les quatre zones font ce que font les touches, pour que la molette ne soit pas
    un décor : elle commande vraiment. */
+/* ─────────── le menu des artistes ───────────
+   `menu` remonte d'un cran : d'une fiche au parcours, du parcours à ce menu. Le
+   Cover Flow y est **déchargé** — l'écran ne montre plus qu'une liste, comme la
+   pile de menus d'un baladeur, et l'on redescend en choisissant.
+
+   La molette y déplace la sélection au lieu de parcourir : c'est le même geste,
+   appliqué à ce que l'écran montre. */
+var menuI=0;
+function paintMenu(){
+  menuI=A;
+  $('#amenusIn').innerHTML=ARTISTS.map(function(a,i){
+    return '<li aria-current="'+(i===A?'true':'false')+'">'
+      +'<button type="button" data-a="'+i+'"><span>'+esc(a.name)+'</span>'
+      +'<i>'+a.rel.length+' ›</i></button></li>';
+  }).join('');
+}
+function menuMark(){
+  var r=$('#amenusIn').children;
+  for(var i=0;i<r.length;i++)r[i].setAttribute('aria-current',i===menuI?'true':'false');
+}
+function menuGo(d){
+  var n=ARTISTS.length;
+  menuI=((menuI+d)%n+n)%n;
+  sfx.step();menuMark();
+}
+function menuPick(){
+  var i=menuI;
+  setState('parcours');
+  if(i!==A)buildArtist(i,false); else goTo(CUR,false);
+}
+$('#amenus').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-a]');
+  if(!b)return;
+  menuI=parseInt(b.getAttribute('data-a'),10);menuPick();
+});
+
+/* Parcourir, et rien d'autre : ce que fait la molette quoi qu'il se joue. */
+function dvNav(d){
+  if(STATE==='menu'){menuGo(d);return;}
+  if(STATE==='photos')pStep(d);
+  else if(STATE==='focus')open(CUR+d);
+  else goTo(CUR+d);
+}
+
 function dvAction(z){
   if(z==='menu'){
     if(STATE==='focus')close();
+    else if(STATE==='menu')return;             /* déjà au sommet */
     else if(STATE!=='parcours')setState('parcours');
+    else{paintMenu();setState('menu');}
     return;
   }
   if(z==='prev'||z==='next'){
     var d=z==='next'?1:-1;
-    /* Sur un baladeur, ces deux touches changent de morceau. Tant qu'une piste
-       joue, elles commandent donc le lecteur ; sinon elles parcourent, comme les
-       flèches du clavier. */
+    /* Sur un baladeur, ces deux **touches** changent de morceau tant qu'une piste
+       joue. La molette, elle, ne doit jamais le faire : elle parcourt, c'est son
+       office. Les deux passaient par ici, si bien qu'elle héritait du
+       comportement de lecture — d'où `dvNav`, qui ne fait que parcourir. */
     if(!$('#player').hidden&&PL.i>=0){plPlay(PL.i+d);return;}
-    if(STATE==='photos')pStep(d); else if(STATE==='focus')open(CUR+d); else goTo(CUR+d);
+    dvNav(d);
     return;
   }
   if(z==='play'){
@@ -747,7 +794,8 @@ function dvAction(z){
     return;
   }
   if(z==='centre'){
-    if(STATE==='parcours')open(CUR);
+    if(STATE==='menu')menuPick();
+    else if(STATE==='parcours')open(CUR);
     else if(STATE==='photos'){
       var l=photoList();
       if(l.length)loupeOpen(l[pIdx],l[pIdx],pad(pIdx+1)+' / '+pad(l.length));
@@ -781,7 +829,7 @@ var wDrag=null,wAcc=0;
       wAcc+=d;
       while(Math.abs(wAcc)>=22){
         var sg=wAcc>0?1:-1;wAcc-=sg*22;
-        dvAction(sg>0?'next':'prev');
+        dvNav(sg>0?1:-1);
       }
     }
     wDrag.a=a;
@@ -1050,6 +1098,7 @@ function setState(s){
   $('#photos').setAttribute('aria-hidden',s==='photos'?'false':'true');
   $('#survey').setAttribute('aria-hidden',s==='survey'?'false':'true');
   $('#focus').setAttribute('aria-hidden',s==='focus'?'false':'true');
+  $('#amenus').setAttribute('aria-hidden',s==='menu'?'false':'true');
   /* En quittant les images, le compteur revient aux parutions. */
   if(s!=='photos'&&view.length)hud();
   if(s==='parcours')try{field.focus({preventScroll:true});}catch(e){}

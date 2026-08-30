@@ -183,6 +183,31 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
 }
 
+/* ─── le menu des artistes ───
+   La pile de menus d'un baladeur : une liste plein écran, la ligne courante
+   vernie, un chevron pour dire qu'on descendra d'un cran. Le Cover Flow est
+   déchargé pendant ce temps — c'est le propre d'un menu que de remplacer ce
+   qu'il surmonte, non de flotter par-dessus. */
+.amenus{position:absolute;inset:0;z-index:5;overflow-y:auto;
+  background:var(--pn);
+  opacity:0;pointer-events:none;transform:translateY(-8px);
+  transition:opacity .3s var(--e),transform .34s var(--e-out)}
+[data-state="menu"] .amenus{opacity:1;pointer-events:auto;transform:none}
+[data-state="menu"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
+.amenus ol{list-style:none;margin:0;padding:0}
+.amenus button{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  width:100%;text-align:left;padding:13px 16px;border-bottom:1px solid var(--pn-line);
+  font:400 17px/1.25 var(--sans);color:var(--ink);
+  transition:background .15s var(--e),color .15s var(--e)}
+.amenus i{font-style:normal;font-size:12px;letter-spacing:.06em;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;flex:none}
+.amenus button:hover{background:var(--pn-2)}
+.amenus li[aria-current="true"] button{
+  color:var(--pn);
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4));
+  box-shadow:0 1px 0 rgba(255,255,255,.3) inset}
+.amenus li[aria-current="true"] i{color:var(--pn);opacity:.85}
+
 /* ─── la liste appariée ───
    Un Cover Flow seul se parcourt à l'aveugle : on ne sait ce qu'on survole qu'une
    fois la pochette au centre, et rien ne dit ce qui vient dans dix rangs. La
