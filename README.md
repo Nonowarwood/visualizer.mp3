@@ -742,16 +742,6 @@ sur un baladeur. `▸❙❙` ouvre ou lance la première piste, le centre vaut `
 office. Les deux passaient d'abord par la même fonction, si bien qu'elle héritait
 du comportement des touches et sautait de morceau dès qu'une piste jouait.
 
-### Remonter jusqu'aux artistes
-
-`menu` remonte d'un cran : d'une fiche au parcours, du parcours à un **menu des
-artistes**. Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de
-remplacer ce qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus
-qu'une liste, la ligne courante vernie, un chevron pour dire qu'on descendra.
-
-La molette y déplace la sélection au lieu de parcourir : le même geste, appliqué à
-ce que l'écran montre. Le centre choisit et redescend.
-
 Les mesures sont **virtuelles** — châssis 736 × 1220, écran 595 × 452 — et un seul
 facteur met les deux à l'échelle **depuis le même coin haut-gauche**. L'écran tombe
 donc au pixel près sur son cadre, sans centrage à refaire deux fois de son côté.
@@ -775,6 +765,53 @@ et les panneaux restent dans l'écran sans qu'aucun d'eux n'ait à savoir qu'il 
 Le boîtier porte le second `border-radius` de la feuille — avec le microsillon. Un
 boîtier n'a pas d'angles vifs, et la règle des angles nets vise les commandes de
 l'interface, pas l'objet qui les contient.
+
+### Les mesures suivent l'écran
+
+Le site exprime ses tailles en unités de fenêtre — `vw`, `vh`. Or **ces unités se
+réfèrent toujours à la vraie fenêtre**, même à l'intérieur d'un conteneur mis à
+l'échelle. La fiche se croyait donc sur 1710 px : elle demandait 872 px de large
+dans un écran de 595, avec 134 px de marge en haut et autant en bas sur 452 de
+haut. Il ne restait que 183 px utiles.
+
+Tout ce qui dépendait de la fenêtre est redit en pixels pour ce mode — marges,
+colonnes, nom en grand, grille de la planche, chevrons des images. On passe à
+551 px de contenu et 420 px utiles. Les requêtes de média, aveugles de la même
+façon, sont surpassées par la **spécificité** plutôt que par l'ordre.
+
+**La pochette, elle, garde sa taille.** Seule la fiche avait besoin d'être
+resserrée ; tout rétrécir avait réduit le sujet avec le décor. Elle est fixée en
+pixels plutôt qu'en `24vw`, mesure qui la faisait varier selon la taille du
+navigateur — dans un écran qui, lui, ne change pas.
+
+### Le passage d'un mode à l'autre
+
+Un basculement instantané ne dit rien de ce qui se passe. La caméra **s'approche**
+de l'écran jusqu'à ce qu'il occupe toute la page, ou **s'en éloigne** jusqu'à
+découvrir le boîtier.
+
+C'est le vol FLIP appliqué à la page entière : on mesure l'écran **avant**, on
+bascule — la mise en page change d'un coup —, on le mesure **après**, et l'on
+repart visuellement de la première position pour rejoindre la seconde. Rien n'est
+interpolé en mise en page, donc rien ne se recalcule à chaque image.
+
+Le châssis subit le mouvement **exactement inverse** : si l'écran grandit d'un
+facteur k, il s'écarte de 1/k. Les deux restent solidaires — on ne voit pas un
+cadre qui se déforme, mais une caméra qui avance. L'inverse est composé à la main,
+`scale(1/k)` puis la translation opposée, et vérifié : appliqué à la transformation
+d'aller, il rend l'identité.
+
+Sous mouvement réduit, le passage reste instantané.
+
+### Remonter jusqu'aux artistes
+
+`menu` remonte d'un cran : d'une fiche au parcours, du parcours à un **menu des
+artistes**. Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de
+remplacer ce qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus
+qu'une liste, la ligne courante vernie, un chevron pour dire qu'on descendra.
+
+La molette y déplace la sélection au lieu de parcourir : le même geste, appliqué à
+ce que l'écran montre. Le centre choisit et redescend.
 
 ## La visite guidée
 
