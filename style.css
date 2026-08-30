@@ -262,8 +262,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   margin-left:calc(var(--w,180px)*-0.5);margin-top:calc(var(--h,180px)*-0.5);
   background:#0E0F12;
   box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 50px -26px rgba(0,0,0,.85);
-  transition:transform .6s var(--e-out),filter .6s var(--e),opacity .6s var(--e),
-    width .4s var(--e-out),height .4s var(--e-out)}
+  /* Aucune transition sur la transformée : la position est continue et la
+     boucle réécrit les cartes à chaque image — une transition se battrait avec
+     elle et traînerait d'une image sur l'autre. Seules la taille, qui ne change
+     qu'à la mesure de l'image, et l'entrée en fondu en gardent une. */
+  transition:width .35s var(--e-out),height .35s var(--e-out),
+    filter .25s var(--e),opacity .25s var(--e)}
 .pcard[hidden]{display:none}
 .pcard img{width:100%;height:100%;object-fit:contain;display:block}
 .pcard.front{cursor:zoom-in;

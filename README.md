@@ -104,7 +104,7 @@ Quatre nombres font l'allure, en tête de la section dans `script.js`. Ils sont
 |---|---|
 | `P_STEP` | l'angle d'un cran, en degrés — plus il est grand, plus les voisines se tournent |
 | `P_RISE` | la montée par cran : c'est elle qui fait la pente, et elle seule décide de la hauteur occupée |
-| `P_R` | le rayon : il règle le recouvrement |
+| `P_R` | le rayon : il règle l'écart. À 2,8 pour un pas de 22°, les cartes sont séparées de 7 % de leur côté ; à 2,2 elles se recouvraient d'un tiers |
 | `P_WIN` | combien de cartes de chaque côté restent posées — ramené à 5 sous 700 px de large, où neuf ne laisseraient que des miettes |
 
 ### Deux plans ne peuvent pas se recouvrir sans se couper
@@ -143,6 +143,27 @@ le format le plus large qui commande la mise à l'échelle.
 
 Cliquer la carte de devant l'ouvre en grand — la même visionneuse que les
 pochettes. Cliquer une carte de côté l'amène simplement au centre.
+
+### Le mouvement est continu
+
+La position n'est pas un rang mais un **nombre à virgule**. Auparavant l'affichage
+avançait par crans, avec un verrou de 260 ms sur la molette : rien ne pouvait y
+être fluide.
+
+Molette et glisser déplacent maintenant la position continûment, et l'hélice est
+redessinée à chaque image ; les flèches et les chevrons visent un entier vers
+lequel la position glisse. Au repos, elle se pose sur le cran le plus proche —
+sinon on resterait entre deux photos.
+
+Conséquence : **plus aucune transition CSS sur la transformée des cartes**, elle
+se battrait avec la boucle et traînerait d'une image sur l'autre.
+
+L'approche est calée sur le **temps écoulé**, pas sur le nombre d'images : à
+120 Hz, un pas par image irait deux fois plus vite qu'à 60. Un cran prend 383 ms
+quel que soit l'écran, dont 90 % du chemin dans les 150 premières millisecondes.
+
+Cliquer une carte de côté l'amène au centre **par le plus court chemin** : l'hélice
+boucle, aller à la 2 depuis la 72 ne doit pas dérouler soixante-dix crans.
 
 ### Le noir
 

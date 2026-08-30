@@ -760,7 +760,7 @@ function photoList(){return ARTISTS[A].photos||[];}
 
 function buildPhotos(){
   var a=ARTISTS[A],list=photoList();
-  pIdx=0;pBuilt=true;
+  pIdx=0;pBuilt=true;pPos=pAim=0;pLast=-1;
   $('#pbig').textContent=a.name;
   var empty=$('#pempty');
   if(!list.length){
@@ -794,8 +794,42 @@ function buildPhotos(){
    P_RISE  la montée par cran — c'est elle qui fait la pente ;
    P_R     le rayon — il règle le recouvrement ;
    P_WIN   combien de cartes de chaque côté restent posées. */
-var P_STEP=17, P_WIN=9, P_R=2.2, P_RISE=0.20, P_MAXS=250;
+var P_STEP=22, P_WIN=7, P_R=2.8, P_RISE=0.26, P_MAXS=250;
 var pCards=[], pAR={}, pARmin=1, pARmax=1;
+
+/* La position est un **nombre à virgule**, pas un rang. L'affichage avançait par
+   crans, avec un verrou de 260 ms sur la molette : rien ne pouvait y être fluide.
+   Ici la molette et le glisser déplacent la position continûment, et l'hélice est
+   redessinée à chaque image ; les flèches et les chevrons visent un entier, vers
+   lequel la position glisse. Il n'y a donc plus aucune transition CSS sur les
+   cartes — elle se battrait avec la boucle. */
+var pPos=0, pAim=0, pRaf=0, pLast=0, pSnd=0;
+var pT0=0;
+function pTick(now){
+  pRaf=0;
+  /* L'approche est calée sur le **temps écoulé**, pas sur le nombre d'images :
+     à 120 Hz, un pas par image irait deux fois plus vite qu'à 60. */
+  var dt=pT0?Math.min(64,now-pT0):16.7;pT0=now;
+  var d=pAim-pPos;
+  if(Math.abs(d)<0.002){pPos=pAim;pT0=0;placeRing();pSync();return;}
+  pPos+=d*(1-Math.pow(0.76,dt/16.7));
+  placeRing();pSync();
+  pRaf=requestAnimationFrame(pTick);
+}
+function pRun(){if(!pRaf){pT0=0;pRaf=requestAnimationFrame(pTick);}}
+function pAimAt(t){pAim=t;pRun();}
+function pSync(){
+  var list=photoList(),len=list.length;
+  if(!len)return;
+  var k=((Math.round(pPos)%len)+len)%len;
+  if(k===pLast)return;
+  pLast=k;pIdx=k;
+  /* Un glisser rapide traverse dix photos en une seconde : sans ce garde-temps,
+     le son se mitraillerait. */
+  var t=Date.now();
+  if(t-pSnd>90){pSnd=t;sfx.step();}
+  $('#pcap').textContent=pad(k+1)+' / '+pad(len);
+}
 
 function buildRing(){
   var list=photoList();
@@ -862,13 +896,20 @@ function placeRing(){
     (st.clientWidth||innerWidth)<700?5:P_WIN);
   var S=fitCard(st.clientWidth||innerWidth,st.clientHeight||innerHeight,win);
   var R=(S*P_R).toFixed(1),rise=S*P_RISE,seen={};
+  /* Le rang de référence est l'entier le plus proche ; l'écart à la position
+     réelle décale toute la chaîne d'une fraction de cran. C'est ce reste qui
+     rend le mouvement continu au lieu de le faire sauter de place en place. */
+  var base=Math.round(pPos),frac=pPos-base;
   /* On mesure cinq crans plus loin qu'on ne montre. */
-  for(var m=-win-5;m<=win+5;m++)measure(((pIdx+m)%len+len)%len,list[((pIdx+m)%len+len)%len]);
-  for(var n=-win;n<=win;n++){
-    var k=((pIdx+n)%len+len)%len;
+  for(var m=-win-5;m<=win+5;m++){
+    var q=((base+m)%len+len)%len;measure(q,list[q]);
+  }
+  for(var i=-win;i<=win;i++){
+    var k=((base+i)%len+len)%len;
     if(seen[k])continue;
     seen[k]=1;
-    var el=pCards[k],a=n*P_STEP,aa=Math.abs(a),box=cardBox(k,S);
+    var n=i-frac;
+    var el=pCards[k],a=(n*P_STEP).toFixed(2),aa=Math.abs(n*P_STEP),box=cardBox(k,S);
     el.hidden=false;
     var im=el.firstChild;
     if(!im.getAttribute('src'))im.src=list[k];
@@ -879,59 +920,79 @@ function placeRing(){
     el.style.filter='brightness('+(1-Math.min(aa/105,0.74)).toFixed(3)+')';
     el.style.opacity=(1-Math.min(Math.max(aa-45,0)/95,0.94)).toFixed(3);
     el.style.zIndex=String(200-Math.round(aa));
-    el.classList.toggle('front',n===0);
+    el.classList.toggle('front',i===0);
   }
   for(var j=0;j<pCards.length;j++)if(!seen[j])pCards[j].hidden=true;
 }
 
+function pStep(d){pAimAt(Math.round(pAim)+d);}
 function showPhoto(k){
   var list=photoList();
   if(!list.length)return;
-  pIdx=(k%list.length+list.length)%list.length;
-  $('#pcap').textContent=pad(pIdx+1)+' / '+pad(list.length);
-  placeRing();
+  pPos=pAim=k;pLast=-1;pSync();placeRing();
 }
-
-function pStep(d){sfx.step();showPhoto(pIdx+d);}
 function openPhotos(){
   if(!pBuilt)buildPhotos();
   setState('photos');
 }
 (function(){
-  /* La carte de devant s'ouvre en grand — les cartes sont rognées au même
-     format pour faire jeu, et c'est là qu'on retrouve la photo entière. Une
-     carte de côté vient simplement au centre. */
-  $('#pstage').addEventListener('click',function(e){
+  var st=$('#pstage');
+
+  /* La carte de devant s'ouvre en grand ; une carte de côté vient au centre par
+     le plus court chemin — l'hélice boucle, aller à la 2 depuis la 72 ne doit
+     pas dérouler soixante-dix crans. */
+  st.addEventListener('click',function(e){
     var c=e.target.closest('.pcard');
     /* `pointerup` vide `pDrag` avant que le clic n'arrive : sans ce drapeau
        gardé à part, un glisser se terminerait par l'ouverture d'une photo. */
     if(!c||pMoved)return;
+    var list=photoList(),len=list.length;
     var k=parseInt(c.getAttribute('data-k'),10);
-    if(k===pIdx)loupeOpen(photoList()[k],photoList()[k],pad(k+1)+' / '+pad(photoList().length));
-    else{sfx.step();showPhoto(k);}
+    if(k===pIdx){loupeOpen(list[k],list[k],pad(k+1)+' / '+pad(len));return;}
+    var base=Math.round(pAim),cur=((base%len)+len)%len,d=k-cur;
+    if(d>len/2)d-=len; else if(d<-len/2)d+=len;
+    pAimAt(base+d);
   });
+
   $('#pPrev').addEventListener('click',function(){pStep(-1);});
   $('#pNext').addEventListener('click',function(){pStep(1);});
-  var st=$('#pstage');
+
+  /* Le glisser mène la position à la main, sans amortissement : le doigt et
+     l'hélice doivent rester ensemble. Un cran par tiers de fenêtre parcouru. */
   st.addEventListener('pointerdown',function(e){
     pMoved=false;
-    pDrag={x:e.clientX,done:false};try{st.setPointerCapture(e.pointerId);}catch(err){}
+    pDrag={x:e.clientX,from:pAim};
+    try{st.setPointerCapture(e.pointerId);}catch(err){}
   });
   st.addEventListener('pointermove',function(e){
-    if(!pDrag||pDrag.done)return;
+    if(!pDrag)return;
     var dx=e.clientX-pDrag.x;
-    if(Math.abs(dx)>8)pMoved=true;
-    if(Math.abs(dx)>70){pDrag.done=true;pStep(dx<0?1:-1);}
+    if(Math.abs(dx)>6)pMoved=true;
+    if(!pMoved)return;
+    pPos=pAim=pDrag.from-dx/((st.clientWidth||900)/3);
+    placeRing();pSync();
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
-    st.addEventListener(ev,function(){pDrag=null;});
+    st.addEventListener(ev,function(){
+      /* Au relâcher, l'hélice se pose sur le cran le plus proche. */
+      if(pDrag&&pMoved)pAimAt(Math.round(pAim));
+      pDrag=null;
+    });
   });
-  var lock=0;
+
+  /* La molette déplace la cible plutôt qu'un rang : un geste continu donne un
+     mouvement continu. Le repos rappelle la position sur le cran le plus proche,
+     sinon l'hélice resterait entre deux photos. */
+  var settle=0;
   $('#photos').addEventListener('wheel',function(e){
     e.preventDefault();
-    var now=Date.now();if(now-lock<260)return;lock=now;
-    pStep(e.deltaY>0||e.deltaX>0?1:-1);
+    var d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+    pAim+=d/260;
+    pRun();
+    clearTimeout(settle);
+    settle=setTimeout(function(){pAimAt(Math.round(pAim));},130);
   },{passive:false});
+
   addEventListener('resize',function(){
     if(STATE==='photos'&&photoList().length)placeRing();
   });
