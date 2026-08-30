@@ -544,11 +544,16 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .tour[hidden]{display:none}
 .tour-m{flex:none;width:66px;height:82px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));
   animation:bob 3.4s ease-in-out infinite}
-.tour-m .g1{stop-color:var(--bl-1)}
-.tour-m .g2{stop-color:var(--bl-2)}
-.tour-m .g3{stop-color:var(--bl-3)}
-.tour-m .g4{stop-color:var(--bl-4)}
+/* Deux tons du même verni plutôt que deux couleurs : le côté clair porte le
+   visage, le côté sombre fait l'ombre. Les yeux se lisent donc toujours, ce qui
+   ne serait pas le cas si la coupure passait entre eux avec cette palette-là. */
+.tour-m .l1{stop-color:var(--bl-1)}
+.tour-m .l2{stop-color:var(--bl-2)}
+.tour-m .d1{stop-color:var(--bl-3)}
+.tour-m .d2{stop-color:var(--bl-4)}
 .tour-m .s1,.tour-m .s2{stop-color:#fff}
+.tour-m .tour-face{fill:var(--bl-4);stroke:var(--bl-4)}
+:root[data-theme="dark"] .tour-m .tour-face{fill:#14171B;stroke:#14171B}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .tour-pan{flex:1 1 auto;min-width:0;background:var(--pn);
   box-shadow:0 0 0 1px rgba(0,0,0,.34),0 18px 38px -20px rgba(0,0,0,.55)}

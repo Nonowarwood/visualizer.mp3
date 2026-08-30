@@ -136,22 +136,45 @@
       <!-- Les teintes sont posées par la feuille de style et non en attribut :
            `var()` dans un attribut de présentation SVG n'est pas résolu partout,
            et la mascotte serait sortie noire. Elle suit ainsi le thème. -->
-      <linearGradient id="gel" x1="0" y1="0" x2="0" y2="1">
-        <stop class="g1" offset="0"/><stop class="g2" offset="0.48"/>
-        <stop class="g3" offset="0.52"/><stop class="g4" offset="1"/>
+      <linearGradient id="gelL" x1="0" y1="0" x2="0" y2="1">
+        <stop class="l1" offset="0"/><stop class="l2" offset="1"/>
+      </linearGradient>
+      <linearGradient id="gelD" x1="0" y1="0" x2="0" y2="1">
+        <stop class="d1" offset="0"/><stop class="d2" offset="1"/>
       </linearGradient>
       <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
-        <stop class="s1" offset="0" stop-opacity=".72"/>
+        <stop class="s1" offset="0" stop-opacity=".66"/>
         <stop class="s2" offset="1" stop-opacity="0"/>
       </linearGradient>
+      <!-- Le partage en deux tons : une diagonale, le visage restant du côté
+           clair pour que les yeux s'y lisent. -->
+      <clipPath id="ombre"><path d="M66 0 48 124H100V0Z"/></clipPath>
+      <clipPath id="corps">
+        <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z"/>
+        <circle cx="50" cy="34" r="26"/>
+      </clipPath>
     </defs>
-    <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gel)"
-          stroke="rgba(0,0,0,.45)" stroke-width="2"/>
-    <path d="M30 78C33 70 40 66 50 66s17 4 20 12c-6-4-13-6-20-6s-14 2-20 6Z"
-          fill="url(#sheen)"/>
-    <circle cx="50" cy="34" r="26" fill="url(#gel)"
-            stroke="rgba(0,0,0,.45)" stroke-width="2"/>
-    <ellipse cx="50" cy="23" rx="16" ry="10" fill="url(#sheen)"/>
+    <g>
+      <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gelL)"/>
+      <circle cx="50" cy="34" r="26" fill="url(#gelL)"/>
+      <g clip-path="url(#ombre)">
+        <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gelD)"/>
+        <circle cx="50" cy="34" r="26" fill="url(#gelD)"/>
+      </g>
+      <g clip-path="url(#corps)">
+        <ellipse cx="50" cy="21" rx="17" ry="11" fill="url(#sheen)"/>
+        <ellipse cx="50" cy="74" rx="20" ry="10" fill="url(#sheen)"/>
+      </g>
+      <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="none"
+            stroke="rgba(0,0,0,.42)" stroke-width="2"/>
+      <circle cx="50" cy="34" r="26" fill="none"
+              stroke="rgba(0,0,0,.42)" stroke-width="2"/>
+      <g class="tour-face">
+        <circle cx="39" cy="33" r="3.4"/><circle cx="55" cy="33" r="3.4"/>
+        <path d="M42 42q5.5 5 11 0" fill="none" stroke-width="2.6"
+              stroke-linecap="round"/>
+      </g>
+    </g>
   </svg>
   <div class="tour-pan">
     <header class="tour-bar"><span id="tourT"></span>

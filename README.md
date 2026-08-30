@@ -716,8 +716,17 @@ visiteur ailleurs qu'il ne croyait.
 
 Elle est **dessinée ici, en SVG**, et n'emprunte à aucune figure existante — pas
 plus que le reste du site ne reproduit de marque ou de ressource de constructeur.
-Ce qui est repris, c'est la **construction** du verni de l'époque : dégradé
-vertical, cassure nette à mi-hauteur, brillance haute, filet sombre.
+Ce qui est repris, ce sont des dispositifs, pas un personnage :
+
+- la **construction du verni** de l'époque — dégradé vertical, cassure nette à
+  mi-hauteur, brillance haute, filet sombre ;
+- le **partage en deux tons**, une diagonale qui coupe la figure ;
+- un **visage minimal**, deux points et un sourire.
+
+Le partage se fait entre **deux tons du même verni**, non entre deux couleurs, et
+la diagonale passe à droite du visage plutôt qu'entre les yeux. Avec cette palette,
+une coupure au milieu aurait mis un œil sur un fond presque noir, où il aurait
+disparu ; ici le visage reste du côté clair et se lit toujours.
 
 Elle est en **graphite et non en bleu**. Le verni du site est monochrome par
 choix — « la structure fait l'effet, pas la teinte » — et une mascotte Aqua serait
