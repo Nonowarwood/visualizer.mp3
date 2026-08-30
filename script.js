@@ -690,18 +690,21 @@ function deviceMove(on){
 
 var dvZ=1,dvT=0;
 function deviceLayout(){
-  var app=$('#app'),dv=$('#device');
-  if(!DEV){app.removeAttribute('style');return;}
-  dv.hidden=false;
+  var app=$('#app'),dv=$('#device'),gl=$('#dvGlass');
+  if(!DEV){app.removeAttribute('style');gl.hidden=true;gl.removeAttribute('style');return;}
+  dv.hidden=false;gl.hidden=false;
   var hDispo=innerHeight-DV_BAND;
   var z=Math.min(innerWidth*0.94/DV_W,hDispo*0.94/DV_H);
   dvZ=z;
   var dx=(innerWidth-DV_W*z)/2,dy=DV_BAND+(hDispo-DV_H*z)/2;
   dv.style.cssText='left:'+dx.toFixed(1)+'px;top:'+dy.toFixed(1)+'px;width:'+DV_W
     +'px;height:'+DV_H+'px;transform:scale('+z.toFixed(4)+')';
-  app.style.cssText='position:fixed;inset:auto;left:'+(dx+DV_SX*z).toFixed(1)+'px;top:'
-    +(dy+DV_SY*z).toFixed(1)+'px;width:'+DV_SW+'px;height:'+DV_SH
-    +'px;transform:scale('+z.toFixed(4)+');transform-origin:0 0;overflow:hidden';
+  var ecran='left:'+(dx+DV_SX*z).toFixed(1)+'px;top:'+(dy+DV_SY*z).toFixed(1)
+    +'px;width:'+DV_SW+'px;height:'+DV_SH+'px;transform:scale('+z.toFixed(4)
+    +');transform-origin:0 0';
+  app.style.cssText='position:fixed;inset:auto;'+ecran+';overflow:hidden';
+  /* La vitre occupe exactement le même rectangle que l'écran, au même facteur. */
+  gl.style.cssText='position:fixed;'+ecran;
 }
 
 /* ─────────── le passage d'un mode à l'autre ───────────

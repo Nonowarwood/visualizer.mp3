@@ -611,16 +611,53 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .device[hidden]{display:none}
 [data-device="on"] body{overflow:hidden}
 .dv-body{position:absolute;inset:0;
-  background:linear-gradient(178deg,var(--dv-1) 0,var(--dv-2) 34%,var(--dv-3) 62%,var(--dv-4));
-  box-shadow:inset 0 2px 0 var(--dv-lip),inset 0 -3px 6px rgba(0,0,0,.14),
-    0 0 0 1px rgba(0,0,0,.34),0 42px 80px -34px rgba(0,0,0,.55)}
+  background:
+    linear-gradient(102deg,rgba(255,255,255,.55) 0,rgba(255,255,255,0) 34%),
+    linear-gradient(178deg,var(--dv-1) 0,var(--dv-2) 34%,var(--dv-3) 62%,var(--dv-4));
+  box-shadow:inset 0 2px 0 var(--dv-lip),inset 0 -3px 8px rgba(0,0,0,.16),
+    inset 0 0 0 1px rgba(255,255,255,.14),
+    0 0 0 1px rgba(0,0,0,.3),0 54px 96px -38px rgba(0,0,0,.6)}
 /* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
    et la règle des angles nets vise les commandes de l'interface. */
 .dv-body{border-radius:44px}
 .dv-screen{position:absolute;left:67px;top:48px;width:595px;height:452px;
   background:#0A0B0D;
-  box-shadow:0 0 0 6px #16181C,0 0 0 7px rgba(255,255,255,.5),
+  box-shadow:0 0 0 6px #16181C,0 0 0 7px var(--dv-lip),
     inset 0 2px 10px rgba(0,0,0,.8)}
+
+/* ─── la vitre ───
+   Deux choses par-dessus l'écran, et rien qui l'obscurcisse : une **trame de
+   points**, qui dit que c'est une dalle et non une fenêtre, et un **reflet** en
+   diagonale, qui dit qu'il y a un verre. Elle vit hors du châssis parce qu'elle
+   doit passer au-dessus du site, quand le châssis passe dessous. */
+.dv-glass{z-index:2;pointer-events:none;
+  background:
+    linear-gradient(116deg,rgba(255,255,255,.14) 0,rgba(255,255,255,.05) 26%,
+      transparent 42%),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);
+  box-shadow:inset 0 0 22px rgba(0,0,0,.28)}
+.dv-glass[hidden]{display:none}
+
+/* ─── les décalcomanies ───
+   Dessinées ici, formes géométriques simples, et la **seule couleur du boîtier**.
+   Trois suffisent : au-delà, l'objet devient un cahier. Elles sont un peu
+   inclinées et légèrement transparentes — un autocollant posé à la main ne l'est
+   jamais d'équerre, et laisse deviner ce qu'il recouvre. */
+.dv-deco{position:absolute;display:block;opacity:.9;
+  box-shadow:0 1px 2px rgba(0,0,0,.22)}
+.dv-d1{left:20px;top:512px;width:64px;height:64px;border-radius:50% 50% 50% 0;
+  background:linear-gradient(140deg,#F0902A,#E0417A);transform:rotate(-13deg)}
+.dv-d2{right:26px;top:534px;width:44px;height:44px;
+  background:linear-gradient(160deg,#3FB6C8,#2C7FC4);
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+  transform:rotate(9deg)}
+.dv-d3{right:34px;bottom:44px;width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#9BD84A,#4E9E2E);
+  transform:rotate(6deg)}
+.dv-d3::after{content:"";position:absolute;inset:9px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.5);border-left-color:transparent;
+  border-right-color:transparent}
 .dv-wheel{position:absolute;left:50%;top:610px;width:439px;height:439px;
   margin-left:-219.5px;border-radius:50%;
   background:linear-gradient(180deg,var(--dv-w1) 0,var(--dv-w2) 48%,var(--dv-w3) 52%,var(--dv-w4));

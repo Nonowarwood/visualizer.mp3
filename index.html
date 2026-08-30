@@ -238,11 +238,21 @@
      de sorte que tous leurs gestionnaires suivent sans être recâblés. -->
 <div id="outside"></div>
 
+<!-- La vitre : posée par-dessus l'écran, elle porte la trame de points et le
+     reflet. Elle vit hors du châssis pour passer au-dessus du site, que le
+     châssis est sous. -->
+<div class="dv-glass" id="dvGlass" hidden aria-hidden="true"></div>
+
 <!-- Le châssis : dessiné, générique, sans marque ni nom. Corps métal, écran
      cerclé, molette à quatre zones et bouton central. -->
 <div class="device" id="device" hidden aria-hidden="true">
   <div class="dv-body">
     <div class="dv-screen"></div>
+    <!-- Décalcomanies : dessinées ici, formes géométriques simples, et la seule
+         couleur du boîtier. Trois suffisent — au-delà l'objet devient un cahier. -->
+    <i class="dv-deco dv-d1" aria-hidden="true"></i>
+    <i class="dv-deco dv-d2" aria-hidden="true"></i>
+    <i class="dv-deco dv-d3" aria-hidden="true"></i>
     <div class="dv-wheel" id="dvWheel">
       <button class="dv-z dv-menu" type="button" data-z="menu">menu</button>
       <button class="dv-z dv-prev" type="button" data-z="prev" aria-label="Précédent">◂◂</button>

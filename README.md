@@ -763,6 +763,23 @@ Le point qui rend tout le reste gratuit : donner une transformée à `#app` en f
 le **référent des positions fixes** qu'il contient. Le lecteur, la loupe, la visite
 et les panneaux restent dans l'écran sans qu'aucun d'eux n'ait à savoir qu'il y est.
 
+### La vitre et les décalcomanies
+
+Deux choses passent par-dessus l'écran, et rien qui l'obscurcisse : une **trame de
+points**, qui dit que c'est une dalle et non une fenêtre, et un **reflet** en
+diagonale, qui dit qu'il y a un verre. La vitre vit hors du châssis parce qu'elle
+doit passer **au-dessus** du site, quand le châssis passe dessous — elle est
+positionnée sur le même rectangle et au même facteur que l'écran.
+
+Trois **décalcomanies** sont posées sur le corps, dessinées ici et non reprises
+d'ailleurs : des formes géométriques simples, et la seule couleur du boîtier. Trois
+suffisent — au-delà, l'objet devient un cahier. Elles sont un peu inclinées et
+légèrement transparentes : un autocollant posé à la main ne l'est jamais d'équerre,
+et laisse deviner ce qu'il recouvre.
+
+Le corps a gagné un **brillant** en diagonale et une ombre portée plus profonde. La
+trame reste sous les 14 % d'opacité : elle doit se deviner, pas se compter.
+
 Le boîtier porte le second `border-radius` de la feuille — avec le microsillon. Un
 boîtier n'a pas d'angles vifs, et la règle des angles nets vise les commandes de
 l'interface, pas l'objet qui les contient.
