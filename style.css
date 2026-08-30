@@ -606,11 +606,53 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    se référait à la vraie fenêtre et faisait donc varier la pochette selon la
    taille du navigateur — dans un écran qui, lui, ne change pas. */
 [data-device="on"] #app{--pad:10px;--cw:330px;--listw:150px}
-[data-device="on"] .focus{grid-template-columns:minmax(0,190px) minmax(0,1fr);
-  gap:16px;padding:16px 14px}
-[data-device="on"] .focus .plate{max-width:190px}
-[data-device="on"] .focus .idx{font-size:30px}
-[data-device="on"] .card{margin-top:9px}
+/* ─── la fiche tient dans l'écran, quel qu'en soit le disque ───
+   Resserrer les mesures ne suffisait pas : additionnées, elles demandaient
+   encore près de 660 px de haut dans les 420 disponibles — le numéro, la
+   cartouche, cinq lignes de renseignements, puis une piste par ligne. Un
+   album de vingt titres n'aurait de toute façon jamais tenu.
+
+   Deux moyens, donc, plutôt qu'un rabotage :
+
+     1. **appairer ce qui va par deux** — les renseignements sur deux colonnes,
+        les titres sur deux colonnes dès 150 px de large. La hauteur de ces deux
+        blocs est divisée par deux, sans rien retrancher ;
+     2. **donner le défilement à la seule liste**. La cartouche devient une
+        colonne : en-tête et lien de source restent en place, et seuls les titres
+        glissent. La fiche ne dépasse donc jamais, et la sortie reste sous les
+        yeux au lieu de fuir vers le bas. */
+[data-device="on"] .focus{grid-template-columns:minmax(0,178px) minmax(0,1fr);
+  gap:15px;padding:14px 14px;overflow:hidden}
+[data-device="on"] .focus .plate{max-width:178px}
+[data-device="on"] .focus .idx{font-size:24px}
+[data-device="on"] .focus .idx i{transform:translateY(-2.3em)}
+/* La colonne de texte se plafonne à la hauteur utile de l'écran ; `min-height:0`
+   à chaque étage, sans quoi un enfant flexible refuse de se laisser comprimer. */
+[data-device="on"] .focus .txt{display:flex;flex-direction:column;
+  min-height:0;max-height:420px}
+[data-device="on"] .card{margin-top:7px;display:flex;flex-direction:column;
+  min-height:0}
+[data-device="on"] .card .head{padding:6px 11px}
+[data-device="on"] .card .head h2{font-size:13.5px}
+[data-device="on"] .card .head p{font-size:11px}
+[data-device="on"] .rows{grid-template-columns:1fr 1fr}
+[data-device="on"] .rows div{padding:5px 11px;font-size:12px;gap:10px}
+/* Un filet entre les deux colonnes, comme entre les lignes. */
+[data-device="on"] .rows div:nth-child(odd):not(:last-child){
+  border-right:1px solid var(--pn-line)}
+/* Seule la liste se comprime : tout le reste garde sa hauteur, sinon la
+   répartition du manque s'étalerait sur l'en-tête et le pied. */
+[data-device="on"] .focus .idx,[data-device="on"] .card .head,
+[data-device="on"] .card .rows,[data-device="on"] .card .src,
+[data-device="on"] .card .note{flex:none}
+[data-device="on"] .trk{flex:1 1 auto;min-height:0;overflow-y:auto;
+  overscroll-behavior:contain;padding:8px 11px 9px}
+[data-device="on"] .trk-h{margin-bottom:6px}
+[data-device="on"] .trk-l{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:0 14px}
+[data-device="on"] .trk-l li{padding:3px 0;font-size:12px}
+[data-device="on"] .card .src{padding:7px 11px;font-size:12px}
+[data-device="on"] .card .note{padding:8px 11px;font-size:12px;line-height:1.5}
 [data-device="on"] .pbig{font-size:52px;top:18px}
 [data-device="on"] .p-prev{left:8px}
 [data-device="on"] .p-next{right:8px}

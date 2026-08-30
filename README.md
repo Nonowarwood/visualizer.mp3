@@ -891,6 +891,34 @@ resserrée ; tout rétrécir avait réduit le sujet avec le décor. Elle est fix
 pixels plutôt qu'en `24vw`, mesure qui la faisait varier selon la taille du
 navigateur — dans un écran qui, lui, ne change pas.
 
+### La fiche tient dans l'écran
+
+Redire les mesures en pixels ne suffisait pas. Additionnées, elles demandaient
+encore près de **660 px** de haut dans les 420 disponibles : le numéro, la
+cartouche, cinq lignes de renseignements l'une sous l'autre, puis **une piste par
+ligne**. La fiche ne débordait plus par la largeur, elle débordait par le bas — et
+un album de vingt titres n'aurait de toute façon jamais tenu, si petite qu'en soit
+la typographie.
+
+Deux moyens, donc, plutôt qu'un rabotage :
+
+1. **appairer ce qui va par deux.** Les renseignements passent sur deux colonnes,
+   séparés d'un filet ; les titres aussi, dès 150 px de large. La hauteur de ces
+   deux blocs est divisée par deux **sans rien retrancher** — c'est la mise en
+   page qui cède, pas le contenu ;
+2. **donner le défilement à la seule liste.** La cartouche devient une colonne
+   flexible : l'en-tête, les renseignements et le lien de source gardent leur
+   hauteur (`flex:none`), et seuls les titres glissent. La fiche ne dépasse donc
+   jamais, quel que soit le disque, et la sortie reste sous les yeux au lieu de
+   fuir vers le bas.
+
+Le second point demande `min-height:0` à **chaque** étage — colonne de texte,
+cartouche, liste. Sans quoi un enfant flexible refuse de se laisser comprimer en
+deçà de son contenu, et le débordement ressort un cran plus haut.
+
+Un disque de douze titres occupe désormais 376 px des 420 : il tient tout entier,
+sans défilement.
+
 ### Le passage d'un mode à l'autre
 
 Un basculement instantané ne dit rien de ce qui se passe. La caméra **s'approche**
