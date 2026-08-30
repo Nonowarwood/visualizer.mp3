@@ -763,22 +763,40 @@ Le point qui rend tout le reste gratuit : donner une transformée à `#app` en f
 le **référent des positions fixes** qu'il contient. Le lecteur, la loupe, la visite
 et les panneaux restent dans l'écran sans qu'aucun d'eux n'ait à savoir qu'il y est.
 
-### La vitre et les décalcomanies
+### Le relief
 
-Deux choses passent par-dessus l'écran, et rien qui l'obscurcisse : une **trame de
-points**, qui dit que c'est une dalle et non une fenêtre, et un **reflet** en
-diagonale, qui dit qu'il y a un verre. La vitre vit hors du châssis parce qu'elle
-doit passer **au-dessus** du site, quand le châssis passe dessous — elle est
-positionnée sur le même rectangle et au même facteur que l'écran.
+Le boîtier était **plat** : un dégradé et deux ombres ne font pas un objet. Le
+relief tient à l'empilement, non à un fondu.
 
-Trois **décalcomanies** sont posées sur le corps, dessinées ici et non reprises
-d'ailleurs : des formes géométriques simples, et la seule couleur du boîtier. Trois
-suffisent — au-delà, l'objet devient un cahier. Elles sont un peu inclinées et
-légèrement transparentes : un autocollant posé à la main ne l'est jamais d'équerre,
-et laisse deviner ce qu'il recouvre.
+Le corps porte, de haut en bas : un reflet doux en diagonale ; un **brossage
+horizontal** presque invisible, qui donne la matière sans faire du chrome ; puis
+le métal, qui n'est pas un fondu régulier mais clair en haut, creusé au milieu, et
+**remonté avant l'arête basse** — c'est cette remontée qui fait la rondeur.
 
-Le corps a gagné un **brillant** en diagonale et une ombre portée plus profonde. La
-trame reste sous les 14 % d'opacité : elle doit se deviner, pas se compter.
+Les quatre arêtes ont chacune leur lumière : vive en haut, sourde en bas,
+rentrantes sur les côtés, parce qu'un bord roulé prend la lumière de biais.
+
+L'écran est **creusé** — une gorge sombre, une lèvre claire, une ombre interne qui
+pose la dalle en retrait. La molette et le bouton central sont **bombés** : leur
+dégradé part d'un point haut et se perd sur les bords, ce qu'un dégradé linéaire ne
+sait pas faire. La molette est en outre logée dans un creux, avec une lèvre claire
+en dessous.
+
+### Les repères de la molette
+
+Ils ne sont pas écrits mais **reconnus** : leur place ne change jamais. Gros et
+pleins, posés **sur l'anneau** — à 60 % de sa largeur, entre le bouton central et
+le bord — et non plus collés au bord en petits caractères.
+
+### La vitre
+
+Une **trame de points**, qui dit que c'est une dalle et non une fenêtre, et un
+**reflet** en diagonale, qui dit qu'il y a un verre. Le parti pris est marqué :
+c'est une **option**, éteinte par défaut, dans le tiroir.
+
+Elle vit hors du châssis parce qu'elle doit passer **au-dessus** du site, quand le
+châssis passe dessous — elle est calée sur le même rectangle et au même facteur que
+l'écran.
 
 Le boîtier porte le second `border-radius` de la feuille — avec le microsillon. Un
 boîtier n'a pas d'angles vifs, et la règle des angles nets vise les commandes de

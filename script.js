@@ -795,6 +795,17 @@ function applyDevice(anim){
   if(STATE==='photos'&&photoList().length)placeRing();
 }
 $('#mDevice').addEventListener('click',function(){DEV=!DEV;applyDevice(true);});
+
+/* La trame et le reflet de la vitre ont un parti pris marqué : ils restent au
+   choix, et éteints par défaut. */
+var GLASS=false;
+try{GLASS=localStorage.getItem('wte-glass')==='1';}catch(e){}
+function applyGlass(){
+  document.documentElement.setAttribute('data-glass',GLASS?'on':'off');
+  $('#mGlass').setAttribute('aria-pressed',GLASS?'true':'false');
+  try{localStorage.setItem('wte-glass',GLASS?'1':'0');}catch(e){}
+}
+$('#mGlass').addEventListener('click',function(){GLASS=!GLASS;applyGlass();});
 addEventListener('resize',function(){
   if(!DEV)return;
   deviceLayout();sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
@@ -1788,6 +1799,7 @@ $('#mTheme').addEventListener('click',function(){ti=(ti+1)%tm.length;applyTheme(
 applyTheme();
 applyList();
 applyPix();
+applyGlass();
 applyDevice(false);
 
 document.addEventListener('keydown',function(e){

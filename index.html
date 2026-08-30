@@ -98,6 +98,7 @@
           <button id="mList" type="button" aria-pressed="false"><span class="lbl">liste appariée</span></button>
           <button id="mPix" type="button" aria-pressed="false"><span class="lbl">pochettes en pixels</span></button>
           <button id="mDevice" type="button" aria-pressed="false"><span class="lbl">dans l'appareil</span></button>
+          <button id="mGlass" type="button" aria-pressed="false"><span class="lbl">trame de l'écran</span></button>
           <p class="ah">Réglages</p>
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
@@ -248,16 +249,11 @@
 <div class="device" id="device" hidden aria-hidden="true">
   <div class="dv-body">
     <div class="dv-screen"></div>
-    <!-- Décalcomanies : dessinées ici, formes géométriques simples, et la seule
-         couleur du boîtier. Trois suffisent — au-delà l'objet devient un cahier. -->
-    <i class="dv-deco dv-d1" aria-hidden="true"></i>
-    <i class="dv-deco dv-d2" aria-hidden="true"></i>
-    <i class="dv-deco dv-d3" aria-hidden="true"></i>
     <div class="dv-wheel" id="dvWheel">
       <button class="dv-z dv-menu" type="button" data-z="menu">menu</button>
-      <button class="dv-z dv-prev" type="button" data-z="prev" aria-label="Précédent">◂◂</button>
-      <button class="dv-z dv-next" type="button" data-z="next" aria-label="Suivant">▸▸</button>
-      <button class="dv-z dv-play" type="button" data-z="play" aria-label="Lecture">▸ ❙❙</button>
+      <button class="dv-z dv-prev" type="button" data-z="prev" aria-label="Précédent">◀◀</button>
+      <button class="dv-z dv-next" type="button" data-z="next" aria-label="Suivant">▶▶</button>
+      <button class="dv-z dv-play" type="button" data-z="play" aria-label="Lecture">▶❚❚</button>
       <button class="dv-c" id="dvCentre" type="button" aria-label="Ouvrir"></button>
     </div>
   </div>
