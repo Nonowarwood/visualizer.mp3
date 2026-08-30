@@ -370,7 +370,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   font:400 13px/1 var(--sans);letter-spacing:0}
 [data-state="survey"] .close{display:block}
 
-.meter{min-width:0}
+/* Les deux flancs prennent une base nulle et grandissent à parts égales, ce qui
+   plante la réglette au milieu de la fenêtre. Avec leurs largeurs naturelles,
+   elle se centrait dans ce qui restait entre eux — et comme la ligne de
+   métadonnées change de longueur à chaque parution, son milieu glissait au fil
+   du parcours. */
+.meter{min-width:0;flex:1 1 0}
 .count{display:flex;align-items:flex-start;gap:.02em;
   font:600 clamp(2rem,5.4vw,3.6rem)/.9 var(--sans);letter-spacing:-.045em;color:var(--on-1);
   font-variant-numeric:tabular-nums}
@@ -384,7 +389,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   font:400 11px/1.5 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--on-2);
   max-width:44ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.scrub{display:flex;align-items:flex-end;gap:5px;flex:1 1 auto;justify-content:center;
+.scrub{display:flex;align-items:flex-end;gap:5px;flex:0 0 auto;justify-content:center;
   padding-bottom:6px;min-width:0;pointer-events:auto}
 .scrub button{width:2px;height:10px;background:var(--on-3);flex:none;
   transition:height .35s var(--e),background .35s var(--e)}
@@ -392,8 +397,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .scrub button[aria-current="true"]{height:24px;background:var(--bl-3)}
 @media(max-width:720px){.scrub{display:none}}
 
-.tail{text-align:right;flex:none}
+.tail{text-align:right;flex:1 1 0;min-width:0}
 .hint{font:400 10.5px/1.8 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--on-3);
+  white-space:nowrap;
   opacity:0;transition:opacity .7s var(--e);pointer-events:none}
 .hint.on,.tail:hover .hint,.tail:focus-within .hint{opacity:1}
 @media(max-width:720px){.hint{display:none}}
