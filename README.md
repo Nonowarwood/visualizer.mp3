@@ -712,6 +712,24 @@ Une option range le site dans l'**écran d'un baladeur dessiné** : corps métal
 ni marque, ni nom, ni silhouette relevée : c'est la ligne que le site tient déjà
 pour son chrome.
 
+**L'écran s'allège.** Un baladeur n'affiche pas une barre de commandes : dans ce
+mode, la barre et le guide **sortent dans le châssis**, tandis que le compteur et
+les flèches disparaissent — ils n'ont plus lieu d'être à côté d'une molette qui
+fait le même travail. L'écran ne garde que le nom de l'artiste et la réglette de
+position.
+
+Ce sont les **mêmes nœuds, déplacés** — pas des copies. Tous leurs gestionnaires
+suivent sans être recâblés, l'état des boutons reste celui qu'il était, et l'on
+retient d'où ils viennent pour les y remettre à l'identique en quittant le mode.
+
+**L'écran porte le fond de la page**, non celui du cadre : sans fond propre, il
+aurait laissé voir le noir du bezel même en thème clair. Il n'est donc noir que si
+le thème l'est.
+
+**Le boîtier suit le thème** : argent en clair, noir en sombre. Le même objet dans
+son autre finition — la structure du dégradé ne change pas, seules les quatre
+teintes.
+
 **La molette commande vraiment.** La faire tourner parcourt le catalogue : l'angle
 est suivi en absolu, son écart cumulé, et un cran tombe tous les 22° — seize par
 tour. Le passage par ±180° est ramené dans l'intervalle, sinon un demi-tour

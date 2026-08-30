@@ -19,6 +19,10 @@
   /* la carte photo : ses bandes, quand une image très large est posée dans un
      cadre borné, doivent se confondre avec le fond */
   --ph-bg:#EDF0F4; --scrim:rgba(240,242,246,.90);
+  /* le boîtier : argent en thème clair */
+  --dv-1:#FDFDFE; --dv-2:#E8EBEF; --dv-3:#D3D8DF; --dv-4:#BFC5CE;
+  --dv-w1:#F6F8FA; --dv-w2:#E4E8ED; --dv-w3:#D6DBE2; --dv-w4:#C6CCD5;
+  --dv-ink:#8A9099; --dv-ink-2:#3A4049; --dv-lip:rgba(255,255,255,.95);
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -46,6 +50,10 @@
   --pn:#191D23; --pn-2:#14171C; --pn-line:#2A2F37;
   --ink:#EDEFF3; --ink-2:#A8B0BC; --ink-3:#767E8A;
   --ph-bg:#0E1114; --scrim:rgba(8,9,11,.88);
+  /* et noir en thème sombre : le même objet, dans son autre finition */
+  --dv-1:#4A4E55; --dv-2:#2B2E34; --dv-3:#1B1E23; --dv-4:#0E1013;
+  --dv-w1:#3E434A; --dv-w2:#2A2E34; --dv-w3:#1F2228; --dv-w4:#15181C;
+  --dv-ink:#767E8A; --dv-ink-2:#E4E7EC; --dv-lip:rgba(255,255,255,.16);
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
    et une règle sur `prefers-color-scheme` ne ferait qu'un noir bref avant que le
@@ -542,12 +550,24 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    l'échelle depuis leur coin haut-gauche — même origine, même facteur, donc
    l'écran tombe au pixel près sur le cadre. */
 #app{position:fixed;inset:0;z-index:1}
+/* Sans fond propre, l'écran laisserait voir le noir du cadre en thème clair.
+   Il porte donc celui de la page : noir seulement si le thème l'est. */
+[data-device="on"] #app{
+  background:radial-gradient(122% 104% at 50% 0%,var(--st-1),var(--st-2) 56%,var(--st-3))}
+/* Dans l'appareil, l'écran ne garde que ce qu'il montre : le nom de l'artiste et
+   la réglette de position. La barre de commandes et le guide sont sortis dans le
+   châssis, le compteur et les flèches n'ont plus lieu d'être. */
+[data-device="on"] .meter,[data-device="on"] .tail{display:none}
+#outside{position:fixed;inset:var(--pad);z-index:40;pointer-events:none;
+  display:flex;justify-content:flex-end;align-items:flex-start}
+#outside>*{pointer-events:auto}
+#outside .ctlbar{pointer-events:auto}
 .device{position:fixed;z-index:0;transform-origin:0 0}
 .device[hidden]{display:none}
 [data-device="on"] body{overflow:hidden}
 .dv-body{position:absolute;inset:0;
-  background:linear-gradient(178deg,#FDFDFE 0,#E8EBEF 34%,#D3D8DF 62%,#BFC5CE);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 6px rgba(0,0,0,.14),
+  background:linear-gradient(178deg,var(--dv-1) 0,var(--dv-2) 34%,var(--dv-3) 62%,var(--dv-4));
+  box-shadow:inset 0 2px 0 var(--dv-lip),inset 0 -3px 6px rgba(0,0,0,.14),
     0 0 0 1px rgba(0,0,0,.34),0 42px 80px -34px rgba(0,0,0,.55)}
 /* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
    et la règle des angles nets vise les commandes de l'interface. */
@@ -558,22 +578,22 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     inset 0 2px 10px rgba(0,0,0,.8)}
 .dv-wheel{position:absolute;left:50%;top:576px;width:300px;height:300px;
   margin-left:-150px;border-radius:50%;
-  background:linear-gradient(180deg,#F6F8FA 0,#E4E8ED 48%,#D6DBE2 52%,#C6CCD5);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 -2px 5px rgba(0,0,0,.13),
+  background:linear-gradient(180deg,var(--dv-w1) 0,var(--dv-w2) 48%,var(--dv-w3) 52%,var(--dv-w4));
+  box-shadow:inset 0 2px 0 var(--dv-lip),inset 0 -2px 5px rgba(0,0,0,.13),
     0 0 0 1px rgba(0,0,0,.16);cursor:grab;touch-action:none}
 .dv-wheel:active{cursor:grabbing}
 .dv-z{position:absolute;padding:4px 8px;font:600 12px/1 var(--sans);
-  letter-spacing:.14em;text-transform:uppercase;color:#8A9099;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dv-ink);
   transition:color .15s var(--e)}
-.dv-z:hover{color:#3A4049}
+.dv-z:hover{color:var(--dv-ink-2)}
 .dv-menu{left:50%;top:16px;transform:translateX(-50%)}
 .dv-prev{left:14px;top:50%;transform:translateY(-50%)}
 .dv-next{right:14px;top:50%;transform:translateY(-50%)}
 .dv-play{left:50%;bottom:16px;transform:translateX(-50%)}
 .dv-c{position:absolute;left:50%;top:50%;width:112px;height:112px;margin:-56px 0 0 -56px;
   border-radius:50%;
-  background:linear-gradient(180deg,#FBFCFD 0,#EAEDF1 48%,#DDE1E7 52%,#CDD3DB);
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 0 0 1px rgba(0,0,0,.18),
+  background:linear-gradient(180deg,var(--dv-w1) 0,var(--dv-w2) 48%,var(--dv-w3) 52%,var(--dv-w4));
+  box-shadow:inset 0 2px 0 var(--dv-lip),0 0 0 1px rgba(0,0,0,.18),
     0 2px 5px rgba(0,0,0,.12)}
 .dv-c:active{box-shadow:inset 0 2px 6px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.2)}
 

@@ -674,8 +674,31 @@ function deviceLayout(){
     +(dy+DV_SY*z).toFixed(1)+'px;width:'+DV_SW+'px;height:'+DV_SH
     +'px;transform:scale('+z.toFixed(4)+');transform-origin:0 0;overflow:hidden';
 }
+/* La barre de commandes et le guide **sortent de l'écran** plutôt que d'y être
+   dupliqués : on déplace les mêmes nœuds, donc tous les gestionnaires suivent
+   sans être recâblés, et l'état des boutons reste celui qu'il était. On retient
+   d'où ils viennent pour les y remettre à l'identique. */
+var outMoved=[];
+function deviceMove(on){
+  if(on){
+    if(outMoved.length)return;
+    ['.ctlbar','#tour'].forEach(function(sel){
+      var el=document.querySelector(sel);
+      if(!el)return;
+      outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
+      $('#outside').appendChild(el);
+    });
+  }else{
+    while(outMoved.length){
+      var m=outMoved.pop();
+      m.par.insertBefore(m.el,m.next);
+    }
+  }
+}
+
 function applyDevice(){
   document.documentElement.setAttribute('data-device',DEV?'on':'off');
+  deviceMove(DEV);
   $('#mDevice').setAttribute('aria-pressed',DEV?'true':'false');
   try{localStorage.setItem('wte-dev',DEV?'1':'0');}catch(e){}
   deviceLayout();
