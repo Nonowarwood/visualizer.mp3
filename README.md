@@ -803,6 +803,28 @@ neutre lit comme du papier ; c'est ce petit décalage qui dit l'alliage.
 La plage de valeurs revient à 15 % — entre les 22 % qui durcissaient et les 12 %
 qui aplatissaient.
 
+### Le thème sombre
+
+Tout ce qui précède était écrit **en blanc dur**, et c'était un défaut de méthode :
+un même blanc n'ajoute pas la même chose selon le fond.
+
+| | sur corps clair | sur corps sombre |
+|---|---|---|
+| spéculaire à 92 % | +44 de luminance | **+202** |
+| dôme du bouton à 90 % | +43 | **+197** |
+
+D'où une plaque grise en travers du boîtier et un bouton changé en bille brillante.
+Les hautes lumières sont désormais des **variables**, réglées pour ajouter *autant
+en absolu* dans les deux thèmes — +40, +27, +44, +21 en sombre contre +44, +28,
++43, +20 en clair.
+
+Même correction pour la reprise de lumière sur l'arête basse : elle valait +9 % du
+creux en clair mais **+45 %** en sombre, où elle coupait le boîtier en deux. Elle
+est ramenée à +13 %.
+
+Le reflet de la vitre, lui, reste en blanc fixe : un reflet sur du verre est clair
+quel que soit ce qu'il y a derrière.
+
 **Rien de tout cela n'est repris d'un dessin existant** : ce sont des règles
 d'éclairage, pas une silhouette. Le boîtier reste générique, comme tout ce que le
 site redessine.

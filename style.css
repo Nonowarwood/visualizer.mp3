@@ -31,6 +31,14 @@
   --dv-ink:#98A0AA; --dv-ink-2:#4B525B; --dv-lip:rgba(255,255,255,.95);
   --dv-edge:rgba(255,255,255,.62); --dv-hollow:rgba(0,0,0,.13);
   --dv-ao:rgba(90,100,115,.20);
+  /* Les hautes lumières sont des **variables**, non du blanc en dur. Un même
+     blanc n'ajoute pas la même chose selon le fond : 92 % de blanc valent +44 de
+     luminance sur un corps clair et +202 sur un corps sombre. Écrites en dur,
+     elles noyaient le thème sombre sous une plaque grise et changeaient le bouton
+     en bille. Les valeurs sombres sont réglées pour ajouter **autant en absolu**
+     que les claires. */
+  --dv-spec:.92; --dv-spec2:.34; --dv-bounce:.60; --dv-gloss:.90;
+  --dv-ring:.42; --dv-ring2:.30; --dv-ring3:.22;
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -59,11 +67,16 @@
   --ink:#EDEFF3; --ink-2:#A8B0BC; --ink-3:#767E8A;
   --ph-bg:#0E1114; --scrim:rgba(8,9,11,.88);
   /* et noir en thème sombre : le même objet, dans son autre finition */
-  --dv-1:#4B4F55; --dv-2:#35383D; --dv-3:#212429; --dv-4:#31343A;
-  --dv-w1:#43474D; --dv-w2:#31343A; --dv-w3:#212429; --dv-w4:#2C2F35;
+  /* Le creux est remonté et l'arête basse abaissée : la reprise de lumière vaut
+     +13 % du creux, comme les +9 % du thème clair. À +45 %, elle coupait le
+     boîtier en deux. */
+  --dv-1:#484C52; --dv-2:#3A3D43; --dv-3:#2B2E34; --dv-4:#31343A;
+  --dv-w1:#42464C; --dv-w2:#35383E; --dv-w3:#2B2E34; --dv-w4:#2F3238;
   --dv-ink:#7E858F; --dv-ink-2:#E8EBEF; --dv-lip:rgba(255,255,255,.20);
   --dv-edge:rgba(255,255,255,.11); --dv-hollow:rgba(0,0,0,.42);
   --dv-ao:rgba(0,0,0,.42);
+  --dv-spec:.19; --dv-spec2:.07; --dv-bounce:.13; --dv-gloss:.21;
+  --dv-ring:.10; --dv-ring2:.08; --dv-ring3:.05;
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
    et une règle sur `prefers-color-scheme` ne ferait qu'un noir bref avant que le
@@ -633,9 +646,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
        3. le **fuyant des flancs**, qui s'assombrissent en s'éloignant du regard ;
        4. le corps, dont la valeur descend puis **remonte**. */
   background:
-    radial-gradient(140% 62% at 50% -14%,rgba(255,255,255,.92) 0,
-      rgba(255,255,255,.34) 42%,rgba(255,255,255,0) 72%),
-    linear-gradient(0deg,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 11%),
+    radial-gradient(140% 62% at 50% -14%,rgba(255,255,255,var(--dv-spec)) 0,
+      rgba(255,255,255,var(--dv-spec2)) 42%,rgba(255,255,255,0) 72%),
+    linear-gradient(0deg,rgba(255,255,255,var(--dv-bounce)) 0,rgba(255,255,255,0) 11%),
     linear-gradient(90deg,rgba(70,80,95,.10) 0,rgba(0,0,0,0) 15%,
       rgba(0,0,0,0) 85%,rgba(70,80,95,.10) 100%),
     linear-gradient(180deg,var(--dv-1) 0,var(--dv-2) 26%,var(--dv-3) 74%,
@@ -648,7 +661,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   box-shadow:
     inset 0 1.5px 0 var(--dv-lip),
     inset 0 -1.5px 0 var(--dv-edge),
-    inset 0 0 0 1px rgba(255,255,255,.22),
+    inset 0 0 0 1px rgba(255,255,255,var(--dv-ring3)),
     0 0 0 1px rgba(0,0,0,.10),
     0 3px 5px -2px rgba(0,0,0,.10),
     0 40px 80px -30px rgba(0,0,0,.30)}
@@ -662,7 +675,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   border-radius:5px;
   /* Le cadre est cerné d'une **occlusion** : là où la dalle rentre dans la coque,
      la lumière n'entre plus. */
-  box-shadow:0 0 0 5px #1B1D21,0 0 0 6px rgba(255,255,255,.30),
+  box-shadow:0 0 0 5px #1B1D21,0 0 0 6px rgba(255,255,255,var(--dv-ring2)),
     0 0 16px 2px var(--dv-ao),
     inset 0 2px 7px rgba(0,0,0,.6)}
 
@@ -695,7 +708,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     inset 0 4px 7px -3px var(--dv-hollow),
     inset 0 -2px 0 var(--dv-lip),
     inset 0 0 12px -4px var(--dv-hollow),
-    0 0 0 1px rgba(255,255,255,.42),
+    0 0 0 1px rgba(255,255,255,var(--dv-ring)),
     0 0 20px 1px var(--dv-ao);
   cursor:grab;touch-action:none}
 .dv-wheel:active{cursor:grabbing}
@@ -717,7 +730,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   /* Le bouton, lui, est **bombé** : la lumière lui vient d'en haut, et il pose
      son ombre au fond du creux. */
   background:
-    radial-gradient(74% 54% at 50% 8%,rgba(255,255,255,.9) 0,rgba(255,255,255,0) 66%),
+    radial-gradient(74% 54% at 50% 8%,rgba(255,255,255,var(--dv-gloss)) 0,rgba(255,255,255,0) 66%),
     linear-gradient(180deg,var(--dv-w1) 0,var(--dv-w2) 48%,var(--dv-w3) 88%,
       var(--dv-w4) 100%);
   box-shadow:
