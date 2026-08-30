@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>wave to earth — parutions</title>
+<meta name="description" content="Les parutions de wave to earth et de CORTIS, parcourues une à une.">
+<meta name="color-scheme" content="dark light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://coverartarchive.org" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cur" id="cur" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+
+<div class="stage">
+  <div class="field" id="field" tabindex="0" role="listbox" aria-label="Parutions, à faire défiler">
+    <div class="rail" id="rail"></div>
+  </div>
+  <div class="survey" id="survey" aria-hidden="true"><div class="grid" id="grid"></div></div>
+  <div class="focus" id="focus" aria-hidden="true"></div>
+  <section class="photos" id="photos" aria-hidden="true">
+    <p class="pbig" id="pbig" aria-hidden="true"></p>
+    <div class="pstage" id="pstage"></div>
+    <button class="pnav p-prev" id="pPrev" type="button" aria-label="Image précédente">‹</button>
+    <button class="pnav p-next" id="pNext" type="button" aria-label="Image suivante">›</button>
+    <p class="pcap" id="pcap"></p>
+    <p class="pempty" id="pempty" hidden></p>
+  </section>
+</div>
+
+<div class="hud">
+  <div class="top">
+    <div class="brandwrap">
+      <button class="brand" id="brandBtn" type="button" aria-haspopup="menu" aria-expanded="false"
+              aria-controls="amenu">
+        <span class="bt"><b id="brandName">wave to earth</b><span id="brandSub">Séoul · depuis 2019</span></span>
+        <span class="car" aria-hidden="true">▾</span>
+      </button>
+      <div class="amenu" id="amenu" role="menu" aria-label="Choisir un artiste"></div>
+    </div>
+
+    <div class="ctlbar">
+      <div class="seg" id="filters" role="group" aria-label="Filtrer par type">
+        <button type="button" data-f="tout" data-lbl="tout" aria-pressed="true"></button>
+        <button type="button" data-f="Album" data-lbl="albums" aria-pressed="false"></button>
+        <button type="button" data-f="EP" data-lbl="ep" aria-pressed="false"></button>
+        <button type="button" data-f="Single" data-lbl="singles" aria-pressed="false"></button>
+      </div>
+      <span class="div" aria-hidden="true"></span>
+      <div class="seg" role="group" aria-label="Affichage">
+        <button id="mParcours" type="button" aria-pressed="true">parcours</button>
+        <button id="mSurvey" type="button" aria-pressed="false">planche</button>
+        <button id="mPhotos" type="button" aria-pressed="false">images</button>
+        <button id="mTheme" type="button" aria-pressed="false">thème</button>
+        <button id="mSnd" type="button" aria-pressed="true">son</button>
+      </div>
+      <button class="close" id="back" type="button" aria-label="Fermer et revenir au parcours">✕</button>
+    </div>
+  </div>
+
+  <div></div>
+
+  <div class="bot">
+    <div class="meter">
+      <p class="count" id="count"></p>
+      <p class="nowline" id="nowline"></p>
+    </div>
+
+    <div class="scrub" id="scrub" role="group" aria-label="Aller à une parution"></div>
+
+    <div class="tail">
+      <p class="hint" id="hint"><kbd>←</kbd><kbd>→</kbd> parcourir · <kbd>↵</kbd> ouvrir · <kbd>G</kbd> planche</p>
+      <div class="arrows">
+        <button id="prev" type="button" aria-label="Parution précédente">←</button>
+        <button id="next" type="button" aria-label="Parution suivante">→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="splash" id="splash">
+  <video class="splash-vid" id="splashVid" muted playsinline autoplay preload="auto"
+         aria-hidden="true"></video>
+  <p class="splash-fallback" id="splashFb" hidden>wave to earth</p>
+  <p class="splash-sub" id="splashSub">15 parutions · 2019 – 2026</p>
+  <span class="splash-bar"><i id="barFill"></i></span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
