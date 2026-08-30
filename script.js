@@ -930,6 +930,10 @@ var wDrag=null,wAcc=0;
   var w=$('#dvWheel');if(!w)return;
   w.addEventListener('pointerdown',function(e){
     if(e.target.closest('.dv-c,.dv-z'))return;
+    /* Un glisser de pointeur est, par défaut, un glisser de **sélection** : c'est
+       lui qui surlignait tout ce que la molette rencontrait. La molette prend le
+       geste à son compte, elle doit donc en refuser l'usage prévu. */
+    e.preventDefault();
     var r=w.getBoundingClientRect();
     wDrag={cx:r.left+r.width/2,cy:r.top+r.height/2,a:null};wAcc=0;
     try{w.setPointerCapture(e.pointerId);}catch(err){}
@@ -1804,6 +1808,10 @@ function applyFond(){
     el.classList.toggle('b',fondB);
   }
   document.documentElement.setAttribute('data-fond',it?'on':'off');
+  /* La ligne du menu dit ce qui est choisi, comme « thème » dit clair ou sombre :
+     on sait sans avoir à déplier. */
+  var lab=$('#fondsL');
+  if(lab)lab.textContent=it?it.n:'aucun';
   var box=$('#fonds');
   if(box){
     var bs=box.querySelectorAll('button[data-f]');

@@ -576,8 +576,15 @@ au-dessus de la page, sa largeur ne coûte rien à la barre — et les vignettes
 deux par rangée. Seule l'ouverture devait se voir : elle part du coin du bouton,
 aux deux tiers de sa largeur, et se déploie vers la gauche et vers le bas.
 
-L'onglet, lui, est **fermé au départ**. Quatorze fonds dépliés en permanence, et
+La liste, elle, est **fermée au départ**. Quatorze fonds dépliés en permanence, et
 la visite guidée ou les crédits passaient hors de portée sans défiler tout le lot.
+
+Elle se déplie depuis une **ligne ordinaire du menu**, et non depuis un bandeau de
+catégorie. Le bandeau était le mauvais objet : une catégorie annonce, elle ne se
+replie pas, et il gardait sa hauteur et son filet quoi qu'il arrive — replié,
+l'onglet laissait encore une barre. La ligne « fonds d'écran » a la hauteur de
+« thème » ou de « son », porte comme elles le nom de ce qui est choisi, et ne
+laisse rien paraître une fois refermée.
 Le dépliement anime `grid-template-rows` de `0fr` à `1fr` : la seule façon de faire
 glisser une hauteur qu'on ne connaît pas d'avance sans aller la mesurer en
 JavaScript. Avec un piège, découvert replié : la rangée à `0fr` met la hauteur de
@@ -951,9 +958,28 @@ page. S'il manque, le châssis dessiné reste : il n'y a pas d'état cassé.
 
 ### Les repères de la molette
 
-Ils ne sont pas écrits mais **reconnus** : leur place ne change jamais. Gros et
-pleins, posés **sur l'anneau** — à 60 % de sa largeur, entre le bouton central et
-le bord — et non plus collés au bord en petits caractères.
+Ils sont **dessinés**, non écrits — trois formes SVG pour ◀◀, ▶▶ et ▶❚❚. Le motif
+n'est pas esthétique : tourner la molette est un **glisser**, et un glisser de
+pointeur est par défaut un glisser de *sélection*. Il surlignait donc les repères
+à chaque tour de molette.
+
+Trois choses le règlent, et il fallait les trois :
+
+1. des **formes** plutôt que des caractères : il n'y a plus de texte à
+   sélectionner à l'endroit exact où l'on glisse ;
+2. `user-select:none` sur tout le boîtier, qui couvre le reste — dont les quatre
+   lettres de « menu », restées du texte parce que quatre lettres en courbes de
+   Bézier ne valent pas leur poids ;
+3. `preventDefault()` au `pointerdown` de la molette. C'est le fond du problème :
+   la molette prend le geste à son compte, elle doit donc en refuser l'usage
+   prévu, sans quoi le navigateur continue de sélectionner ce qu'il trouve
+   derrière.
+
+Une forme a en prime une **taille connue**, là où un caractère dépendait de la
+fonte. Les quatre repères tombent donc au milieu exact de l'anneau : 439 de
+diamètre, 164 pour le bouton central, il reste 137,5 de bande, dont le milieu est
+à 68,75. Les repères font 22 de haut et 40 de large — d'où les 58 px et les 49 px
+de la feuille.
 
 ### La vitre
 

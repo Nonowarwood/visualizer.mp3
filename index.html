@@ -107,7 +107,7 @@
           <p class="ah">Réglages</p>
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
-          <button class="ahb" id="fondsH" type="button" aria-expanded="false" aria-controls="fondsW">fond d'écran<span class="car" aria-hidden="true">▾</span></button>
+          <button id="fondsH" type="button" aria-expanded="false" aria-controls="fondsW"><span class="lbl">fonds d'écran</span><b id="fondsL">aucun</b><span class="car" aria-hidden="true">▾</span></button>
           <div class="fondsw" id="fondsW"><div class="fonds" id="fonds" role="group" aria-label="Choisir un fond d'écran"></div></div>
           <p class="ah">Le site</p>
           <button id="mTour" type="button"><span class="lbl">visite guidée</span><b>↻</b></button>
@@ -258,9 +258,14 @@
     <div class="dv-screen"></div>
     <div class="dv-wheel" id="dvWheel">
       <button class="dv-z dv-menu" type="button" data-z="menu">menu</button>
-      <button class="dv-z dv-prev" type="button" data-z="prev" aria-label="Précédent">◀◀</button>
-      <button class="dv-z dv-next" type="button" data-z="next" aria-label="Suivant">▶▶</button>
-      <button class="dv-z dv-play" type="button" data-z="play" aria-label="Lecture">▶❚❚</button>
+      <!-- Les repères sont **dessinés**, non écrits. En caractères, tourner la
+           molette à la souris sélectionnait le texte au passage : le glisser du
+           pointeur est un glisser de sélection dès qu'il rencontre du texte. Des
+           formes n'ont rien à sélectionner. Elles héritent de `currentColor`,
+           donc le survol continue de les éclaircir. -->
+      <button class="dv-z dv-prev" type="button" data-z="prev" aria-label="Précédent"><svg viewBox="0 0 44 24" aria-hidden="true" focusable="false"><path d="M20 0v24L0 12zM44 0v24L24 12z"/></svg></button>
+      <button class="dv-z dv-next" type="button" data-z="next" aria-label="Suivant"><svg viewBox="0 0 44 24" aria-hidden="true" focusable="false"><path d="M0 0v24l20-12zM24 0v24l20-12z"/></svg></button>
+      <button class="dv-z dv-play" type="button" data-z="play" aria-label="Lecture"><svg viewBox="0 0 42 24" aria-hidden="true" focusable="false"><path d="M0 0v24l20-12zM26 0h6v24h-6zM36 0h6v24h-6z"/></svg></button>
       <button class="dv-c" id="dvCentre" type="button" aria-label="Ouvrir"></button>
     </div>
   </div>

@@ -829,16 +829,31 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 /* Les quatre repères sont posés **sur l'anneau**, à mi-chemin entre le bouton
    central et le bord — non plus collés au bord. Gros et pleins : on ne les lit
    pas, on les reconnaît, et leur place ne change jamais. */
+/* Rien de sélectionnable sur le boîtier : tourner la molette est un **glisser**,
+   et un glisser qui rencontre du texte devient un glisser de sélection. C'est ce
+   qui surlignait les repères à chaque tour de molette. Les trois repères de
+   transport sont désormais dessinés — ils n'ont plus rien à sélectionner — et la
+   règle couvre le reste, dont les quatre lettres de « menu ». */
+.device,.dv-glass{user-select:none;-webkit-user-select:none}
 .dv-z{position:absolute;padding:0;line-height:1;color:var(--dv-ink);
   font:400 30px/1 var(--sans);
   text-shadow:0 1px 0 var(--dv-edge);
   transition:color .15s var(--e)}
+/* Les formes prennent la couleur du bouton, donc le survol les suit ; l'ombre
+   d'une forme se pose au filtre, un `text-shadow` ne les atteindrait pas. */
+.dv-z svg{display:block;height:22px;width:auto;fill:currentColor;
+  filter:drop-shadow(0 1px 0 var(--dv-edge))}
 .dv-z:hover{color:var(--dv-ink-2)}
-.dv-menu{left:50%;top:44px;transform:translateX(-50%);
+/* Les quatre repères tombent au **milieu de l'anneau**, et non plus à l'estime :
+   la molette fait 439 de diamètre, le bouton central 164, il reste donc 137,5 de
+   bande de chaque côté. Le milieu est à 68,75 ; les repères font 22 de haut, d'où
+   les 58 px, et 40 de large, d'où les 49. Une forme dessinée a une taille connue,
+   là où un caractère dépendait de la fonte. */
+.dv-menu{left:50%;top:58px;transform:translateX(-50%);
   font:700 22px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
-.dv-prev{left:40px;top:50%;transform:translateY(-50%)}
-.dv-next{right:40px;top:50%;transform:translateY(-50%)}
-.dv-play{left:50%;bottom:44px;transform:translateX(-50%);font-size:26px;letter-spacing:.04em}
+.dv-prev{left:49px;top:50%;transform:translateY(-50%)}
+.dv-next{right:49px;top:50%;transform:translateY(-50%)}
+.dv-play{left:50%;bottom:58px;transform:translateX(-50%)}
 .dv-c{position:absolute;left:50%;top:50%;width:164px;height:164px;margin:-82px 0 0 -82px;
   border-radius:50%;
   /* Le bouton, lui, est **bombé** : la lumière lui vient d'en haut, et il pose
@@ -1140,16 +1155,14 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   transition:grid-template-rows .34s var(--e-out)}
 [data-fonds="on"] .fondsw{grid-template-rows:1fr}
 .fondsw>.fonds{overflow:hidden;min-height:0}
-.optmenu button.ahb{display:flex;align-items:center;justify-content:space-between;
-  width:100%;padding:6px 12px;border-bottom:1px solid var(--cr-line);
-  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
-  font:600 9.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;
-  color:var(--cr-ink-2);text-shadow:0 1px 0 var(--cr-glow)}
-.optmenu button.ahb:hover{color:var(--cr-ink);
-  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3))}
-.optmenu button.ahb .car{font-size:9px;letter-spacing:0;
+/* Le dépliant est une **ligne du menu**, pas une catégorie. En bandeau de
+   catégorie il gardait sa hauteur de bandeau et son filet quoi qu'il arrive : une
+   catégorie ne se replie pas, elle annonce. En ligne ordinaire — même hauteur que
+   « thème » ou « son », et le nom du fond choisi à droite comme eux — il se
+   replie jusqu'à ne plus rien laisser paraître. */
+.optmenu #fondsH .car{font-size:9px;color:var(--ink-3);flex:none;
   transition:transform .3s var(--e-out)}
-.optmenu button.ahb[aria-expanded="true"] .car{transform:rotate(180deg)}
+.optmenu #fondsH[aria-expanded="true"] .car{transform:rotate(180deg)}
 .fonds{padding:9px 12px 12px;border-bottom:1px solid var(--pn-line)}
 /* Le fond n'existe que dans l'appareil : autant le dire là où on le choisit,
    plutôt que de laisser croire à une panne. */
