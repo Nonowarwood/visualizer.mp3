@@ -293,11 +293,22 @@ function pixelate(url,cb){
   im.src=url;
 }
 
-/* Toute pochette passe par ici : l'adresse d'origine est gardée, si bien qu'on
-   peut revenir en arrière sans la recharger. */
-function setCover(img,url){
+/* Toute pochette passe par ici. L'adresse d'origine et la clé de la parution
+   sont gardées sur l'élément, si bien qu'on bascule d'un mode à l'autre sans
+   rien recharger.
+
+   Les versions en pixels sont **fabriquées d'avance** — `tools/build-pix.py` les
+   écrit dans `assets/pix/`, et `assets/pix.js` les recense. Le navigateur ne fait
+   donc plus, à chaque visite et sous les yeux de qui regarde, le travail de
+   télécharger le 500 px, le peindre sur un canevas, le réduire et le tramer. Il
+   charge une image déjà prête, dix fois plus légère. La fabrication à la volée
+   reste en place, comme filet, pour une parution ajoutée depuis. */
+function setCover(img,url,key){
   img.setAttribute('data-src',url);
+  if(key)img.setAttribute('data-pk',key);
   if(!PIX){img.src=url;return;}
+  var toute=(typeof PIXMAP!=='undefined')&&key&&PIXMAP[key];
+  if(toute){img.src=toute;return;}
   pixelate(url,function(u){
     if(img.getAttribute('data-src')===url)img.src=u||url;
   });
@@ -306,8 +317,9 @@ function applyPix(){
   document.documentElement.setAttribute('data-pix',PIX?'on':'off');
   $('#mPix').setAttribute('aria-pressed',PIX?'true':'false');
   try{localStorage.setItem('wte-pix',PIX?'1':'0');}catch(e){}
-  var imgs=[].slice.call(document.querySelectorAll('img[data-src]'));
-  imgs.forEach(function(im){setCover(im,im.getAttribute('data-src'));});
+  [].slice.call(document.querySelectorAll('img[data-src]')).forEach(function(im){
+    setCover(im,im.getAttribute('data-src'),im.getAttribute('data-pk'));
+  });
 }
 
 function wireImages(first){
@@ -328,7 +340,7 @@ function wireImages(first){
       img.remove();
       if(first&&!seen){seen=true;done++;progress();}
     });
-    setCover(img,srcOf(REL[i]));
+    setCover(img,srcOf(REL[i]),REL[i].rid||REL[i].id);
   });
   if(first&&!imgs.length)ready();
 }
@@ -574,7 +586,7 @@ function fiche(i){
   var img=new Image();
   img.crossOrigin='anonymous';img.className='on';img.alt='Pochette de '+r.t;
   img.onerror=function(){img.remove();};
-  plate.appendChild(img);setCover(img,srcOf(r));
+  plate.appendChild(img);setCover(img,srcOf(r),r.rid||r.id);
   return plate;
 }
 
@@ -1254,7 +1266,24 @@ amenu.addEventListener('click',function(e){
   amenuOpen(false);
   if(i!==A){setState('parcours');buildArtist(i,false);}
 });
-document.addEventListener('click',function(){amenuOpen(false);});
+document.addEventListener('click',function(){amenuOpen(false);optOpen(false);});
+
+/* ─────────── le tiroir d'options ───────────
+   La barre portait sept commandes de front : les trois vues, deux options
+   d'affichage, le thème et le son. Les vues restent en vue ; le reste passe
+   dans un tiroir, ce qui rend la barre lisible et laisse de la place pour ce
+   qu'on y ajoutera. Un clic sur une option ne le referme pas — on en règle
+   souvent deux à la suite. */
+var optmenu=$('#optmenu'),optBtn=$('#mOpt');
+function optOpen(on){
+  optmenu.classList.toggle('on',on);
+  optBtn.setAttribute('aria-expanded',on?'true':'false');
+}
+optBtn.addEventListener('click',function(e){
+  e.stopPropagation();
+  optOpen(!optmenu.classList.contains('on'));
+});
+optmenu.addEventListener('click',function(e){e.stopPropagation();});
 
 /* ─────────── commandes ─────────── */
 $('#grid').addEventListener('click',function(e){
@@ -1418,13 +1447,14 @@ var sfx=(function(){
   addEventListener('pointerdown',arm,{once:true});
   addEventListener('keydown',arm,{once:true});
   var b=$('#mSnd');
-  b.setAttribute('aria-pressed',sfx.on()?'true':'false');
-  b.textContent=sfx.on()?'son':'muet';
-  b.addEventListener('click',function(){
-    sfx.set(!sfx.on());
-    this.setAttribute('aria-pressed',sfx.on()?'true':'false');
-    this.textContent=sfx.on()?'son':'muet';
-  });
+  /* L'état s'écrit dans un enfant et non sur le bouton : celui-ci porte
+     maintenant son intitulé, qu'un `textContent` effacerait. */
+  function paintSnd(){
+    b.setAttribute('aria-pressed',sfx.on()?'true':'false');
+    $('#mSndL').textContent=sfx.on()?'activé':'coupé';
+  }
+  paintSnd();
+  b.addEventListener('click',function(){sfx.set(!sfx.on());paintSnd();});
   document.addEventListener('click',function(e){
     if(e.target&&e.target.closest&&e.target.closest('button,a'))sfx.click();
   },true);

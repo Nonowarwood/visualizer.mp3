@@ -58,14 +58,23 @@
         <button type="button" data-f="Single" data-lbl="singles" aria-pressed="false"></button>
       </div>
       <span class="div" aria-hidden="true"></span>
-      <div class="seg" role="group" aria-label="Affichage">
+      <div class="seg" role="group" aria-label="Vue">
         <button id="mParcours" type="button" aria-pressed="true">parcours</button>
-        <button id="mList" type="button" aria-pressed="false">liste</button>
-        <button id="mPix" type="button" aria-pressed="false">pixels</button>
         <button id="mSurvey" type="button" aria-pressed="false">planche</button>
         <button id="mPhotos" type="button" aria-pressed="false">images</button>
-        <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
-        <button id="mSnd" type="button" aria-pressed="true">son</button>
+      </div>
+      <span class="div" aria-hidden="true"></span>
+      <div class="optwrap">
+        <button class="optb" id="mOpt" type="button" aria-haspopup="menu"
+                aria-expanded="false" aria-controls="optmenu">options<span class="car" aria-hidden="true">▾</span></button>
+        <div class="optmenu" id="optmenu" role="menu" aria-label="Options">
+          <p class="ah">Parcours</p>
+          <button id="mList" type="button" aria-pressed="false"><span class="lbl">liste appariée</span></button>
+          <button id="mPix" type="button" aria-pressed="false"><span class="lbl">pochettes en pixels</span></button>
+          <p class="ah">Réglages</p>
+          <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
+          <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
+        </div>
       </div>
       <button class="close" id="back" type="button" aria-label="Fermer et revenir au parcours">✕</button>
     </div>
@@ -118,6 +127,7 @@
   <p class="splash-skip" aria-hidden="true">cliquez pour passer</p>
 </div>
 
+<script src="assets/pix.js"></script>
 <script src="assets/tracks.js"></script>
 <script src="script.js"></script>
 </body>

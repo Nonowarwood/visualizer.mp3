@@ -28,6 +28,11 @@ visuel des iPod à molette :
 - une **seule barre de commandes** en haut à droite — filtres et vues, séparés par
   des filets, pas par des blocs distincts ; la fiche, elle, porte sa propre croix
   à son coin, là où le regard se trouve déjà ;
+- les **options dans un tiroir**, à droite de la barre. Elle portait sept commandes
+  de front : trois vues, deux options d'affichage, le thème et le son. Les vues
+  restent en vue ; le reste s'y range, ce qui la rend lisible et laisse de la place
+  pour ce qu'on y ajoutera. Un clic sur une option ne referme pas le tiroir — on en
+  règle souvent deux à la suite ;
 - **thème clair par défaut**, le sombre à un cran de là — et le sombre reprend
   **toute** la palette, chrome et panneaux compris. Il n'en changeait d'abord que
   le fond et le texte : la barre de commandes et la fiche restaient en argent
@@ -538,6 +543,22 @@ c'est le seul point où les deux partis pris se rejoignent.
 Le bouton `pixels`, ou la touche `P`, réduit chaque pochette à 96 px, ramène
 chaque composante à dix niveaux, puis la remonte en plus proche voisin — sans quoi
 le navigateur la lisserait et rendrait la réduction invisible.
+
+**Les versions en pixels sont fabriquées d'avance.** Le navigateur faisait ce
+travail à chaque visite et sous les yeux de qui regardait : télécharger le 500 px,
+le peindre sur un canevas, le réduire, le tramer, vingt-deux fois. Elles sont
+maintenant écrites une fois dans `assets/pix/` et recensées par `assets/pix.js` —
+le site ne charge plus qu'une image prête, une dizaine de kilo-octets.
+
+```bash
+python3 tools/build-pix.py
+```
+
+L'outil saute ce qui est déjà là, donc on le relance sans crainte. La Cover Art
+Archive répond par moments `500` : ce sont des défaillances passagères de son côté,
+pas des pochettes absentes, d'où les reprises. Une parution qui manque au
+manifeste — la sienne a résisté à cinq essais — **retombe sur la fabrication dans
+le navigateur**, qui reste en place comme filet.
 
 **Ce qui fait l'image, c'est le tramage.** Avant d'arrondir une composante, on lui
 ajoute un seuil qui varie selon la position dans une matrice de Bayer 4 × 4 : deux
