@@ -674,6 +674,8 @@ function setState(s){
   $('#photos').setAttribute('aria-hidden',s==='photos'?'false':'true');
   $('#survey').setAttribute('aria-hidden',s==='survey'?'false':'true');
   $('#focus').setAttribute('aria-hidden',s==='focus'?'false':'true');
+  /* En quittant les images, le compteur revient aux parutions. */
+  if(s!=='photos'&&view.length)hud();
   if(s==='parcours')try{field.focus({preventScroll:true});}catch(e){}
 }
 function open(p){
@@ -804,17 +806,36 @@ var pCards=[], pAR={}, pARmin=1, pARmax=1;
    lequel la position glisse. Il n'y a donc plus aucune transition CSS sur les
    cartes — elle se battrait avec la boucle. */
 var pPos=0, pAim=0, pRaf=0, pLast=0, pSnd=0;
-var pT0=0;
+var pT0=0, pPrev=0, pVel=0;
 function pTick(now){
   pRaf=0;
   /* L'approche est calée sur le **temps écoulé**, pas sur le nombre d'images :
      à 120 Hz, un pas par image irait deux fois plus vite qu'à 60. */
   var dt=pT0?Math.min(64,now-pT0):16.7;pT0=now;
   var d=pAim-pPos;
-  if(Math.abs(d)<0.002){pPos=pAim;pT0=0;placeRing();pSync();return;}
-  pPos+=d*(1-Math.pow(0.76,dt/16.7));
+  var fin=Math.abs(d)<0.002;
+  if(fin){
+    /* La vitesse est mise à zéro **avant** la dernière passe : lissée, elle
+       serait restée au-dessus du seuil, et le flou figé sur l'image d'arrêt
+       puisque aucune image ne suit. */
+    pPos=pAim;pT0=0;pPrev=pPos;pVel=0;
+  }else{
+    pPos+=d*(1-Math.pow(0.76,dt/16.7));
+    pMeasureVel(dt);
+  }
   placeRing();pSync();
+  if(fin)return;
   pRaf=requestAnimationFrame(pTick);
+}
+/* La vitesse du moment, en crans par image, lissée pour que le flou ne
+   scintille pas d'une image à l'autre. Elle sert de mesure au flou de filé :
+   sans lui, une hélice qui traverse la fenêtre en trois images reste nette et le
+   mouvement se lit comme une suite de sauts. */
+function pMeasureVel(dt){
+  var v=Math.abs(pPos-pPrev)*(16.7/Math.max(1,dt));
+  pPrev=pPos;
+  pVel=pVel*0.55+v*0.45;
+  if(pVel<0.0015)pVel=0;
 }
 function pRun(){if(!pRaf){pT0=0;pRaf=requestAnimationFrame(pTick);}}
 function pAimAt(t){pAim=t;pRun();}
@@ -828,7 +849,10 @@ function pSync(){
      le son se mitraillerait. */
   var t=Date.now();
   if(t-pSnd>90){pSnd=t;sfx.step();}
-  $('#pcap').textContent=pad(k+1)+' / '+pad(len);
+  /* Le grand compteur à rouleaux sert aussi ici : il disait le rang d'une
+     parution qu'on ne regarde plus. La réglette, elle, reste cachée — elle porte
+     un calendrier de sorties, qui ne veut rien dire pour des photos. */
+  if(STATE==='photos'){setCount(k+1,len);setLine('Images');}
 }
 
 function buildRing(){
@@ -922,6 +946,11 @@ function placeRing(){
      réelle décale toute la chaîne d'une fraction de cran. C'est ce reste qui
      rend le mouvement continu au lieu de le faire sauter de place en place. */
   var base=Math.round(pPos),frac=pPos-base;
+  /* Le filé est proportionnel à la vitesse et borné : au-delà, on ne lit plus
+     rien. Il est écrit une fois par image, en pixels, d'après la taille du
+     moment — un flou en valeur fixe serait énorme sur petite carte. */
+  var blur=pVel?Math.min(S*0.075,pVel*S*0.30):0;
+  blur=blur>0.4?blur.toFixed(1):0;
   /* On mesure cinq crans plus loin qu'on ne montre. */
   for(var m=-win-5;m<=win+5;m++){
     var q=((base+m)%len+len)%len;measure(q,list[q]);
@@ -939,8 +968,12 @@ function placeRing(){
     el.style.setProperty('--h',box[1].toFixed(1)+'px');
     el.style.transform='translateY('+(-n*rise).toFixed(1)+'px) rotateY('+a
       +'deg) translateZ('+R+'px)';
-    el.style.filter='brightness('+(1-Math.min(aa/105,0.74)).toFixed(3)+')';
-    el.style.opacity=pOpacity(aa).toFixed(3);
+    var op=pOpacity(aa);
+    /* Les cartes qu'on ne voit pas ne se floutent pas : autant d'images à ne
+       pas recalculer à chaque passe. */
+    el.style.filter='brightness('+(1-Math.min(aa/105,0.74)).toFixed(3)+')'
+      +((blur&&op>0.1)?' blur('+blur+'px)':'');
+    el.style.opacity=op.toFixed(3);
     el.style.zIndex=String(200-Math.round(aa));
     el.classList.toggle('front',i===0);
   }
@@ -956,6 +989,7 @@ function showPhoto(k){
 function openPhotos(){
   if(!pBuilt)buildPhotos();
   setState('photos');
+  pLast=-1;pSync();
 }
 (function(){
   var st=$('#pstage');
@@ -983,7 +1017,7 @@ function openPhotos(){
      l'hélice doivent rester ensemble. Un cran par tiers de fenêtre parcouru. */
   st.addEventListener('pointerdown',function(e){
     pMoved=false;
-    pDrag={x:e.clientX,from:pAim};
+    pDrag={x:e.clientX,from:pAim,lx:e.clientX,lt:Date.now(),v:0};
     try{st.setPointerCapture(e.pointerId);}catch(err){}
   });
   st.addEventListener('pointermove',function(e){
@@ -991,13 +1025,25 @@ function openPhotos(){
     var dx=e.clientX-pDrag.x;
     if(Math.abs(dx)>6)pMoved=true;
     if(!pMoved)return;
-    pPos=pAim=pDrag.from-dx/((st.clientWidth||900)/3);
+    var unit=(st.clientWidth||900)/3;
+    /* La vitesse du geste, en crans par milliseconde, lissée sur les derniers
+       mouvements — un seul écart de pointeur est trop bruité pour servir. */
+    var now=Date.now(),dtm=Math.max(8,now-pDrag.lt);
+    pDrag.v=pDrag.v*0.7+(-(e.clientX-pDrag.lx)/unit/dtm)*0.3;
+    pDrag.lx=e.clientX;pDrag.lt=now;
+    pPos=pAim=pDrag.from-dx/unit;
+    pMeasureVel(16.7);
     placeRing();pSync();
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
     st.addEventListener(ev,function(){
-      /* Au relâcher, l'hélice se pose sur le cran le plus proche. */
-      if(pDrag&&pMoved)pAimAt(Math.round(pAim));
+      if(pDrag&&pMoved){
+        /* Le lancer prolonge le geste au lieu de le couper net : la position
+           part là où la vitesse la portait, puis se pose sur le cran le plus
+           proche. Sans cela, relâcher en plein élan arrêtait tout d'un coup. */
+        var jet=Math.max(-4,Math.min(4,pDrag.v*170));
+        pAimAt(Math.round(pAim+jet));
+      }
       pDrag=null;
     });
   });
@@ -1082,8 +1128,9 @@ $('#mPhotos').addEventListener('click',function(){
 $('#filters').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
   /* Filtrer depuis une fiche la laisserait parler d'une liste qu'on ne voit plus
-     — son rang compterait dans l'ancienne. On revient au parcours. */
-  if(STATE==='focus')setState('parcours');
+     — son rang compterait dans l'ancienne. Depuis les images, le filtre ne porte
+     sur rien de visible. Dans les deux cas on revient au parcours. */
+  if(STATE==='focus'||STATE==='photos')setState('parcours');
   FILTER=b.getAttribute('data-f');
   [].slice.call(this.querySelectorAll('button')).forEach(function(x){
     x.setAttribute('aria-pressed',x===b?'true':'false');

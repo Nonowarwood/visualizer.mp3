@@ -28,7 +28,14 @@ visuel des iPod à molette :
 - une **seule barre de commandes** en haut à droite — filtres et vues, séparés par
   des filets, pas par des blocs distincts ; la fiche, elle, porte sa propre croix
   à son coin, là où le regard se trouve déjà ;
-- **thème clair par défaut**, le sombre à un cran de là.
+- **thème clair par défaut**, le sombre à un cran de là — et le sombre reprend
+  **toute** la palette, chrome et panneaux compris. Il n'en changeait d'abord que
+  le fond et le texte : la barre de commandes et la fiche restaient en argent
+  clair quel que soit le thème, ce qui donnait deux moitiés de site qui ne se
+  parlaient pas. Le chrome de l'époque tirait sa lisibilité d'une brillance
+  blanche en haut de chaque relief ; sur un chrome sombre elle éblouirait, et
+  `--cr-glow` la retourne en ombre portée. La structure du dégradé, elle, ne
+  bouge pas.
 
 Ce n'est **pas** un appareil : ni molette, ni pile de menus, ni châssis. Aucune marque,
 aucun logo ni aucune ressource de constructeur n'est reproduit — tout est redessiné en CSS.
@@ -180,11 +187,34 @@ quel que soit l'écran, dont 90 % du chemin dans les 150 premières milliseconde
 Cliquer une carte de côté l'amène au centre **par le plus court chemin** : l'hélice
 boucle, aller à la 2 depuis la 72 ne doit pas dérouler soixante-dix crans.
 
-### Le noir
+### Le reste de l'interface
 
-**La vue passe au noir dans les deux thèmes.** C'est le fond sombre qui creuse
-l'hélice ; sur le fond clair du reste du site, les cartes s'aplatiraient. Les
-textes de cette vue ont donc leurs propres couleurs, fixes.
+La vue **suit le thème** : elle n'a pas de fond propre, celui de la page traverse.
+Elle était d'abord noire dans les deux thèmes, ce qui donnait un site clair qui
+s'ouvrait sur un trou noir.
+
+Le **grand compteur** y sert aussi : `01 / 73`, `02 / 73`. Il disait le rang d'une
+parution qu'on ne regarde plus. La **réglette** disparaît en revanche — elle porte
+un calendrier de sorties, qui ne veut rien dire pour des photos. Et toucher un
+filtre (albums, EP, singles) fait sortir de la vue, comme depuis une fiche : le
+filtre n'y porte sur rien de visible.
+
+### Le filé
+
+Le mouvement se lit comme une suite de sauts s'il reste net : une hélice qui
+traverse la fenêtre en trois images doit **traîner**. Un flou proportionnel à la
+vitesse du moment est donc posé sur les cartes, borné à 7,5 % de leur côté —
+au-delà on ne lit plus rien. La vitesse est lissée, sans quoi le flou scintille
+d'une image à l'autre.
+
+Un piège s'y cache : la vitesse lissée ne retombe jamais tout à fait à zéro. À la
+dernière image, elle restait au-dessus du seuil et **le flou se figeait**, puisque
+aucune image ne suit pour le lever. Elle est donc remise à zéro avant cette
+dernière passe.
+
+Le **lancer** prolonge le geste au lieu de le couper : au relâcher, la position
+part là où la vitesse la portait — quatre crans au plus — puis se pose sur le cran
+le plus proche.
 
 Les sources ne sont posées qu'à l'approche : soixante-treize images chargées d'un
 coup pèseraient les quinze mégaoctets du dossier.
