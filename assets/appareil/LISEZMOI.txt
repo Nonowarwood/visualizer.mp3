@@ -1,0 +1,48 @@
+Votre boîtier se pose ici.
+
+Nommez-le  appareil.png  et il remplacera de lui-même le châssis dessiné en CSS.
+
+  assets/appareil/appareil.png          le boîtier
+  assets/appareil/appareil-sombre.png   sa version sombre (facultatif)
+
+Sans version sombre, la même image sert dans les deux thèmes.
+
+
+LE GABARIT
+
+Dessinez sur une toile au rapport 736 x 1220 (soit 0,6033 de large pour 1 de
+haut). Exportez à la taille que vous voulez : l'image est mise à l'échelle du
+boîtier, donc 1472 x 2440 pour les écrans fins fonctionne à l'identique.
+
+Trois zones doivent tomber juste, parce que le site s'y branche. Elles sont
+données en pixels sur une toile de 736 x 1220, puis en pourcentages si vous
+travaillez à une autre taille :
+
+  ÉCRAN     x 67   y 48    largeur 595   hauteur 452
+            9,10 % / 3,93 % / 80,84 % / 37,05 %
+
+  MOLETTE   cercle centré en x 368, y 829,5   diamètre 439
+            gauche 20,18 % / haut 50,00 % / diamètre 59,65 % de la largeur
+
+  BOUTON    même centre, diamètre 164
+            22,28 % de la largeur
+
+L'écran doit être laissé VIDE sur votre image — le site s'y affiche par-dessus.
+Un fond transparent ou noir y convient également.
+
+Dessinez en revanche la molette, le bouton central et les quatre repères
+(menu, précédent, suivant, lecture) : quand une image est présente, le site
+efface les siens et ne garde que les zones sensibles, invisibles, à leur place.
+
+
+CE QUI MARCHE LE MIEUX
+
+  · un fond transparent (PNG ou WebP) autour du boîtier — l'ombre portée et la
+    mise à l'échelle sont ajoutées par la feuille de style, votre image n'a pas
+    besoin de les porter ;
+  · un contraste faible : sur les rendus qui fonctionnent, tout le boîtier tient
+    dans 12 % de la plage de valeurs, en gris neutre. Les dégradés larges et les
+    reflets durs l'aplatissent, contre l'intuition.
+
+Pour revenir au châssis dessiné, retirez le fichier — ou videz la constante
+APPAREIL en tête de la section, dans script.js.

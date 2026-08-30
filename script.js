@@ -688,11 +688,36 @@ function deviceMove(on){
   }
 }
 
+/* Votre boîtier se pose dans `assets/appareil/`. Nommé `appareil.png`, il
+   remplace de lui-même le châssis dessiné ; `appareil-sombre.png` sert au thème
+   sombre s'il existe. Videz la constante pour revenir au dessin.
+
+   Le fichier n'est cherché **qu'à l'entrée dans le mode**, jamais au chargement
+   de la page. S'il manque, le châssis dessiné reste — il n'y a pas d'état cassé. */
+var APPAREIL='assets/appareil/appareil.png',apVues={};
+function appareil(){
+  var clair=APPAREIL,sombre=APPAREIL.replace(/\.(\w+)$/,'-sombre.$1');
+  [clair,sombre].forEach(function(u,i){
+    if(!u||apVues[u]!==undefined)return;
+    apVues[u]=null;
+    var im=new Image();
+    im.onload=function(){
+      apVues[u]=true;
+      document.documentElement.setAttribute(i?'data-dvimg-sombre':'data-dvimg','on');
+      var dv=$('#device').querySelector('.dv-body');
+      if(dv)dv.style.setProperty(i?'--dv-img-sombre':'--dv-img','url("'+u+'")');
+    };
+    im.onerror=function(){apVues[u]=false;};
+    im.src=u;
+  });
+}
+
 var dvZ=1,dvT=0;
 function deviceLayout(){
   var app=$('#app'),dv=$('#device'),gl=$('#dvGlass');
   if(!DEV){app.removeAttribute('style');gl.hidden=true;gl.removeAttribute('style');return;}
   dv.hidden=false;gl.hidden=false;
+  appareil();
   var hDispo=innerHeight-DV_BAND;
   var z=Math.min(innerWidth*0.94/DV_W,hDispo*0.94/DV_H);
   dvZ=z;

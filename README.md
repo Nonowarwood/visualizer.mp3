@@ -791,6 +791,30 @@ cerné d'un liseré fin.
 d'éclairage, pas une silhouette. Le boîtier reste générique, comme tout ce que le
 site redessine.
 
+### Y mettre le vôtre
+
+Le châssis dessiné n'est qu'un défaut. Déposez le vôtre dans
+**`assets/appareil/`**, nommé `appareil.png`, et il prend sa place —
+`appareil-sombre.png` sert au thème sombre s'il existe. Le dossier porte un
+`LISEZMOI.txt` avec le gabarit complet.
+
+Le corps est au rapport **736 × 1220**, et trois zones doivent tomber juste parce
+que le site s'y branche :
+
+| | position | taille |
+|---|---|---|
+| écran | 9,10 % / 3,93 % | 80,84 % × 37,05 % |
+| molette | 20,18 % / 50,00 % | 59,65 % de la largeur |
+| bouton | même centre | 22,28 % de la largeur |
+
+**L'écran doit rester vide** — le site s'y affiche par-dessus. La molette, le
+bouton et les quatre repères, en revanche, sont à dessiner : quand une image est
+présente, le site efface les siens et ne garde que les **zones sensibles**,
+invisibles et à leur place. La molette tourne donc toujours.
+
+Le fichier n'est cherché qu'à l'entrée dans le mode, jamais au chargement de la
+page. S'il manque, le châssis dessiné reste : il n'y a pas d'état cassé.
+
 ### Les repères de la molette
 
 Ils ne sont pas écrits mais **reconnus** : leur place ne change jamais. Gros et

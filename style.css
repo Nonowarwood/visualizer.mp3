@@ -704,6 +704,20 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     0 2px 5px -2px var(--dv-hollow)}
 .dv-c:active{box-shadow:inset 0 2px 5px var(--dv-hollow),0 0 0 1px rgba(0,0,0,.07)}
 
+/* ─── un boîtier déposé ───
+   Quand une image est présente dans `assets/appareil/`, elle prend la place du
+   châssis dessiné : le corps porte l'image, et la molette, le bouton et les
+   repères s'effacent — l'image les porte déjà. Les **zones sensibles restent**,
+   invisibles et à leur place, si bien que la molette tourne toujours. */
+[data-dvimg="on"] .dv-body{
+  background:var(--dv-img) center/100% 100% no-repeat;
+  box-shadow:0 44px 88px -34px rgba(0,0,0,.22)}
+:root[data-theme="dark"][data-dvimg-sombre="on"] .dv-body{
+  background-image:var(--dv-img-sombre)}
+[data-dvimg="on"] .dv-wheel,[data-dvimg="on"] .dv-c{
+  background:none;box-shadow:none}
+[data-dvimg="on"] .dv-z{opacity:0}
+
 /* ─── la visite guidée ───
    La mascotte est posée en bas à gauche, au-dessus du compteur, là où elle ne
    recouvre ni la barre ni la pochette centrale. Elle respire lentement — le bloc
