@@ -354,20 +354,14 @@ function rebuild(){
     slots[idx].style.setProperty('--d',(p*55)+'ms');
     cells[idx].style.setProperty('--d',(p*35)+'ms');
   });
-  /* La réglette suit le calendrier, pas le rang : espacer les parutions
-     régulièrement masquait le rythme réel du catalogue — trois singles en deux
-     mois, puis un an de silence. Chaque trait est posé à sa date. */
-  var ys=view.map(function(idx){return REL[idx].y||0;}).filter(Boolean);
-  var y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys),span=Math.max(1,y1-y0);
   $('#rlistIn').innerHTML=view.map(function(idx,p){
     var r=REL[idx];
     return '<li aria-current="false"><button type="button" data-p="'+p+'">'
       +'<b>'+pad(p+1)+'</b><span>'+esc(r.t)+'</span><i>'+r.y+'</i></button></li>';
   }).join('');
   $('#scrub').innerHTML=view.map(function(idx,p){
-    var f=((REL[idx].y||y0)-y0)/span;
-    return '<button type="button" data-p="'+p+'" aria-current="false" style="--x:'
-      +(f*100).toFixed(2)+'%" aria-label="'+esc(REL[idx].t)+', '+(REL[idx].y||'')+'"></button>';
+    return '<button type="button" data-p="'+p+'" aria-current="false" aria-label="'
+      +esc(REL[idx].t)+', '+(REL[idx].y||'')+'"></button>';
   }).join('');
   CUR=Math.min(CUR,Math.max(0,view.length-1));
   sizeEdges();
@@ -744,13 +738,35 @@ function render(){
     var i=view[p],s=slots[i];
     var c=s.offsetLeft+s.offsetWidth/2,off=(c-mid)/cw,ao=Math.abs(off),sg=off<0?-1:1;
     if(ao<bd){bd=ao;best=p;}
-    var cl=Math.max(-4,Math.min(4,off));
-    lifts[i].style.transform='translateX('+(-cl*cw*.22).toFixed(1)+'px) translateZ('
-      +(-Math.min(ao,3)*cw*.34).toFixed(1)+'px) rotateY('+(-sg*58*Math.min(1,ao)).toFixed(1)
-      +'deg) scale('+(1-Math.min(ao*.09,.30)).toFixed(3)+')';
-    faces[i].style.filter=ao>0.6?'blur('+Math.min((ao-0.6)*2.4,4.5).toFixed(2)+'px)':'';
-    s.style.zIndex=String(100-Math.round(ao*10));
-    s.style.opacity=ao>4.2?'0':'1';
+    /* Les fentes sont posées en ligne, à 1,06 largeur de pochette l'une de
+       l'autre. Laissées là, les voisines défilent en file — elles s'écartaient de
+       0,84 largeur par rang alors qu'à 58° elles n'en projettent que 0,53, si
+       bien qu'elles ne se recouvraient jamais. C'est un carrousel, pas un Cover
+       Flow : sa signature est la **pile** sur les côtés.
+
+       On vise donc une position qui **sature** : franche pour la première
+       voisine, puis de plus en plus serrée — 0,83 · 1,05 · 1,19 · 1,32 largeur du
+       centre. À partir du troisième rang, les pochettes ne s'écartent plus que
+       d'un huitième de leur largeur : elles s'empilent. `translateX` ne porte que
+       l'écart entre cette position visée et celle où la mise en page les avait
+       mises. */
+    var vise=0.80*Math.tanh(ao/0.75)+0.13*ao;
+    var tx=sg*vise*cw-(off*1.06*cw);
+    /* La profondeur et l'échelle saturent aussi : sans quoi le fond de la pile
+       partirait à l'infini et finirait invisible. */
+    var tz=-cw*0.44*Math.tanh(ao/0.8);
+    var sc=1-0.16*Math.tanh(ao/0.9);
+    lifts[i].style.transform='translateX('+tx.toFixed(1)+'px) translateZ('
+      +tz.toFixed(1)+'px) rotateY('+(-sg*58*Math.min(1,ao/0.85)).toFixed(1)
+      +'deg) scale('+sc.toFixed(3)+')';
+    /* Le fond de la pile s'assombrit, comme une rangée de disques dans un bac :
+       c'est ce qui donne sa profondeur au tas, plus que l'échelle. */
+    faces[i].style.filter='brightness('+(1-Math.min(ao*0.13,0.42)).toFixed(3)+')'
+      +(ao>0.7?' blur('+Math.min((ao-0.7)*1.6,3.2).toFixed(2)+'px)':'');
+    s.style.zIndex=String(200-Math.round(ao*10));
+    /* La pile tenant dans une largeur et demie, tout le catalogue peut y figurer :
+       on ne masque que la queue lointaine, où plus rien ne se distingue. */
+    s.style.opacity=ao>7?'0':(ao>5.5?(1-(ao-5.5)/1.5).toFixed(2):'1');
   }
   if(best!==CUR){CUR=best;hud();}
 }

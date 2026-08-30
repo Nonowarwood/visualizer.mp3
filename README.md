@@ -485,9 +485,6 @@ qu'elle est censée servir.
   muette. La grille sombre par-dessus donne le point de la matrice — sans elle,
   c'est du texte ambre sur du noir, pas un afficheur ;
 - le **type de la parution** se tient debout contre les deux bords de la fenêtre ;
-- la **réglette suit le calendrier**, pas le rang. Espacer les parutions
-  régulièrement masquait le rythme réel d'un catalogue — trois singles en deux
-  mois, puis un an de silence. Chaque trait est posé à sa date ;
 - la fiche annonce la **durée du disque**, `14 titres · 58 min`. Le total est tu
   si une seule piste n'est pas mesurée, plutôt que d'en annoncer un faux ;
 - cliquer la pochette de la fiche l'**ouvre en grand** : la Cover Art Archive sert
@@ -507,6 +504,31 @@ Apparition en cascade des pochettes · profondeur de champ (flou selon l'éloign
 du centre) · compteur à rouleaux, chiffre par chiffre · transition **FLIP** : la
 pochette vole de sa place dans le Cover Flow jusqu'à la fiche · grain léger et léger
 vignettage.
+
+### La pile
+
+Les fentes du rail sont posées en ligne, à 1,06 largeur de pochette l'une de
+l'autre. Laissées là, les voisines **défilent en file** : elles s'écartaient de
+0,84 largeur par rang alors qu'une pochette tournée à 58° n'en projette que 0,53 —
+elles ne se recouvraient donc jamais. C'était un carrousel, pas un Cover Flow, dont
+la signature est la **pile** sur les côtés.
+
+La position visée **sature** : franche pour la première voisine, puis de plus en
+plus serrée.
+
+| rang | 0 | 1 | 2 | 3 | 4 | 6 |
+|---|---|---|---|---|---|---|
+| distance au centre | 0 | 0,83 | 1,05 | 1,19 | 1,32 | 1,58 |
+
+À partir du troisième rang, les pochettes ne s'écartent plus que d'un huitième de
+leur largeur : elles s'empilent. `translateX` ne porte que l'écart entre cette
+position et celle où la mise en page les avait mises.
+
+La profondeur et l'échelle saturent de même — sans quoi le fond de la pile
+partirait à l'infini. Et il **s'assombrit**, comme une rangée de disques dans un
+bac : c'est ce qui donne sa profondeur au tas, plus que l'échelle. La pile tenant
+dans une largeur et demie, tout le catalogue peut y figurer ; on ne masque que la
+queue lointaine, où plus rien ne se distingue.
 
 Le vol FLIP se mesure sur la fiche **posée**, pas sur la fiche qui se pose : le temps
 du vol, l'échelle d'entrée du panneau est neutralisée. Sans quoi la pochette viserait

@@ -649,13 +649,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   font:400 11px/1.5 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--on-2);
   max-width:44ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* Les traits sont posés à leur date, donc en absolu : la rangée devient une
-   frise et non plus une simple suite de rangs. Largeur fixe pour que la mise à
-   l'échelle ne dépende pas du nombre de parutions filtrées. */
-.scrub{position:relative;flex:0 0 auto;height:26px;width:min(320px,34vw);
-  min-width:0;pointer-events:auto}
-.scrub button{position:absolute;bottom:6px;left:var(--x,0);width:2px;height:10px;
-  background:var(--on-3);transform:translateX(-1px);
+.scrub{display:flex;align-items:flex-end;gap:5px;flex:0 0 auto;justify-content:center;
+  padding-bottom:6px;min-width:0;pointer-events:auto}
+.scrub button{width:2px;height:10px;background:var(--on-3);flex:none;
   transition:height .35s var(--e),background .35s var(--e)}
 .scrub button:hover{background:var(--on-1);height:16px}
 .scrub button[aria-current="true"]{height:24px;background:var(--bl-3)}
