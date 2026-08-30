@@ -361,7 +361,46 @@ parution, le site **retombe sur l'appel direct** à MusicBrainz — avec sa file
 d'attente et ses reprises sur `503`. Rien ne casse, la liste arrive juste plus
 tard et sans vidéo.
 
-### Comment la vidéo est choisie
+### Les vidéos viennent des sorties officielles
+
+`build-tracks.py` retrouve chaque piste par une **recherche** YouTube, et un bon
+résultat n'est pas toujours le bon. Il tombe sur une reprise, une version
+accélérée, une vidéo d'album entier, ou la version « feat. » d'un morceau qui
+existe aussi seul. Le relevé initial de CORTIS avait ainsi **20 pistes fausses sur
+23** : un même identifiant servait pour `REDRED`, pour `MOTION` et pour `REDRED`
+dans `GREENGREEN` ; un autre pour `Blue Lips` *et* pour `Lullaby`.
+
+L'onglet **sorties** d'une chaîne d'artiste liste au contraire les albums
+officiels, chacun sous forme de liste générée par YouTube : les bonnes vidéos,
+dans l'ordre du disque. Il n'y a plus à deviner.
+
+```bash
+python3 tools/yt-releases.py @cortis_bighit cortis --dry   # pour voir
+python3 tools/yt-releases.py @cortis_bighit cortis          # pour écrire
+```
+
+La règle de sécurité tient en une ligne : **on ne remplace que si les comptes
+concordent.** Quand la liste officielle a autant de pistes que MusicBrainz, la
+correspondance est positionnelle et sûre — vérifié sur `play with earth! 0.03`,
+dont les sept rangs coïncident exactement. Sinon on ne touche à rien et on le dit :
+mieux vaut un lien tiré d'une recherche qu'un lien faux.
+
+Deux pièges rencontrés :
+
+- **l'onglet et les listes ne se décrivent pas pareil.** La page *sorties* emploie
+  `playlistRenderer`, les pages de liste `lockupViewModel`. L'outil accepte les
+  deux ;
+- **les parutions absentes de la chaîne restent à la recherche.** `To us` est un
+  morceau d'APRO en featuring wave to earth, donc absent de la chaîne de
+  wave to earth ; la recherche lui avait donné la vidéo de `you`. Retrouvé à la
+  main sur *APRO - Topic*, durée concordante à la seconde.
+
+Un contrôle final vérifie qu'aucune vidéo ne sert deux morceaux différents. Les
+cinq réemplois restants sont légitimes : un single repris sur un disque.
+
+**77 pistes, 77 vidéos.**
+
+### Comment la recherche choisit, à défaut
 
 La chaîne **« <artiste> - Topic »** d'abord : c'est la piste auto-générée par
 YouTube à partir de la sortie officielle, donc exactement le morceau et rien
@@ -372,6 +411,8 @@ d'une minute d'écart et le candidat est rejeté** : mieux vaut pas de vidéo qu
 mauvaise, la fiche retombe alors sur une recherche.
 
 Le fichier produit est lisible, et une correction à la main y est sans danger.
+Cette recherche ne sert plus que de repli, pour les parutions qu'aucune chaîne
+d'artiste ne porte.
 
 ### Le lien d'album
 
