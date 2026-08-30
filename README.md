@@ -222,20 +222,72 @@ coup pèseraient les quinze mégaoctets du dossier.
 Navigation : chevrons, flèches du clavier, molette, ou glisser horizontal.
 Le nom de l'artiste s'affiche en très grand, flouté, derrière.
 
-**CORTIS est rempli** : 73 images de la série de teasers de `GREENGREEN`, récupérées
-depuis kpopping.com. Les fichiers d'origine faisaient 6500 px de large pour 391 Mo au
-total — impubliables tels quels, GitHub plafonnant à 100 Mo par fichier. Ils ont été
-ramenés à 1200 px de côté long, qualité 72, soit **15 Mo** pour les 73. Les originaux
-sont conservés hors du dossier publié, dans `../photos-originaux/cortis/`.
+**CORTIS a deux séries**, récupérées depuis kpopping.com :
 
-Pour remplir la vue d'un autre artiste :
+| série | | |
+|---|---|---|
+| `COLOR OUTSIDE THE LINES` | 48 images | concept, septembre 2025 |
+| `GREENGREEN` | 73 images | teasers |
 
-1. déposez vos images dans `assets/photos/<slug>/` — `wave-to-earth` ou `cortis` ;
-2. listez-les dans le champ `photos` de l'artiste, en haut de `script.js` :
+Les fichiers d'origine font 4000 à 6500 px de large — impubliables tels quels,
+GitHub plafonnant à 100 Mo par fichier. Ramenés à 1200 px de côté long, qualité 72,
+les 121 images pèsent **27 Mo**. Les originaux, 610 Mo, sont conservés hors du
+dossier publié, dans `../photos-originaux/cortis/<série>/`.
+
+### Les séries
+
+Un artiste peut avoir **plusieurs séries** de photos — une par parution, en
+général. Le champ `photos` porte alors une liste de séries plutôt qu'une liste
+d'adresses :
 
 ```js
-slug:'cortis', photos:['assets/photos/cortis/01.jpg','assets/photos/cortis/02.jpg'],
+photos:[
+  {t:'GREENGREEN', d:'teasers · août 2026', p:['assets/photos/cortis/greengreen/01.jpg', …]},
+  {t:'COLOR OUTSIDE THE LINES', d:'…',      p:['assets/photos/cortis/color-outside-the-lines/01.jpg', …]}
+]
 ```
+
+`t` est le nom montré, `d` la mention qui l'accompagne, `p` les fichiers. **Une
+simple liste d'adresses reste acceptée** et vaut série unique : le champ d'un
+artiste qui n'en a qu'une n'a pas à changer de forme.
+
+Le sélecteur prend la place laissée libre par la réglette au milieu de la barre
+du bas — elle porte un calendrier de sorties, sans objet ici. Un seul des deux
+occupe donc la fente centrale, ce qui la garde centrée. **Il ne s'affiche qu'à
+partir de deux séries** : une seule n'est pas un choix. La série entre dans
+l'adresse pour la même raison :
+
+```
+#/cortis/images                            une seule série
+#/cortis/images/color-outside-the-lines    plusieurs
+```
+
+### Récupérer une série
+
+```bash
+python3 tools/fetch-photos.py <adresse de la galerie> <artiste> <série>
+```
+
+L'outil relève les images **dans l'ordre où elles figurent sur la page** — pas
+dans l'ordre alphabétique de leurs adresses, qui n'a rien à voir avec celui de la
+série — et écarte celles dont le nom ne porte pas le nom de la série : une page de
+galerie sert aussi des vignettes d'articles voisins.
+
+Il garde les originaux **hors du dossier publié**, dans
+`../photos-originaux/<artiste>/<série>/`, et n'en publie qu'une réduction à
+1200 px de côté long, qualité 72. Il imprime pour finir le fragment à coller dans
+le champ `photos`.
+
+Deux détails qui n'ont l'air de rien :
+
+- les images reçues sont gardées sous une clé tirée de leur adresse, dans un
+  sous-dossier `.entrant`. Relancer l'outil ne retélécharge donc rien — mais ce
+  cache double la place occupée, et **se supprime sans dommage** une fois la série
+  en place ;
+- **les doublons sont écartés avant la numérotation.** Une galerie sert parfois
+  deux fois la même image sous deux adresses ; écartée après coup, elle aurait
+  laissé un rang vide, et une relance l'aurait remise. `COLOR OUTSIDE THE LINES`
+  en comptait un : 49 adresses, 48 photos.
 
 Les photographies promotionnelles d'un groupe appartiennent à leur auteur et à son
 label. Celles présentes ici ont été ajoutées à votre demande : la décision de les

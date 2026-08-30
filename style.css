@@ -227,8 +227,30 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 [data-state="photos"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
 [data-state="photos"] .photos{opacity:1;pointer-events:auto;transform:none}
 /* Le compteur reste dans les images — il y dit le rang de la photo. La réglette
-   part : elle porte un calendrier de sorties, sans objet ici. */
-[data-state="photos"] .scrub{opacity:0;pointer-events:none}
+   part vraiment, plutôt que de s'effacer : elle porte un calendrier de sorties,
+   sans objet ici, et le sélecteur de série prend sa place au milieu de la barre.
+   Un seul des deux occupe donc la fente centrale, ce qui la garde centrée. */
+[data-state="photos"] .scrub{display:none}
+.psets{display:none}
+[data-state="photos"] .psets{display:flex;flex:0 0 auto;align-items:flex-end;
+  padding-bottom:4px;pointer-events:auto;
+  box-shadow:0 0 0 1px rgba(0,0,0,.32),0 2px 8px -4px rgba(0,0,0,.5);
+  align-self:flex-end;margin-bottom:6px}
+.psets:empty{display:none!important}
+.psets button{padding:7px 13px;white-space:nowrap;
+  font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--cr-ink-2);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  text-shadow:0 1px 0 var(--cr-glow);
+  transition:color .18s var(--e),filter .18s var(--e)}
+.psets button+button{border-left:1px solid var(--cr-line)}
+.psets button:hover{color:var(--cr-ink)}
+.psets button:active{filter:brightness(.94)}
+.psets button[aria-pressed="true"]{
+  color:var(--pn);text-shadow:0 1px 1px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4));
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset}
+.psets sup{font-size:.78em;opacity:.7;margin-left:3px;vertical-align:super}
+@media(max-width:720px){.psets button{padding:6px 9px;font-size:10px}}
 [data-state="photos"] .close{display:block}
 
 /* le nom en très grand, flouté, derrière */

@@ -54,7 +54,16 @@ var ARTISTS=[
 ]},
  {id:'d27808c8-d3a6-4bbe-acc2-22d5e19f3bca', name:'CORTIS', place:'Séoul', since:2025,
   slug:'cortis',
-  photos:['assets/photos/cortis/01.jpg','assets/photos/cortis/02.jpg','assets/photos/cortis/03.jpg','assets/photos/cortis/04.jpg','assets/photos/cortis/05.jpg','assets/photos/cortis/06.jpg','assets/photos/cortis/07.jpg','assets/photos/cortis/08.jpg','assets/photos/cortis/09.jpg','assets/photos/cortis/10.jpg','assets/photos/cortis/11.jpg','assets/photos/cortis/12.jpg','assets/photos/cortis/13.jpg','assets/photos/cortis/14.jpg','assets/photos/cortis/15.jpg','assets/photos/cortis/16.jpg','assets/photos/cortis/17.jpg','assets/photos/cortis/18.jpg','assets/photos/cortis/19.jpg','assets/photos/cortis/20.jpg','assets/photos/cortis/21.jpg','assets/photos/cortis/22.jpg','assets/photos/cortis/23.jpg','assets/photos/cortis/24.jpg','assets/photos/cortis/25.jpg','assets/photos/cortis/26.jpg','assets/photos/cortis/27.jpg','assets/photos/cortis/28.jpg','assets/photos/cortis/29.jpg','assets/photos/cortis/30.jpg','assets/photos/cortis/31.jpg','assets/photos/cortis/32.jpg','assets/photos/cortis/33.jpg','assets/photos/cortis/34.jpg','assets/photos/cortis/35.jpg','assets/photos/cortis/36.jpg','assets/photos/cortis/37.jpg','assets/photos/cortis/38.jpg','assets/photos/cortis/39.jpg','assets/photos/cortis/40.jpg','assets/photos/cortis/41.jpg','assets/photos/cortis/42.jpg','assets/photos/cortis/43.jpg','assets/photos/cortis/44.jpg','assets/photos/cortis/45.jpg','assets/photos/cortis/46.jpg','assets/photos/cortis/47.jpg','assets/photos/cortis/48.jpg','assets/photos/cortis/49.jpg','assets/photos/cortis/50.jpg','assets/photos/cortis/51.jpg','assets/photos/cortis/52.jpg','assets/photos/cortis/53.jpg','assets/photos/cortis/54.jpg','assets/photos/cortis/55.jpg','assets/photos/cortis/56.jpg','assets/photos/cortis/57.jpg','assets/photos/cortis/58.jpg','assets/photos/cortis/59.jpg','assets/photos/cortis/60.jpg','assets/photos/cortis/61.jpg','assets/photos/cortis/62.jpg','assets/photos/cortis/63.jpg','assets/photos/cortis/64.jpg','assets/photos/cortis/65.jpg','assets/photos/cortis/66.jpg','assets/photos/cortis/67.jpg','assets/photos/cortis/68.jpg','assets/photos/cortis/69.jpg','assets/photos/cortis/70.jpg','assets/photos/cortis/71.jpg','assets/photos/cortis/72.jpg','assets/photos/cortis/73.jpg'],
+  /* Les photos se rangent en **séries** : un artiste peut en avoir plusieurs,
+     chacune tournée pour une parution. Une simple liste d'adresses reste
+     acceptée et vaut série unique.
+       t  le nom montré dans le sélecteur
+       d  la mention qui l'accompagne
+       p  les fichiers, dans assets/photos/<artiste>/<série>/ */
+  photos:[
+   {t:'COLOR OUTSIDE THE LINES', d:'concept · septembre 2025', p:['assets/photos/cortis/color-outside-the-lines/01.jpg','assets/photos/cortis/color-outside-the-lines/02.jpg','assets/photos/cortis/color-outside-the-lines/03.jpg','assets/photos/cortis/color-outside-the-lines/04.jpg','assets/photos/cortis/color-outside-the-lines/05.jpg','assets/photos/cortis/color-outside-the-lines/06.jpg','assets/photos/cortis/color-outside-the-lines/07.jpg','assets/photos/cortis/color-outside-the-lines/08.jpg','assets/photos/cortis/color-outside-the-lines/09.jpg','assets/photos/cortis/color-outside-the-lines/10.jpg','assets/photos/cortis/color-outside-the-lines/11.jpg','assets/photos/cortis/color-outside-the-lines/12.jpg','assets/photos/cortis/color-outside-the-lines/13.jpg','assets/photos/cortis/color-outside-the-lines/14.jpg','assets/photos/cortis/color-outside-the-lines/15.jpg','assets/photos/cortis/color-outside-the-lines/16.jpg','assets/photos/cortis/color-outside-the-lines/17.jpg','assets/photos/cortis/color-outside-the-lines/18.jpg','assets/photos/cortis/color-outside-the-lines/19.jpg','assets/photos/cortis/color-outside-the-lines/20.jpg','assets/photos/cortis/color-outside-the-lines/21.jpg','assets/photos/cortis/color-outside-the-lines/22.jpg','assets/photos/cortis/color-outside-the-lines/23.jpg','assets/photos/cortis/color-outside-the-lines/24.jpg','assets/photos/cortis/color-outside-the-lines/25.jpg','assets/photos/cortis/color-outside-the-lines/26.jpg','assets/photos/cortis/color-outside-the-lines/27.jpg','assets/photos/cortis/color-outside-the-lines/28.jpg','assets/photos/cortis/color-outside-the-lines/29.jpg','assets/photos/cortis/color-outside-the-lines/30.jpg','assets/photos/cortis/color-outside-the-lines/31.jpg','assets/photos/cortis/color-outside-the-lines/32.jpg','assets/photos/cortis/color-outside-the-lines/33.jpg','assets/photos/cortis/color-outside-the-lines/34.jpg','assets/photos/cortis/color-outside-the-lines/35.jpg','assets/photos/cortis/color-outside-the-lines/36.jpg','assets/photos/cortis/color-outside-the-lines/37.jpg','assets/photos/cortis/color-outside-the-lines/38.jpg','assets/photos/cortis/color-outside-the-lines/39.jpg','assets/photos/cortis/color-outside-the-lines/40.jpg','assets/photos/cortis/color-outside-the-lines/41.jpg','assets/photos/cortis/color-outside-the-lines/42.jpg','assets/photos/cortis/color-outside-the-lines/43.jpg','assets/photos/cortis/color-outside-the-lines/44.jpg','assets/photos/cortis/color-outside-the-lines/45.jpg','assets/photos/cortis/color-outside-the-lines/46.jpg','assets/photos/cortis/color-outside-the-lines/47.jpg','assets/photos/cortis/color-outside-the-lines/48.jpg']},
+   {t:'GREENGREEN', d:'teasers', p:['assets/photos/cortis/greengreen/01.jpg','assets/photos/cortis/greengreen/02.jpg','assets/photos/cortis/greengreen/03.jpg','assets/photos/cortis/greengreen/04.jpg','assets/photos/cortis/greengreen/05.jpg','assets/photos/cortis/greengreen/06.jpg','assets/photos/cortis/greengreen/07.jpg','assets/photos/cortis/greengreen/08.jpg','assets/photos/cortis/greengreen/09.jpg','assets/photos/cortis/greengreen/10.jpg','assets/photos/cortis/greengreen/11.jpg','assets/photos/cortis/greengreen/12.jpg','assets/photos/cortis/greengreen/13.jpg','assets/photos/cortis/greengreen/14.jpg','assets/photos/cortis/greengreen/15.jpg','assets/photos/cortis/greengreen/16.jpg','assets/photos/cortis/greengreen/17.jpg','assets/photos/cortis/greengreen/18.jpg','assets/photos/cortis/greengreen/19.jpg','assets/photos/cortis/greengreen/20.jpg','assets/photos/cortis/greengreen/21.jpg','assets/photos/cortis/greengreen/22.jpg','assets/photos/cortis/greengreen/23.jpg','assets/photos/cortis/greengreen/24.jpg','assets/photos/cortis/greengreen/25.jpg','assets/photos/cortis/greengreen/26.jpg','assets/photos/cortis/greengreen/27.jpg','assets/photos/cortis/greengreen/28.jpg','assets/photos/cortis/greengreen/29.jpg','assets/photos/cortis/greengreen/30.jpg','assets/photos/cortis/greengreen/31.jpg','assets/photos/cortis/greengreen/32.jpg','assets/photos/cortis/greengreen/33.jpg','assets/photos/cortis/greengreen/34.jpg','assets/photos/cortis/greengreen/35.jpg','assets/photos/cortis/greengreen/36.jpg','assets/photos/cortis/greengreen/37.jpg','assets/photos/cortis/greengreen/38.jpg','assets/photos/cortis/greengreen/39.jpg','assets/photos/cortis/greengreen/40.jpg','assets/photos/cortis/greengreen/41.jpg','assets/photos/cortis/greengreen/42.jpg','assets/photos/cortis/greengreen/43.jpg','assets/photos/cortis/greengreen/44.jpg','assets/photos/cortis/greengreen/45.jpg','assets/photos/cortis/greengreen/46.jpg','assets/photos/cortis/greengreen/47.jpg','assets/photos/cortis/greengreen/48.jpg','assets/photos/cortis/greengreen/49.jpg','assets/photos/cortis/greengreen/50.jpg','assets/photos/cortis/greengreen/51.jpg','assets/photos/cortis/greengreen/52.jpg','assets/photos/cortis/greengreen/53.jpg','assets/photos/cortis/greengreen/54.jpg','assets/photos/cortis/greengreen/55.jpg','assets/photos/cortis/greengreen/56.jpg','assets/photos/cortis/greengreen/57.jpg','assets/photos/cortis/greengreen/58.jpg','assets/photos/cortis/greengreen/59.jpg','assets/photos/cortis/greengreen/60.jpg','assets/photos/cortis/greengreen/61.jpg','assets/photos/cortis/greengreen/62.jpg','assets/photos/cortis/greengreen/63.jpg','assets/photos/cortis/greengreen/64.jpg','assets/photos/cortis/greengreen/65.jpg','assets/photos/cortis/greengreen/66.jpg','assets/photos/cortis/greengreen/67.jpg','assets/photos/cortis/greengreen/68.jpg','assets/photos/cortis/greengreen/69.jpg','assets/photos/cortis/greengreen/70.jpg','assets/photos/cortis/greengreen/71.jpg','assets/photos/cortis/greengreen/72.jpg','assets/photos/cortis/greengreen/73.jpg']}
+  ],
   rel:[
   {id:'4a297ef7-7782-4c18-8d48-dcf58fc5e953', t:"What You Want", kind:'Single', date:'18 août 2025', y:2025, v:'', label:'',
    cover:'', note:"Le premier single du groupe, paru en août 2025."},
@@ -629,7 +638,13 @@ function writeHash(){
   var a=ARTISTS[A],h='#/'+a.slug;
   if(STATE==='focus'&&view.length)h+='/'+slugify(REL[view[CUR]].t);
   else if(STATE==='survey')h+='/planche';
-  else if(STATE==='photos')h+='/images';
+  else if(STATE==='photos'){
+    h+='/images';
+    /* La série ne s'écrit que s'il y en a plusieurs : sinon l'adresse porterait
+       un choix qui n'en est pas un. */
+    var sets=photoSets();
+    if(sets.length>1&&sets[pSet])h+='/'+setSlug(sets[pSet]);
+  }
   if(location.hash===h)return;
   hashLock=true;
   try{history.pushState(null,'',h);}catch(e){location.hash=h;}
@@ -645,12 +660,20 @@ function readHash(first){
   /* Au premier passage le splash tient encore l'écran : on met la destination
      de côté, `enter` l'appliquera. Sans quoi l'intro serait écrasée avant même
      d'avoir été vue. */
-  if(first){pendingHash=what||null;return;}
-  applyHash(what);
+  if(first){pendingHash=what?[what,p[2]||'']:null;return;}
+  applyHash(what,p[2]||'');
 }
-function applyHash(what){
+function applyHash(what,sub){
   if(what==='planche'){setState('survey');return;}
-  if(what==='images'){openPhotos();return;}
+  if(what==='images'){
+    openPhotos();
+    var want=sub||'';
+    if(want){
+      var sets=photoSets();
+      for(var j=0;j<sets.length;j++)if(setSlug(sets[j])===want){goSet(j);break;}
+    }
+    return;
+  }
   if(what){
     for(var k=0;k<view.length;k++){
       if(slugify(REL[view[k]].t)===what){open(k);return;}
@@ -758,15 +781,48 @@ field.addEventListener('wheel',function(e){
 /* ─────────── images : une hélice de cartes ─────────── */
 var pIdx=0,pBuilt=false,pDrag=null,pMoved=false;
 
-function photoList(){return ARTISTS[A].photos||[];}
+/* Une liste d'adresses toute simple vaut série unique : le champ `photos` d'un
+   artiste peut rester tel qu'il était avant que les séries n'existent. */
+var pSet=0;
+function photoSets(){
+  var ph=ARTISTS[A].photos||[];
+  if(!ph.length)return [];
+  if(typeof ph[0]==='string')return [{t:'Images',d:'',p:ph}];
+  return ph;
+}
+function photoList(){
+  var sets=photoSets();
+  return (sets[pSet]||sets[0]||{p:[]}).p||[];
+}
+function setSlug(x){return slugify(x.t||'images');}
+
+/* Le sélecteur prend la place laissée libre par la réglette, qui n'a rien à dire
+   ici. Il ne s'affiche qu'à partir de deux séries : une seule n'est pas un choix. */
+function paintSets(){
+  var sets=photoSets(),box=$('#psets');
+  box.innerHTML=sets.length<2?'':sets.map(function(x,i){
+    return '<button type="button" data-s="'+i+'" aria-pressed="'+(i===pSet?'true':'false')+'">'
+      +esc(x.t||('Série '+(i+1)))+(x.d?'<sup>'+esc(String(x.p.length))+'</sup>':'')+'</button>';
+  }).join('');
+}
+function goSet(i){
+  var sets=photoSets();
+  if(i<0||i>=sets.length||i===pSet)return;
+  pSet=i;
+  buildRing();
+  pPos=pAim=0;pLast=-1;pVel=0;pPrev=0;
+  paintSets();placeRing();pSync();writeHash();
+}
 
 function buildPhotos(){
-  var a=ARTISTS[A],list=photoList();
+  var a=ARTISTS[A];
+  pSet=0;
+  var list=photoList();
   pIdx=0;pBuilt=true;pPos=pAim=0;pLast=-1;
   $('#pbig').textContent=a.name;
   var empty=$('#pempty');
   if(!list.length){
-    $('#pstage').innerHTML='';$('#pcap').textContent='';
+    $('#pstage').innerHTML='';$('#psets').innerHTML='';
     $('#pPrev').hidden=$('#pNext').hidden=true;
     empty.hidden=false;
     empty.innerHTML='<b>Aucune image pour '+esc(a.name)+'</b>'
@@ -777,6 +833,7 @@ function buildPhotos(){
   }
   empty.hidden=true;
   $('#pPrev').hidden=$('#pNext').hidden=false;
+  paintSets();
   buildRing();
   showPhoto(0);
 }
@@ -1125,6 +1182,10 @@ $('#mSurvey').addEventListener('click',function(){setState(STATE==='survey'?'par
 $('#mPhotos').addEventListener('click',function(){
   if(STATE==='photos')setState('parcours'); else openPhotos();
 });
+$('#psets').addEventListener('click',function(e){
+  var b=e.target.closest('button');
+  if(b)goSet(parseInt(b.getAttribute('data-s'),10));
+});
 $('#filters').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
   /* Filtrer depuis une fiche la laisserait parler d'une liste qu'on ne voit plus
@@ -1286,7 +1347,7 @@ function enter(){
   });
   hud.classList.add('lit');
   goTo(0,false);requestAnimationFrame(render);
-  if(pendingHash){var w=pendingHash;pendingHash=null;applyHash(w);}
+  if(pendingHash){var w=pendingHash;pendingHash=null;applyHash(w[0],w[1]);}
   if(window.requestIdleCallback)requestIdleCallback(prefetchOthers,{timeout:2500});
   else setTimeout(prefetchOthers,1200);
   var h=$('#hint');
