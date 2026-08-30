@@ -667,15 +667,14 @@ var DV_BAND=62;
 var DEV=false;
 try{DEV=localStorage.getItem('wte-dev')==='1';}catch(e){}
 
+var dvZ=1,dvT=0;
 function deviceLayout(){
   var app=$('#app'),dv=$('#device');
-  if(!DEV){
-    app.removeAttribute('style');dv.hidden=true;dv.removeAttribute('style');
-    return;
-  }
+  if(!DEV){app.removeAttribute('style');return;}
   dv.hidden=false;
   var hDispo=innerHeight-DV_BAND;
   var z=Math.min(innerWidth*0.94/DV_W,hDispo*0.94/DV_H);
+  dvZ=z;
   var dx=(innerWidth-DV_W*z)/2,dy=DV_BAND+(hDispo-DV_H*z)/2;
   dv.style.cssText='left:'+dx.toFixed(1)+'px;top:'+dy.toFixed(1)+'px;width:'+DV_W
     +'px;height:'+DV_H+'px;transform:scale('+z.toFixed(4)+')';
@@ -683,40 +682,95 @@ function deviceLayout(){
     +(dy+DV_SY*z).toFixed(1)+'px;width:'+DV_SW+'px;height:'+DV_SH
     +'px;transform:scale('+z.toFixed(4)+');transform-origin:0 0;overflow:hidden';
 }
-/* La barre de commandes et le guide **sortent de l'écran** plutôt que d'y être
-   dupliqués : on déplace les mêmes nœuds, donc tous les gestionnaires suivent
-   sans être recâblés, et l'état des boutons reste celui qu'il était. On retient
-   d'où ils viennent pour les y remettre à l'identique. */
-var outMoved=[];
-function deviceMove(on){
-  if(on){
-    if(outMoved.length)return;
-    ['.ctlbar','#tour','#player'].forEach(function(sel){
-      var el=document.querySelector(sel);
-      if(!el)return;
-      outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
-      $('#outside').appendChild(el);
-    });
-  }else{
-    while(outMoved.length){
-      var m=outMoved.pop();
-      m.par.insertBefore(m.el,m.next);
-    }
+
+/* ─────────── le passage d'un mode à l'autre ───────────
+   Un basculement instantané ne dit rien de ce qui se passe. Ici la caméra
+   s'approche de l'écran jusqu'à ce qu'il occupe toute la page, ou s'en éloigne
+   jusqu'à découvrir le boîtier.
+
+   C'est le vol FLIP, appliqué à la page entière : on mesure l'écran **avant**, on
+   bascule — la mise en page change d'un coup —, on le mesure **après**, et l'on
+   repart visuellement de la première position pour rejoindre la seconde. Rien
+   n'est interpolé en mise en page, donc rien ne se recalcule à chaque image.
+
+   Le châssis subit le mouvement **inverse** : si l'écran grandit d'un facteur k,
+   il s'écarte de 1/k. Les deux restent ainsi solidaires — on ne voit pas un cadre
+   qui se déforme, mais une caméra qui avance. */
+function zoomModes(A,dvStyleWas,devWas){
+  var app=$('#app'),dv=$('#device'),out=$('#outside');
+  var B=app.getBoundingClientRect();
+  if(!A.width||!B.width)return;
+  var k=A.width/B.width;
+  var dx=A.left-B.left,dy=A.top-B.top;
+  var base=DEV?('scale('+dvZ.toFixed(4)+')'):'';
+  var pre='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+k.toFixed(5)+') ';
+  /* L'inverse exact de `pre` : scale(1/k) puis la translation opposée. */
+  var inv='scale('+(1/k).toFixed(5)+') translate('+(-dx).toFixed(1)+'px,'+(-dy).toFixed(1)+'px) ';
+
+  app.style.transition='none';
+  app.style.transformOrigin='0 0';
+  app.style.transform=pre+base;
+
+  if(DEV){
+    dv.hidden=false;
+    dv.style.transition='none';dv.style.opacity='0';
+    dv.style.transformOrigin='0 0';
+    dv.style.transform=pre+'scale('+dvZ.toFixed(4)+')';
+  }else if(devWas){
+    dv.hidden=false;
+    dv.setAttribute('style',dvStyleWas);
+    dv.style.transition='none';dv.style.opacity='1';dv.style.transformOrigin='0 0';
   }
+  out.style.transition='none';out.style.opacity='0';
+
+  app.offsetWidth;                       /* on force le calcul avant d'animer */
+
+  var D='.66s cubic-bezier(.16,1,.3,1)';
+  app.style.transition='transform '+D;
+  app.style.transform=base;
+  out.style.transition='opacity .34s var(--e) .24s';
+  out.style.opacity='1';
+  if(DEV){
+    dv.style.transition='transform '+D+',opacity .38s ease .1s';
+    dv.style.transform='scale('+dvZ.toFixed(4)+')';
+    dv.style.opacity='1';
+  }else if(devWas){
+    var m=/transform:scale\(([\d.]+)\)/.exec(dvStyleWas);
+    dv.style.transition='transform '+D+',opacity .4s ease';
+    dv.style.transform=inv+'scale('+(m?m[1]:'1')+')';
+    dv.style.opacity='0';
+  }
+
+  clearTimeout(dvT);
+  dvT=setTimeout(function(){
+    app.style.transition='';out.style.transition='';out.style.opacity='';
+    dv.style.transition='';
+    if(!DEV){dv.hidden=true;dv.removeAttribute('style');}
+    else dv.style.opacity='';
+  },700);
 }
 
-function applyDevice(){
+function applyDevice(anim){
+  var app=$('#app'),dv=$('#device');
+  var A=anim?app.getBoundingClientRect():null;
+  var devWas=!dv.hidden,dvStyleWas=dv.getAttribute('style')||'';
+
   document.documentElement.setAttribute('data-device',DEV?'on':'off');
   deviceMove(DEV);
   $('#mDevice').setAttribute('aria-pressed',DEV?'true':'false');
   try{localStorage.setItem('wte-dev',DEV?'1':'0');}catch(e){}
   deviceLayout();
+  if(!DEV&&!anim){dv.hidden=true;dv.removeAttribute('style');}
+
+  if(anim&&!reduce&&A)zoomModes(A,dvStyleWas,devWas);
+  else if(!DEV){dv.hidden=true;dv.removeAttribute('style');}
+
   /* Le champ vient de changer de largeur du tout au tout : tout ce qui se centre
      sur elle doit être refait. */
   sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
   if(STATE==='photos'&&photoList().length)placeRing();
 }
-$('#mDevice').addEventListener('click',function(){DEV=!DEV;applyDevice();});
+$('#mDevice').addEventListener('click',function(){DEV=!DEV;applyDevice(true);});
 addEventListener('resize',function(){
   if(!DEV)return;
   deviceLayout();sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
@@ -1710,7 +1764,7 @@ $('#mTheme').addEventListener('click',function(){ti=(ti+1)%tm.length;applyTheme(
 applyTheme();
 applyList();
 applyPix();
-applyDevice();
+applyDevice(false);
 
 document.addEventListener('keydown',function(e){
   if(STATE==='intro'){enter();return;}

@@ -596,7 +596,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    Tout ce qui dépendait de la fenêtre est donc redit en pixels pour ce mode. Les
    requêtes de média, elles aussi aveugles à l'échelle, sont surpassées par la
    spécificité plutôt que par l'ordre. */
-[data-device="on"] #app{--pad:10px;--cw:132px;--listw:150px}
+/* La pochette garde sa taille : elle est le sujet, et seule la fiche avait besoin
+   d'être resserrée. Une valeur fixe plutôt que la mesure d'origine en `24vw`, qui
+   se référait à la vraie fenêtre et faisait donc varier la pochette selon la
+   taille du navigateur — dans un écran qui, lui, ne change pas. */
+[data-device="on"] #app{--pad:10px;--cw:330px;--listw:150px}
 [data-device="on"] .focus{grid-template-columns:minmax(0,190px) minmax(0,1fr);
   gap:16px;padding:16px 14px}
 [data-device="on"] .focus .plate{max-width:190px}
@@ -608,7 +612,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 [data-device="on"] .pnav{width:34px;height:34px;font-size:19px}
 [data-device="on"] .survey{padding:18px 14px}
 [data-device="on"] .survey .grid{
-  grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:9px}
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 [data-device="on"] .amenus button{padding:10px 13px;font-size:15px}
 /* Sur un écran de cette taille, la liste appariée mangerait la pochette. */
 [data-device="on"] .rlist{display:none}
