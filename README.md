@@ -181,11 +181,16 @@ mauvaise, la fiche retombe alors sur une recherche.
 
 Le fichier produit est lisible, et une correction à la main y est sans danger.
 
-### Les liens d'album
+### Le lien d'album
 
-MusicBrainz renseigne bien mieux les liens **par album** que ceux par piste :
-Spotify, Deezer, Apple Music, Tidal, pour à peu près toutes les parutions. Ils
-forment la rangée `Écouter` sous la liste, et ils sortent du site.
+MusicBrainz renseigne bien mieux les liens **par album** que ceux par piste. On
+n'en garde qu'un, **Spotify** : les quatre autres plateformes alignaient une
+rangée de boutons qui pesait plus qu'elle n'apportait. Il forme la ligne `Écouter`
+sous la liste, et il sort du site.
+
+Deux parutions n'en ont pas chez MusicBrainz — la ligne disparaît alors d'
+elle-même. Pour n'en garder aucune, videz le tableau `SERV`, dans `script.js` et
+dans `tools/build-tracks.py`.
 
 Certaines parutions rendent **plusieurs supports** — `0.1 flaws and all.` en a
 deux, de huit et six pistes. Ils sont alors affichés séparément.

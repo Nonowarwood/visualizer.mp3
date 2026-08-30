@@ -131,9 +131,10 @@ function pickUrl(rels){
   }
   return free||any;
 }
-var SERV=[['music.youtube.com','YouTube Music'],['youtube.com','YouTube'],
-  ['open.spotify.com','Spotify'],['music.apple.com','Apple Music'],
-  ['deezer.com','Deezer'],['tidal.com','Tidal'],['bandcamp.com','Bandcamp']];
+/* Spotify seul. Les quatre autres plateformes alignaient une rangée de boutons
+   qui pesait plus que ce qu'elle apportait. Pour n'en garder aucune, videz ce
+   tableau : la rangée disparaît d'elle-même. */
+var SERV=[['open.spotify.com','Spotify']];
 function services(rels){
   var out=[],seen={};
   for(var i=0;i<(rels||[]).length;i++){

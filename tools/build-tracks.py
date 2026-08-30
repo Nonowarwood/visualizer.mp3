@@ -35,10 +35,9 @@ MB = 'https://musicbrainz.org/ws/2/'
 MB_UA = 'visualizer.mp3/1.0 (https://github.com/Nonowarwood/visualizer.mp3)'
 INC = 'inc=recordings+recording-level-rels+url-rels&fmt=json'
 
-SERV = [('music.youtube.com', 'YouTube Music'), ('youtube.com', 'YouTube'),
-        ('open.spotify.com', 'Spotify'), ('music.apple.com', 'Apple Music'),
-        ('deezer.com', 'Deezer'), ('tidal.com', 'Tidal'),
-        ('bandcamp.com', 'Bandcamp')]
+# Spotify seul : les autres plateformes alignaient une rangée de boutons qui
+# pesait plus qu'elle n'apportait. Videz la liste pour n'en garder aucune.
+SERV = [('open.spotify.com', 'Spotify')]
 
 
 def fetch(url, ua, tries=5):
