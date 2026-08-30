@@ -56,6 +56,16 @@ Aucune vidéo n'est fournie ni chargée depuis l'extérieur. N'utilisez qu'un fi
 dont vous détenez les droits ou dont la licence permet la republication : ce dépôt
 est public.
 
+## Le favicon
+
+Un rendu d'iPod à molette, recadré sur le sujet : les marges blanches de l'image
+d'origine mangeaient la moitié du cadre et n'auraient laissé qu'une tache grise à
+32 px. Servi en deux tailles, `assets/favicon-32.png` pour l'onglet et
+`assets/favicon-180.png` pour l'écran d'accueil.
+
+L'illustration ne vient pas d'ici et le dépôt est public : si son auteur devait
+être crédité ou l'image retirée, il suffit de remplacer les deux fichiers.
+
 ## Les images
 
 La vue **images** montre une photo à la fois, **incurvée comme une page de carnet**.
@@ -153,6 +163,41 @@ atterrissant — le vol tient lieu de transition.
 
 Le fond coloré tiré des pochettes a été retiré : il contredisait le chrome argenté.
 Toute l'extraction de couleur qui l'alimentait a disparu avec lui. Tout est neutralisé sous `prefers-reduced-motion`.
+
+## Le cintrage en ruban
+
+Repris d'un carrousel de référence : pendant le déplacement, la pochette se
+**courbe comme une feuille qu'on fait claquer**, puis redevient parfaitement plate
+à l'arrêt. C'est la vitesse qui creuse l'onde — rien d'autre.
+
+La technique est celle de la vue images, réemployée : la pochette est doublée
+d'une couche de **quatorze tranches verticales** posées sur une sinusoïde, chacune
+avec sa propre rotation, prise sur la tangente de l'onde. Sans cette rotation les
+tranches resteraient parallèles et la courbe se lirait en escalier ; un `rotateY`
+sur la pochette entière ne donnerait qu'un plat incliné.
+
+Deux pièges méritent d'être notés, parce qu'ils ne se voient pas à la lecture :
+
+- **l'opacité et `preserve-3d` ne tiennent pas sur le même élément.** Une opacité
+  inférieure à 1 aplatit d'office le contexte 3D de ses enfants : les tranches se
+  seraient rabattues sur un plan, sans aucune courbe. D'où la coquille — un
+  élément porte le fondu et sa perspective, son enfant porte la 3D ;
+- **l'accrochage CSS est suspendu le temps de la glissade.** En `mandatory`, le
+  navigateur se réserve le droit de recaler après chaque écriture de `scrollLeft`,
+  ce qui téléporterait le mouvement à l'arrivée dès la première image.
+
+Le défilement natif `smooth` a été remplacé par une glissade animée à la main —
+départ franc, longue sortie. Il fallait de toute façon connaître la vitesse image
+par image, ce que le défilement natif ne dit pas.
+
+Au repos, l'amplitude est nulle : la couche de tranches s'efface entièrement et
+rend la main à la pochette plate. **L'état d'arrêt est exactement celui d'avant**,
+et tout est neutralisé sous `prefers-reduced-motion`.
+
+Ce qui n'a **pas** été repris de la référence : ses coins arrondis, son fond blanc
+à cartes crème et son halo de couleur. Les trois contredisaient le parti pris
+d'ici — angles nets, chrome argenté, et une nappe colorée dont on s'était
+justement débarrassé.
 
 ## Publier sur GitHub Pages
 
