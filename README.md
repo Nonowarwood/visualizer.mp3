@@ -553,6 +553,76 @@ Le choix est retenu d'une visite à l'autre : c'est une façon de naviguer, pas 
 coup d'œil. Sous 900 px de large, la liste disparaît — elle mangerait la pochette
 qu'elle est censée servir.
 
+## Le fond d'écran
+
+Le tiroir d'options propose quatorze fonds, **rangés par famille de couleur**.
+Le fond choisi tapisse l'écran de l'appareil quand on y est, et la page entière
+quand on n'y est pas : la couche vit dans `#app`, si bien qu'une seule règle
+couvre les deux cas.
+
+### Le voile
+
+C'est lui qui rend la chose tenable. Sans voile, un ciel de midi mange le texte,
+une rue de nuit noie les panneaux, et le site change de lisibilité à chaque
+image — l'utilisateur aurait le choix entre un fond et un site utilisable.
+
+Un voile posé à la couleur du thème, à 76 % en clair et 74 % en sombre, ramène
+toutes les images au même contraste. Le fond reste **un fond** : on le reconnaît,
+il donne son climat à la page, et rien de ce qui se lit n'en dépend.
+
+### Deux couches pour une image
+
+Changer `background-image` remplace l'image d'un coup, et cette coupure se voit.
+La couche en porte donc deux : celle du bloc et celle de son `::before`. On écrit
+la nouvelle dans celle qui ne sert pas, puis on bascule — les deux fonds se
+fondent l'un dans l'autre. Le voile, en `::after`, est peint après les deux et
+les couvre donc l'une comme l'autre.
+
+### Ranger par couleur
+
+`tools/build-fonds.py` recense `assets/background/`, classe chaque image et en
+tire la vignette du tiroir. Déposez une image, relancez : elle apparaît dans le
+groupe de sa couleur, sans qu'une ligne soit à écrire.
+
+```sh
+cd site && python3 tools/build-fonds.py
+python3 tools/build-fonds.py --dry    # dit ce qu'il ferait, n'écrit rien
+```
+
+La couleur n'est trouvée **ni par la moyenne des pixels** — la moyenne d'un ciel
+orange et d'une ville bleue est un gris qui n'existe nulle part dans l'image —
+**ni par la teinte moyenne en coordonnées polaires** : sur Tokyo au couchant, elle
+mêle le rose du haut du ciel à l'orange de l'horizon et sort un rouge que l'œil ne
+voit pas. Les deux ont été essayées ; les deux se trompaient.
+
+On procède par **vote**. Chaque pixel dépose son poids dans le bac de sa teinte,
+et ce poids vaut `saturation² × valeur` : une couleur franche pèse, un gris ne dit
+rien, un noir non plus. Les bacs sont ensuite réunis par familles — rose, orange,
+vert, turquoise, bleu, violet — et la plus lourde l'emporte. C'est ce qui range
+Central Park au vert : son ciel bleu est le bac le plus lourd pris seul, mais les
+deux bacs de vert réunis pèsent davantage.
+
+Reste un bac « gris », pour une image qui n'a **aucune** couleur. Son seuil est
+volontairement très bas, et aucune de ces quatorze images n'y tombe. J'ai essayé
+de le monter pour y ranger le métro d'acier, que l'œil voit gris : toute valeur
+qui l'y mettait y jetait d'abord les volutes lilas, qui ont pourtant une couleur.
+La mesure avait raison contre l'impression — l'acier est chaud, sa bande de quai
+est jaune, et l'image pèse plus en couleur que le lilas pâle. La règle est donc
+restée simple.
+
+### Les noms
+
+Les fichiers arrivent nommés par empreinte — `a3d4f51698a2….jpg` — ce qui ne dit
+rien dans un menu. L'outil nomme donc dans cet ordre : le nom déjà inscrit dans
+`assets/fonds.js`, puis sa table `NOMS`, puis le nom du fichier à défaut.
+Renommer un fond dans le manifeste est sans danger : une relance ne le défait pas.
+
+### Ce que cela pèse
+
+Les vignettes du tiroir font 240 × 150, 85 ko pour les quatorze, et ne se
+chargent qu'à l'ouverture du tiroir. Le fond en pleine taille n'est demandé que
+lorsqu'on le choisit — et le choix est retenu d'une visite à l'autre.
+
 ## L'écran de l'appareil
 
 Emprunt à une direction artistique de jeu en pixels : de la 3D rendue en **basse

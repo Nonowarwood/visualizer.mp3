@@ -1729,6 +1729,81 @@ optBtn.addEventListener('click',function(e){
 });
 optmenu.addEventListener('click',function(e){e.stopPropagation();});
 
+/* ─────────── le fond d'écran ───────────
+   Les images vivent dans `assets/background/` ; `tools/build-fonds.py` les
+   recense, les range par famille de couleur et en tire les vignettes du tiroir.
+   Rien n'est écrit à la main ici : déposer une image et relancer l'outil suffit.
+
+   On choisit un fond en le voyant, jamais à son nom — d'autant que ces fichiers
+   arrivent nommés par empreinte. Le tiroir montre donc des vignettes, groupées
+   par couleur, ce qui est l'ordre dans lequel on cherche un fond.
+
+   Le site sait vivre sans le manifeste : s'il manque, la section disparaît, son
+   titre avec, et rien d'autre ne change. */
+var FOND='',fondB=false;
+try{FOND=localStorage.getItem('wte-fond')||'';}catch(e){}
+function fondsListe(){
+  return (typeof FONDS!=='undefined'&&FONDS&&FONDS.length)?FONDS:null;
+}
+function paintFonds(){
+  var box=$('#fonds');if(!box)return;
+  var L=fondsListe();
+  if(!L){
+    var t=box.previousElementSibling;
+    if(t&&t.className==='ah')t.remove();
+    box.remove();return;
+  }
+  /* Les familles sont prises dans l'ordre du manifeste : c'est l'outil qui a
+     rangé, du rose au bleu, et non l'ordre où les fichiers se présentent. */
+  var noms=[],grp=[];
+  L.forEach(function(x){
+    var k=noms.indexOf(x.g);
+    if(k<0){k=noms.push(x.g)-1;grp.push([]);}
+    grp[k].push(x);
+  });
+  box.innerHTML=
+    '<button class="fnul" type="button" data-f="" aria-pressed="false">aucun fond</button>'
+    +noms.map(function(nom,i){
+      return '<p class="fg">'+esc(nom)+'</p><div class="fgr">'
+        +grp[i].map(function(x){
+          return '<button class="fv" type="button" data-f="'+esc(x.f)+'"'
+            +' aria-pressed="false" aria-label="Fond d\'écran : '+esc(x.n)+'"'
+            +' title="'+esc(x.n)+'">'
+            +'<img src="'+esc(x.v)+'" alt="" loading="lazy" width="240" height="150">'
+            +'<span>'+esc(x.n)+'</span></button>';
+        }).join('')+'</div>';
+    }).join('');
+}
+function applyFond(){
+  var L=fondsListe(),it=null,el=$('#fond');
+  if(L)for(var i=0;i<L.length;i++)if(L[i].f===FOND)it=L[i];
+  /* Un fond retiré du dossier depuis le dernier passage : on revient au fond du
+     thème plutôt que d'appeler une image qui n'est plus là. */
+  if(!it)FOND='';
+  if(it&&el){
+    /* On écrit dans la couche qui ne sert pas, puis on bascule : les deux fonds
+       se fondent l'un dans l'autre. */
+    fondB=!fondB;
+    el.style.setProperty(fondB?'--fond-b':'--fond-a','url("'+it.f+'")');
+    el.classList.toggle('b',fondB);
+  }
+  document.documentElement.setAttribute('data-fond',it?'on':'off');
+  var box=$('#fonds');
+  if(box){
+    var bs=box.querySelectorAll('button[data-f]');
+    for(var k=0;k<bs.length;k++)
+      bs[k].setAttribute('aria-pressed',
+        bs[k].getAttribute('data-f')===FOND?'true':'false');
+  }
+  try{localStorage.setItem('wte-fond',FOND);}catch(e){}
+}
+if($('#fonds'))$('#fonds').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-f]');if(!b)return;
+  FOND=b.getAttribute('data-f');
+  applyFond();
+});
+paintFonds();applyFond();
+
 /* ─────────── commandes ─────────── */
 $('#grid').addEventListener('click',function(e){
   var b=e.target.closest('.cell');if(!b)return;

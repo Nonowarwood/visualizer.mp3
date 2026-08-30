@@ -10,6 +10,8 @@
   --st-1:#FBFCFD; --st-2:#DCE0E6; --st-3:#C1C6CE;
   --on-1:#1B1F25; --on-2:#5C636E; --on-3:#99A1AD; --on-line:rgba(0,0,0,.15);
   --sv-bg:#C3C8D0; --sv-ph:#6E7684; --refl:.22; --vig:.09;
+  /* le voile posé sur le fond d'écran, quand il y en a un */
+  --voile:rgba(250,251,252,.76);
   /* chrome */
   --cr-1:#FBFCFD; --cr-2:#E7EAEF; --cr-3:#CBD1D9; --cr-line:#9098A4;
   --cr-ink:#2B3037; --cr-ink-2:#69717D; --cr-glow:rgba(255,255,255,.7);
@@ -60,6 +62,7 @@
   --st-1:#1B1E23; --st-2:#101216; --st-3:#08090B;
   --on-1:#F2F4F7; --on-2:#98A0AC; --on-3:#5C636E; --on-line:rgba(255,255,255,.16);
   --sv-bg:#1E2228; --sv-ph:#7C838F; --refl:.32; --vig:.34;
+  --voile:rgba(9,10,13,.74);
   --bl-1:#E4E7EC; --bl-2:#B6BCC6; --bl-3:#8B929E; --bl-4:#666D79; --bl:#C7CCD4;
   --cr-1:#3E434B; --cr-2:#2E333A; --cr-3:#22262C; --cr-line:#14171B;
   --cr-ink:#F2F4F7; --cr-ink-2:#A8B0BC; --cr-glow:rgba(0,0,0,.5);
@@ -183,6 +186,34 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(78% 66% at 50% 44%,transparent 40%,rgba(0,0,0,var(--vig)));
   transition:background .7s var(--e)}
+
+/* ─── le fond d'écran ───
+   Il vit dans `#app`, sous tout le reste : il tapisse donc l'écran de l'appareil
+   quand on y entre et la page entière quand on en sort, sans qu'une règle ait à
+   distinguer les deux cas.
+
+   **Le voile est ce qui rend la chose tenable.** Sans lui, un ciel de midi
+   mangerait le texte et une rue de nuit noierait les panneaux : le site
+   changerait de lisibilité à chaque image. Posé au fond du thème, il ramène
+   toutes les images au même contraste — le site reste clair en clair et sombre
+   en sombre, et le fond reste un fond.
+
+   Deux couches pour une seule image : celle du bloc et celle de son `::before`.
+   On écrit la nouvelle dans celle qui ne sert pas, puis on bascule — les fonds se
+   fondent l'un dans l'autre au lieu de se remplacer d'un coup. Le voile, en
+   `::after`, est peint après les deux et les couvre donc toutes les deux. */
+.fond{position:absolute;inset:0;z-index:0;pointer-events:none;
+  /* Les deux couches partent de `none` : une variable jamais écrite rendrait
+     tout le raccourci invalide, et la règle sauterait en silence. */
+  --fond-a:none;--fond-b:none;
+  background:var(--fond-a) center/cover no-repeat;
+  opacity:0;transition:opacity .5s var(--e)}
+[data-fond="on"] .fond{opacity:1}
+.fond::before{content:"";position:absolute;inset:0;
+  background:var(--fond-b) center/cover no-repeat;
+  opacity:0;transition:opacity .45s var(--e)}
+.fond.b::before{opacity:1}
+.fond::after{content:"";position:absolute;inset:0;background:var(--voile)}
 .grain{position:fixed;inset:0;z-index:55;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
   background-size:160px 160px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
@@ -1035,6 +1066,45 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-3) 55%,var(--bl-4))}
 /* L'interrupteur du thème garde le sien : il dit déjà son état. */
 .optmenu #mTheme .lbl::after{display:none}
+
+/* ─── le choix du fond ───
+   Quatorze images ne se choisissent pas dans une liste de noms : on choisit un
+   fond en le voyant. Le tiroir montre donc des vignettes, rangées par famille de
+   couleur — c'est l'ordre dans lequel on cherche un fond, jamais l'ordre
+   alphabétique d'un nom de fichier. Trois par rangée : assez grandes pour se
+   reconnaître, assez petites pour que le lot tienne d'un regard.
+
+   Le tiroir prend alors de la hauteur, et se plafonne pour ne jamais dépasser la
+   fenêtre — c'est lui qui défile, pas la page. */
+.optmenu{max-height:min(76vh,560px);overflow-y:auto;overscroll-behavior:contain}
+.fonds{padding:8px 12px 11px;border-bottom:1px solid var(--pn-line)}
+.fonds .fg{margin:9px 0 5px;font:600 9px/1 var(--sans);letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-3)}
+.fgr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+/* Les vignettes ne sont pas des lignes de menu : on défait ce que la règle
+   générale des boutons du tiroir leur imposait. */
+.optmenu .fonds button{display:block;width:auto;padding:0;border-bottom:none;
+  text-align:left}
+.optmenu .fonds .fv{position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px var(--pn-line);
+  transition:box-shadow .16s var(--e),transform .16s var(--e)}
+.optmenu .fonds .fv:hover{box-shadow:0 0 0 1px var(--ink-3)}
+.fonds .fv img{display:block;width:100%;aspect-ratio:8/5;object-fit:cover}
+.fonds .fv span{display:block;padding:3px 5px 4px;background:var(--pn-2);
+  font:400 9.5px/1.2 var(--sans);color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Sélectionné : la même sélection vernie que partout ailleurs. */
+.optmenu .fonds .fv[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bl-3)}
+.fonds .fv[aria-pressed="true"] span{color:var(--pn);font-weight:600;
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,
+    var(--bl-3) 52%,var(--bl-4))}
+/* « Aucun » est une ligne, pas une image : rien à montrer. */
+.optmenu .fonds .fnul{width:100%;padding:6px 8px;background:var(--pn-2);
+  box-shadow:0 0 0 1px var(--pn-line);font:400 12.5px/1 var(--sans);
+  color:var(--ink-2)}
+.optmenu .fonds .fnul[aria-pressed="true"]{color:var(--pn);
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,
+    var(--bl-3) 52%,var(--bl-4))}
 
 .close{display:none;width:34px;border-left:1px solid var(--cr-line);
   font:400 13px/1 var(--sans);letter-spacing:0}

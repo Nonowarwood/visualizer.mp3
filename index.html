@@ -45,6 +45,11 @@
      lecteur, loupe, visite et panneaux restent donc dans l'écran, sans qu'aucun
      d'eux n'ait à le savoir. -->
 <div id="app">
+<!-- Le fond d'écran choisi, derrière tout le reste et sous son voile. Il est
+     dans #app et non sur le corps de la page : ainsi il tapisse l'écran de
+     l'appareil quand on y entre, et la page entière quand on en sort, sans
+     qu'une seule règle ait à distinguer les deux cas. -->
+<div class="fond" id="fond" aria-hidden="true"></div>
 <div class="stage">
   <div class="field" id="field" tabindex="0" role="listbox" aria-label="Parutions, à faire défiler">
     <div class="rail" id="rail"></div>
@@ -102,6 +107,8 @@
           <p class="ah">Réglages</p>
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
+          <p class="ah">Fond d'écran</p>
+          <div class="fonds" id="fonds" role="group" aria-label="Choisir un fond d'écran"></div>
           <p class="ah">Le site</p>
           <button id="mTour" type="button"><span class="lbl">visite guidée</span><b>↻</b></button>
           <button id="mAbout" type="button"><span class="lbl">à propos</span><b>↗</b></button>
@@ -266,6 +273,7 @@
 </div>
 
 <script src="assets/pix.js"></script>
+<script src="assets/fonds.js"></script>
 <script src="assets/tracks.js"></script>
 <script src="script.js"></script>
 </body>
