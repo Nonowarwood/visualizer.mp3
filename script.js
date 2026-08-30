@@ -71,12 +71,47 @@ var ARTISTS=[
   {id:'24470887-d9fe-4a32-b17e-939f413972c9', rid:'d461e691-e5c5-49a7-a69b-f82ae2e8895e',
    t:"GREENGREEN_playextended", kind:'EP', date:'23 août 2026', y:2026, v:'', label:'',
    cover:'', note:"L'édition étendue de GREENGREEN. Elle n'existe pas comme parution distincte dans MusicBrainz, seulement comme édition à l'intérieur de celle de mai."}
+]},
+ {id:'d2189e8e-fb85-4fd9-b566-edc5d16e956f', name:'george', place:'Séoul', since:2016,
+  slug:'george', photos:[],
+  /* Enregistré chez MusicBrainz sous son nom coréen, 죠지. Le site garde la
+     graphie latine, comme pour les deux autres. */
+  rel:[
+  {id:'95ff6e50-eca3-4761-a26c-20b3cdff150d', t:"I Am GEORGE", kind:'Single', date:'16 mars 2016', y:2016, v:'', label:'Kakao M Corp.',
+   cover:'', note:"Le premier single, sorti chez Kakao M. Le nom s'y écrit encore en capitales."},
+  {id:'9b8dbc05-a146-4c1a-acbc-9279bdacbcc1', t:"Boat", kind:'Single', date:'17 novembre 2017', y:2017, v:'', label:'Craft and Jun',
+   cover:'', note:"Premier single sous Craft and Jun, le label qui l'accompagne depuis."},
+  {id:'24880955-3081-4742-a73b-11dd66044ed7', t:"cassette", kind:'EP', date:'6 juillet 2018', y:2018, v:'', label:'Craft and Jun',
+   cover:'', note:"Le premier EP, et le premier disque qu'on peut écouter d'un bout à l'autre."},
+  {id:'f3121154-80e1-4f3e-8221-f9f890fb8e7e', t:"Digging Club Seoul Pt. 1", kind:'Single', date:'17 septembre 2018', y:2018, v:'', label:'YG PLUS',
+   cover:'', note:"Une commande du projet Digging Club Seoul, hors de la série des disques."},
+  {id:'1e158870-7935-4b2f-87af-86930a0480c7', t:"LEEEE", kind:'EP', date:'3 octobre 2019', y:2019, v:'', label:'Craft and Jun',
+   cover:'', note:"Le deuxième EP. Le titre reprend le nom de famille de l'artiste, Lee."},
+  {id:'b92b3a67-fbff-49d3-a3c8-976398c42dde', t:"TAKE CARE with KozyPop", kind:'Single', date:'6 juillet 2020', y:2020, v:'', label:'Craft and Jun',
+   cover:'', note:"Un single à deux, avec KozyPop."},
+  {id:'11bfe2f7-edd6-4f31-89ea-33844a54500c', t:"Love in summer", kind:'EP', date:'23 septembre 2020', y:2020, v:'', label:'Craft and Jun',
+   cover:'', note:"Un EP d'été, entre les deux disques longs."},
+  {id:'81deb324-921d-4b76-900b-5cc9b1d4fe6a', t:"싸이월드 BGM 2021", kind:'Single', date:'9 août 2021', y:2021, v:'', label:'Cyworld Z',
+   cover:'', note:"Une commande pour Cyworld, le réseau social coréen, dans sa tentative de retour."},
+  {id:'1785bdf0-f37c-41bc-a5e2-5f387ce9e841', t:"Song for you project Vol.4 : Dear My Winter", kind:'Single', date:'5 décembre 2022', y:2022, v:'', label:'',
+   cover:'', note:"Un single de commande, sans label renseigné."},
+  {id:'672522f0-5df3-4443-a0d2-6e637a7e1c6e', t:"FRR", kind:'Album', date:'6 avril 2023', y:2023, v:'', label:'Craft and Jun',
+   cover:'', note:"Le premier album, sept ans après le premier single."},
+  {id:'24c08766-90b0-4dd1-9740-cf5a2c19213b', t:"gimbap", kind:'EP', date:'18 août 2024', y:2024, v:'', label:'Craft and Jun',
+   cover:'', note:"L'EP de 2024, nommé d'après le plat."},
+  {id:'d58cf863-3679-428e-b307-81d7ee8c3e0d', t:"if i’m with you", kind:'Single', date:'29 juillet 2026', y:2026, v:'', label:'',
+   cover:'', note:"La parution la plus récente au moment où ce site a été fait."}
 ]}
 ];
 var A=0, REL=ARTISTS[0].rel;
 
 /* ═══ pochettes : Cover Art Archive (MusicBrainz), repli sur le titre ═══ */
 var CAA=function(id){return 'https://coverartarchive.org/release-group/'+id+'/front-500';};
+/* L'archive sert aussi du 1200 : de quoi ouvrir la pochette en grand sans
+   alourdir le Cover Flow, qui n'a besoin que du 500. */
+var CAA_BIG=function(id){return 'https://coverartarchive.org/release-group/'+id+'/front-1200';};
+var CAAR_BIG=function(id){return 'https://coverartarchive.org/release/'+id+'/front-1200';};
+function bigOf(r){return r.cover||(r.rid?CAAR_BIG(r.rid):CAA_BIG(r.id));}
 /* Certaines éditions n'existent qu'au niveau « release » et non « release-group » :
    leur pochette et leur fiche se trouvent alors sur un autre chemin. */
 var CAAR=function(id){return 'https://coverartarchive.org/release/'+id+'/front-500';};
@@ -287,9 +322,15 @@ function buildArtist(idx,first){
       +'<span class="refl" aria-hidden="true">'+sleeveHTML(r,i,true)+'</span></span></button>';
   }).join('')+'<i class="edge"></i>';
 
+  /* La numérotation en série — 0.01, 0.02, 0.1, 0.03 — est la colonne
+     vertébrale de la discographie de wave to earth, mais rien ne la donnait à
+     voir. On marque les parutions qui en portent une : la planche montre alors
+     la série d'un coup d'œil. Les artistes sans numérotation n'ont rien de plus. */
   $('#grid').innerHTML=REL.map(function(r,i){
-    return '<button class="cell" type="button" data-i="'+i+'" aria-label="Ouvrir '+esc(r.t)+'">'
+    return '<button class="cell'+(r.v?' serie':'')+'" type="button" data-i="'+i+'"'
+      +' aria-label="Ouvrir '+esc(r.t)+(r.v?', série '+esc(r.v):'')+'">'
       +sleeveHTML(r,i,true)
+      +(r.v?'<span class="ser" aria-hidden="true">'+esc(r.v)+'</span>':'')
       +'<span class="cap"><b>'+esc(r.t)+'</b><span>'+r.y+'</span></span></button>';
   }).join('');
 
@@ -334,8 +375,15 @@ function rebuild(){
     slots[idx].style.setProperty('--d',(p*55)+'ms');
     cells[idx].style.setProperty('--d',(p*35)+'ms');
   });
+  /* La réglette suit le calendrier, pas le rang : espacer les parutions
+     régulièrement masquait le rythme réel du catalogue — trois singles en deux
+     mois, puis un an de silence. Chaque trait est posé à sa date. */
+  var ys=view.map(function(idx){return REL[idx].y||0;}).filter(Boolean);
+  var y0=Math.min.apply(null,ys),y1=Math.max.apply(null,ys),span=Math.max(1,y1-y0);
   $('#scrub').innerHTML=view.map(function(idx,p){
-    return '<button type="button" data-p="'+p+'" aria-current="false" aria-label="'+esc(REL[idx].t)+'"></button>';
+    var f=((REL[idx].y||y0)-y0)/span;
+    return '<button type="button" data-p="'+p+'" aria-current="false" style="--x:'
+      +(f*100).toFixed(2)+'%" aria-label="'+esc(REL[idx].t)+', '+(REL[idx].y||'')+'"></button>';
   }).join('');
   CUR=Math.min(CUR,Math.max(0,view.length-1));
   sizeEdges();
@@ -419,10 +467,17 @@ function fiche(i){
     if(!d.groups.length&&!d.serv.length){box.remove();return;}
     var many=d.groups.length>1;
     var n=d.groups.reduce(function(a,g){return a+g.length;},0);
+    /* La durée du disque : l'information qu'on cherche d'abord, et elle était
+       dans la donnée sans être dite. Tue si une seule piste n'est pas mesurée,
+       plutôt que d'annoncer un total faux. */
+    var ms=0,plein=true;
+    d.groups.forEach(function(g){g.forEach(function(t){
+      if(t.ms)ms+=t.ms; else plein=false;});});
+    var tot=(plein&&ms)?(n+' titre'+(n>1?'s':'')+' · '+Math.round(ms/60000)+' min'):(n+' titre'+(n>1?'s':''));
     /* Le lecteur ne connaît que les pistes jouables, dans leur ordre. */
     var flat=[];
     box.innerHTML=(d.groups.length
-      ? '<p class="trk-h">Titres<i>'+n+'</i></p>'
+      ? '<p class="trk-h">Titres<i>'+esc(tot)+'</i></p>'
         +d.groups.map(function(g,mi){
             return (many?'<p class="trk-s">Support '+(mi+1)+'</p>':'')
               +'<ol class="trk-l">'+g.map(function(t){
@@ -467,6 +522,27 @@ function fiche(i){
   return plate;
 }
 
+/* ─────────── la pochette en grand ───────────
+   Le Cover Flow se contente du 500 ; ici on demande le 1200 à l'archive. Le
+   petit reste affiché derrière tant que le grand n'est pas arrivé : sans quoi
+   le cadre s'ouvrirait sur du vide le temps du chargement. */
+function loupe(i){
+  var r=REL[i],el=$('#loupe');
+  el.innerHTML='<img src="'+esc(srcOf(r))+'" alt="Pochette de '+esc(r.t)+'">'
+    +'<figcaption>'+esc(r.t)+'</figcaption>';
+  var big=new Image();
+  big.onload=function(){var im=el.querySelector('img');if(im)im.src=big.src;};
+  big.src=bigOf(r);
+  el.hidden=false;
+  requestAnimationFrame(function(){el.classList.add('on');});
+}
+function loupeOff(){
+  var el=$('#loupe');
+  el.classList.remove('on');
+  setTimeout(function(){el.hidden=true;el.innerHTML='';},reduce?0:260);
+}
+$('#loupe').addEventListener('click',loupeOff);
+
 /* ─────────── le lecteur ───────────
    Une iframe YouTube, pas l'API JavaScript de YouTube : celle-ci exigerait de
    charger un script tiers dans la page, ce que le site s'interdit partout
@@ -491,10 +567,19 @@ function plPlay(k){
   if(k<0||k>=PL.list.length)return;
   PL.i=k;
   var t=PL.list[k];
+  /* L'enchaînement sans l'API de YouTube : une intégration accepte une suite
+     d'identifiants en paramètre et passe d'elle-même à la suivante. On lui donne
+     donc la fin du disque à partir d'ici — la piste jouée reste dans le chemin,
+     `playlist` ne portant que ce qui vient après. */
+  var suite=PL.list.slice(k+1).map(function(x){return x.yt;}).join(',');
   $('#plFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(t.yt)
-    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1'
+    +(suite?'&playlist='+suite:'');
   $('#plTitle').textContent=t.t;
   $('#plNum').textContent=pad(k+1)+' / '+pad(PL.list.length)+' · '+PL.rel;
+  /* Le lecteur avance seul : le compteur ne le sait pas, faute de retour de
+     l'iframe. Il dit d'où l'on est parti, ce que la mention ci-dessous précise. */
+  $('#plSuite').hidden=!suite;
   $('#plPrev').disabled=k<=0;
   $('#plNext').disabled=k>=PL.list.length-1;
   $('#player').hidden=false;
@@ -541,11 +626,74 @@ function flipTo(fromEl,toEl,done){
   setTimeout(end,900);
 }
 
+/* ─────────── l'adresse ───────────
+   Sans état dans l'URL, aucune parution ne se partage ni ne se met en favori, et
+   le bouton « retour » du navigateur quitte le site au lieu de refermer la fiche.
+   Le fragment porte donc l'artiste, la vue, et la parution quand il y en a une :
+
+     #/wave-to-earth            le parcours
+     #/cortis/planche           la planche
+     #/george/frr               une fiche
+
+   La parution est désignée par son titre mis à plat plutôt que par son
+   identifiant MusicBrainz : une adresse se lit et se dicte. Les collisions sont
+   levées par le rang, mais il n'y en a aucune aujourd'hui. */
+function slugify(t){
+  var x=String(t).toLowerCase();
+  /* NFD sépare l'accent de sa lettre, on jette les accents ; les apostrophes
+     typographiques disparaissent au lieu de devenir des tirets. */
+  if(x.normalize)x=x.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  x=x.replace(/[\u2018\u2019']/g,'')
+     .replace(/[^a-z0-9]+/g,'-')
+     .replace(/^-+|-+$/g,'');
+  /* Un titre entièrement non latin — « 싸이월드 BGM 2021 » — se réduirait à rien. */
+  return x||'x';
+}
+var hashLock=false;
+function writeHash(){
+  if(hashLock)return;
+  var a=ARTISTS[A],h='#/'+a.slug;
+  if(STATE==='focus'&&view.length)h+='/'+slugify(REL[view[CUR]].t);
+  else if(STATE==='survey')h+='/planche';
+  else if(STATE==='photos')h+='/images';
+  if(location.hash===h)return;
+  hashLock=true;
+  try{history.pushState(null,'',h);}catch(e){location.hash=h;}
+  hashLock=false;
+}
+var pendingHash=null;
+function readHash(first){
+  var p=(location.hash||'').replace(/^#\/?/,'').split('/').filter(Boolean);
+  var ai=0;
+  for(var i=0;i<ARTISTS.length;i++)if(ARTISTS[i].slug===p[0])ai=i;
+  if(ai!==A||first)buildArtist(ai,!!first);
+  var what=p[1]||'';
+  /* Au premier passage le splash tient encore l'écran : on met la destination
+     de côté, `enter` l'appliquera. Sans quoi l'intro serait écrasée avant même
+     d'avoir été vue. */
+  if(first){pendingHash=what||null;return;}
+  applyHash(what);
+}
+function applyHash(what){
+  if(what==='planche'){setState('survey');return;}
+  if(what==='images'){openPhotos();return;}
+  if(what){
+    for(var k=0;k<view.length;k++){
+      if(slugify(REL[view[k]].t)===what){open(k);return;}
+    }
+  }
+  setState('parcours');goTo(CUR,false);
+}
+addEventListener('popstate',function(){
+  hashLock=true;readHash(false);hashLock=false;
+});
+
 /* ─────────── états ─────────── */
 function setState(s){
   if(s!==STATE)sfx.view();
   STATE=s;
   document.documentElement.setAttribute('data-state',s);
+  writeHash();
   $('#mParcours').setAttribute('aria-pressed',s==='parcours'?'true':'false');
   $('#mSurvey').setAttribute('aria-pressed',s==='survey'?'true':'false');
   $('#mPhotos').setAttribute('aria-pressed',s==='photos'?'true':'false');
@@ -564,6 +712,7 @@ function open(p){
   fc.classList.toggle('flipping',!!vis);
   var plate=fiche(i);
   setState('focus');
+  writeHash();
   if(vis)requestAnimationFrame(function(){
     flipTo(from,plate,function(){fc.classList.remove('flipping');});
   });
@@ -783,6 +932,7 @@ $('#back').addEventListener('click',close);
 /* La fiche est reconstruite à chaque ouverture : on écoute le conteneur. */
 $('#focus').addEventListener('click',function(e){
   if(e.target.closest('.fclose')){close();return;}
+  if(e.target.closest('.plate')){loupe(view[CUR]);return;}
   var t=e.target.closest('.tp');
   if(t){
     PL.list=SHOWN.list;PL.rel=SHOWN.rel;PL.key=SHOWN.key;
@@ -832,7 +982,8 @@ document.addEventListener('keydown',function(e){
     if(STATE==='photos')pStep(-1); else if(STATE==='focus')open(CUR-1); else goTo(CUR-1);}
   else if(k==='Enter'&&STATE==='parcours'){e.preventDefault();open(CUR);}
   else if(k==='Escape'){e.preventDefault();
-    if(amenu.classList.contains('on'))amenuOpen(false); else close();}
+    if(!$('#loupe').hidden)loupeOff();
+    else if(amenu.classList.contains('on'))amenuOpen(false); else close();}
   else if(k==='g'||k==='G'){e.preventDefault();setState(STATE==='survey'?'parcours':'survey');}
   else if(k==='Home'){e.preventDefault();goTo(0);}
   else if(k==='End'){e.preventDefault();goTo(view.length-1);}
@@ -953,6 +1104,7 @@ function enter(){
   });
   hud.classList.add('lit');
   goTo(0,false);requestAnimationFrame(render);
+  if(pendingHash){var w=pendingHash;pendingHash=null;applyHash(w);}
   if(window.requestIdleCallback)requestIdleCallback(prefetchOthers,{timeout:2500});
   else setTimeout(prefetchOthers,1200);
   var h=$('#hint');
@@ -964,6 +1116,8 @@ $('#splash').addEventListener('click',enter);
 
 /* ─────────── départ ─────────── */
 document.documentElement.setAttribute('data-state','intro');
-buildArtist(0,true);
+/* L'adresse a le dernier mot au démarrage : ouvrir un lien partagé doit mener
+   là où il pointe, pas au parcours du premier artiste. */
+readHash(true);
 
 })();

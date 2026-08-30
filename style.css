@@ -380,6 +380,27 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 [data-state="parcours"] .edgelab,[data-state="survey"] .edgelab{opacity:1}
 @media(max-width:900px){.edgelab{display:none}}
 
+/* ─── la pochette en grand ─── */
+.loupe{position:fixed;inset:0;z-index:70;display:grid;place-content:center;gap:14px;
+  padding:var(--pad);background:rgba(8,9,11,.86);cursor:zoom-out;
+  opacity:0;transition:opacity .26s var(--e)}
+.loupe.on{opacity:1}
+.loupe[hidden]{display:none}
+.loupe img{display:block;max-width:min(86vw,860px);max-height:78vh;width:auto;height:auto;
+  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 40px 70px -30px rgba(0,0,0,.8)}
+.loupe figcaption{font:400 11px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;
+  color:#9AA0AC;text-align:center}
+[data-state="focus"] .focus .plate{cursor:zoom-in}
+
+/* ─── la numérotation en série ─── */
+.survey .cell.serie .sleeve{box-shadow:0 0 0 1px rgba(0,0,0,.22) inset,
+  0 0 0 2px var(--bl-3),0 26px 44px -30px rgba(0,0,0,.6)}
+.ser{position:absolute;left:0;top:0;z-index:4;padding:3px 6px;
+  font:600 10px/1 var(--sans);letter-spacing:.08em;color:#fff;
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4));
+  text-shadow:0 1px 1px rgba(0,30,70,.5)}
+.survey .cell{position:relative}
+
 /* ─── le lecteur ───
    Posé dans le coin, hors du HUD : il survit au changement de vue et à la
    fermeture de la fiche. On referme un disque, on continue de l'écouter. */
@@ -412,6 +433,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .pl-foot button:hover{color:var(--cr-ink);filter:brightness(1.03)}
 .pl-foot button:active{filter:brightness(.94)}
 .pl-foot button[disabled]{opacity:.4;pointer-events:none}
+.pl-s{font:400 9.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--bl);flex:none}
+.pl-s[hidden]{display:none}
 .pl-n{font:400 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink-3);font-variant-numeric:tabular-nums;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -516,9 +540,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   font:400 11px/1.5 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--on-2);
   max-width:44ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.scrub{display:flex;align-items:flex-end;gap:5px;flex:0 0 auto;justify-content:center;
-  padding-bottom:6px;min-width:0;pointer-events:auto}
-.scrub button{width:2px;height:10px;background:var(--on-3);flex:none;
+/* Les traits sont posés à leur date, donc en absolu : la rangée devient une
+   frise et non plus une simple suite de rangs. Largeur fixe pour que la mise à
+   l'échelle ne dépende pas du nombre de parutions filtrées. */
+.scrub{position:relative;flex:0 0 auto;height:26px;width:min(320px,34vw);
+  min-width:0;pointer-events:auto}
+.scrub button{position:absolute;bottom:6px;left:var(--x,0);width:2px;height:10px;
+  background:var(--on-3);transform:translateX(-1px);
   transition:height .35s var(--e),background .35s var(--e)}
 .scrub button:hover{background:var(--on-1);height:16px}
 .scrub button[aria-current="true"]{height:24px;background:var(--bl-3)}

@@ -1,6 +1,6 @@
 # visualizer.mp3
 
-Les parutions de **wave to earth** et de **CORTIS**, parcourues une à une.
+Les parutions de **wave to earth**, **CORTIS** et **george**, parcourues une à une.
 
 Site statique : `index.html`, `style.css`, `script.js`, et `assets/tracks.js`
 pour les titres. Aucune dépendance à compiler, aucun script tiers.
@@ -201,10 +201,15 @@ Cliquer un titre le joue **dans la page**, sur un petit lecteur posé en bas à
 droite. Il vit hors du HUD : refermer la fiche, changer de vue ou d'artiste ne
 l'interrompt pas — on referme un disque, on continue de l'écouter.
 
-C'est une **iframe**, pas l'API JavaScript de YouTube. Celle-ci offrirait
-l'enchaînement automatique en fin de piste, mais au prix d'un script tiers exécuté
-dans la page, ce que le site s'interdit partout ailleurs. D'où les deux boutons
-◂◂ ▸▸ qui parcourent les pistes jouables de la parution.
+C'est une **iframe**, pas l'API JavaScript de YouTube : celle-ci exigerait un
+script tiers exécuté dans la page, ce que le site s'interdit partout ailleurs.
+
+**Le disque s'enchaîne quand même.** Une intégration YouTube accepte une suite
+d'identifiants en paramètre et passe d'elle-même à la suivante : on lui donne la
+fin de la parution à partir de la piste lancée. Ce qu'on perd, faute de retour de
+l'iframe, c'est de *savoir* où elle en est — le compteur dit d'où l'on est parti,
+et la mention « et la suite » signale qu'il y a un après. Les boutons ◂◂ ▸▸
+reprennent la main.
 
 Les pistes qui portent un `▸` se jouent ici ; celles qui portent un `↗` s'ouvrent
 au dehors, faute de vidéo trouvée.
@@ -212,6 +217,31 @@ au dehors, faute de vidéo trouvée.
 **Pour retirer le lecteur** et revenir à un site qui ne charge rien de tiers :
 supprimez la `<section class="player">` de `index.html`. Les titres retomberont
 tous sur un lien sortant.
+
+## L'adresse
+
+Le fragment porte l'artiste, la vue, et la parution quand il y en a une :
+
+```
+#/wave-to-earth            le parcours
+#/cortis/planche           la planche
+#/george/frr               une fiche
+```
+
+Sans état dans l'URL, aucune parution ne se partageait ni ne se mettait en favori,
+et le bouton **retour** du navigateur quittait le site au lieu de refermer la
+fiche. Les trois sont réglés.
+
+La parution est désignée par son titre mis à plat, pas par son identifiant
+MusicBrainz : une adresse se lit et se dicte. Les accents sont défaits avant
+d'être jetés, les apostrophes typographiques disparaissent au lieu de devenir des
+tirets, et un titre entièrement non latin — `싸이월드 BGM 2021` — se réduit à ce
+qu'il en reste plutôt qu'à rien. Aucune collision sur les trente-quatre parutions
+actuelles.
+
+Au démarrage, l'adresse a le dernier mot — mais **le splash garde la main** :
+la destination est mise de côté et appliquée à l'entrée, sinon l'intro serait
+écrasée avant d'avoir été vue.
 
 ## Finitions
 
@@ -229,7 +259,18 @@ tous sur un lien sortant.
 - le splash compte les pochettes sur un **petit afficheur** plutôt que sur une barre
   muette. La grille sombre par-dessus donne le point de la matrice — sans elle,
   c'est du texte ambre sur du noir, pas un afficheur ;
-- le **type de la parution** se tient debout contre les deux bords de la fenêtre.
+- le **type de la parution** se tient debout contre les deux bords de la fenêtre ;
+- la **réglette suit le calendrier**, pas le rang. Espacer les parutions
+  régulièrement masquait le rythme réel d'un catalogue — trois singles en deux
+  mois, puis un an de silence. Chaque trait est posé à sa date ;
+- la fiche annonce la **durée du disque**, `14 titres · 58 min`. Le total est tu
+  si une seule piste n'est pas mesurée, plutôt que d'en annoncer un faux ;
+- cliquer la pochette de la fiche l'**ouvre en grand** : la Cover Art Archive sert
+  du 1200 là où le Cover Flow se contente du 500. Le petit reste affiché derrière
+  tant que le grand n'est pas arrivé, pour que le cadre ne s'ouvre pas sur du vide ;
+- la **numérotation en série** — `0.01`, `0.02`, `0.1`, `0.03` — se voit enfin dans
+  la planche. C'est la colonne vertébrale de la discographie de wave to earth ;
+  les artistes qui n'en ont pas n'ont rien de plus.
 
 ## Animations
 
@@ -322,6 +363,14 @@ Toutes tirées de **MusicBrainz**, triées par date de première parution.
 Deux réserves : MusicBrainz classe `play with earth! 0.03` en **Album**, Wikipédia
 en **EP** ; le site suit MusicBrainz, d'où viennent les identifiants. Et la
 compilation `uncounted 0.00` (mai 2024) n'y figure pas, donc elle est absente.
+
+**george** — `d2189e8e-fb85-4fd9-b566-edc5d16e956f`, 12 parutions.
+MusicBrainz l'enregistre sous son nom coréen, **죠지** ; le site garde la graphie
+latine, comme pour les deux autres. Quatre de ses parutions sont des commandes ou
+des duos plutôt que des disques à lui — `Digging Club Seoul Pt. 1`,
+`TAKE CARE with KozyPop`, `싸이월드 BGM 2021`, `Song for you project Vol.4`. Elles
+sont gardées parce que MusicBrainz les lui crédite ; retirez-les du tableau `rel`
+si vous préférez ne montrer que les disques.
 
 **CORTIS** — `d27808c8-d3a6-4bbe-acc2-22d5e19f3bca`, 7 parutions.
 `What You Want` y figure deux fois, aux 18 et 22 août 2025 : un doublon de catalogue.
