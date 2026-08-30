@@ -1,4 +1,6 @@
-# wave to earth — parutions
+# visualizer.mp3
+
+Les parutions de **wave to earth** et de **CORTIS**, parcourues une à une.
 
 Site statique en trois fichiers : `index.html`, `style.css`, `script.js`.
 Aucune dépendance à compiler, aucun script tiers, aucun cookie.
@@ -156,7 +158,7 @@ Toute l'extraction de couleur qui l'alimentait a disparu avec lui. Tout est neut
 
 ```bash
 cd site
-git init && git add -A && git commit -m "wave to earth"
+git init && git add -A && git commit -m "visualizer.mp3"
 git branch -M main
 git remote add origin git@github.com:<vous>/<depot>.git
 git push -u origin main
