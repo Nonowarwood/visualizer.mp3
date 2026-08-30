@@ -42,8 +42,12 @@ visuel des iPod à molette :
   `--cr-glow` la retourne en ombre portée. La structure du dégradé, elle, ne
   bouge pas.
 
-Ce n'est **pas** un appareil : ni molette, ni pile de menus, ni châssis. Aucune marque,
-aucun logo ni aucune ressource de constructeur n'est reproduit — tout est redessiné en CSS.
+Ce n'est **pas** un appareil, par défaut : ni molette, ni pile de menus, ni châssis
+— l'interface est plein écran, et c'est le style seul qui cite l'époque. Un mode
+facultatif la loge dans un boîtier dessiné, voir « Dans l'appareil » plus bas.
+
+Aucune marque, aucun logo ni aucune ressource de constructeur n'est reproduit — tout
+est redessiné en CSS, châssis compris.
 
 ## Navigation
 
@@ -700,6 +704,32 @@ qu'à un montage étranger.
 **Une réserve :** le fragment d'une adresse (`#/cortis/greengreen`) n'atteint jamais
 le serveur. Une carte *par parution* demanderait un pré-rendu ; celle-ci vaut pour
 tout le site.
+
+## Dans l'appareil
+
+Une option range le site dans l'**écran d'un baladeur dessiné** : corps métal,
+écran cerclé, molette à quatre zones et bouton central. Rien n'y est emprunté —
+ni marque, ni nom, ni silhouette relevée : c'est la ligne que le site tient déjà
+pour son chrome.
+
+**La molette commande vraiment.** La faire tourner parcourt le catalogue : l'angle
+est suivi en absolu, son écart cumulé, et un cran tombe tous les 22° — seize par
+tour. Le passage par ±180° est ramené dans l'intervalle, sinon un demi-tour
+compterait pour seize crans d'un coup. Les quatre zones font ce que font les
+touches : `menu` revient, `◂◂` `▸▸` parcourent, `▸❙❙` ouvre ou lance la première
+piste, le centre vaut `↵`.
+
+Les mesures sont **virtuelles** — châssis 736 × 916, écran 680 × 510 — et un seul
+facteur met les deux à l'échelle **depuis le même coin haut-gauche**. L'écran tombe
+donc au pixel près sur son cadre, sans centrage à refaire deux fois de son côté.
+
+Le point qui rend tout le reste gratuit : donner une transformée à `#app` en fait
+le **référent des positions fixes** qu'il contient. Le lecteur, la loupe, la visite
+et les panneaux restent dans l'écran sans qu'aucun d'eux n'ait à savoir qu'il y est.
+
+Le boîtier porte le second `border-radius` de la feuille — avec le microsillon. Un
+boîtier n'a pas d'angles vifs, et la règle des angles nets vise les commandes de
+l'interface, pas l'objet qui les contient.
 
 ## La visite guidée
 

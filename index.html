@@ -39,6 +39,12 @@
 <div class="grain" aria-hidden="true"></div>
 <div class="cur" id="cur" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
 
+<!-- Tout le site vit dans #app. En mode appareil, ce bloc prend la taille d'un
+     écran virtuel et se réduit à l'échelle dans le châssis dessiné plus bas. Un
+     conteneur transformé devient le référent des positions fixes qu'il contient :
+     lecteur, loupe, visite et panneaux restent donc dans l'écran, sans qu'aucun
+     d'eux n'ait à le savoir. -->
+<div id="app">
 <div class="stage">
   <div class="field" id="field" tabindex="0" role="listbox" aria-label="Parutions, à faire défiler">
     <div class="rail" id="rail"></div>
@@ -90,6 +96,7 @@
           <p class="ah">Parcours</p>
           <button id="mList" type="button" aria-pressed="false"><span class="lbl">liste appariée</span></button>
           <button id="mPix" type="button" aria-pressed="false"><span class="lbl">pochettes en pixels</span></button>
+          <button id="mDevice" type="button" aria-pressed="false"><span class="lbl">dans l'appareil</span></button>
           <p class="ah">Réglages</p>
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
@@ -223,6 +230,22 @@
     <button id="plNext" type="button" aria-label="Piste suivante">▸▸</button>
   </footer>
 </section>
+</div>
+
+<!-- Le châssis : dessiné, générique, sans marque ni nom. Corps métal, écran
+     cerclé, molette à quatre zones et bouton central. -->
+<div class="device" id="device" hidden aria-hidden="true">
+  <div class="dv-body">
+    <div class="dv-screen"></div>
+    <div class="dv-wheel" id="dvWheel">
+      <button class="dv-z dv-menu" type="button" data-z="menu">menu</button>
+      <button class="dv-z dv-prev" type="button" data-z="prev" aria-label="Précédent">◂◂</button>
+      <button class="dv-z dv-next" type="button" data-z="next" aria-label="Suivant">▸▸</button>
+      <button class="dv-z dv-play" type="button" data-z="play" aria-label="Lecture">▸ ❙❙</button>
+      <button class="dv-c" id="dvCentre" type="button" aria-label="Ouvrir"></button>
+    </div>
+  </div>
+</div>
 
 <div class="splash" id="splash">
   <div class="coll" id="coll" aria-hidden="true"></div>

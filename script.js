@@ -646,6 +646,115 @@ function aboutOpen(on){
   if(on){el.hidden=false;requestAnimationFrame(function(){el.classList.add('on');});}
   else{el.classList.remove('on');setTimeout(function(){el.hidden=true;},reduce?0:220);}
 }
+/* ─────────── le mode appareil ───────────
+   Le site vient loger dans l'écran d'un châssis dessiné. Les mesures sont
+   virtuelles — châssis 736 × 916, écran 680 × 510 — et un seul facteur met les
+   deux à l'échelle **depuis le même coin haut-gauche** : l'écran tombe donc au
+   pixel près sur son cadre, sans arithmétique de centrage à refaire deux fois.
+
+   Donner une transformée à `#app` en fait le référent des positions fixes qu'il
+   contient : le lecteur, la loupe, la visite et les panneaux restent dans l'écran
+   sans qu'aucun d'eux n'ait à savoir qu'il y est. */
+var DV_W=736,DV_H=916,DV_SX=28,DV_SY=26,DV_SW=680,DV_SH=510;
+var DEV=false;
+try{DEV=localStorage.getItem('wte-dev')==='1';}catch(e){}
+
+function deviceLayout(){
+  var app=$('#app'),dv=$('#device');
+  if(!DEV){
+    app.removeAttribute('style');dv.hidden=true;dv.removeAttribute('style');
+    return;
+  }
+  dv.hidden=false;
+  var z=Math.min(innerWidth*0.94/DV_W,innerHeight*0.94/DV_H);
+  var dx=(innerWidth-DV_W*z)/2,dy=(innerHeight-DV_H*z)/2;
+  dv.style.cssText='left:'+dx.toFixed(1)+'px;top:'+dy.toFixed(1)+'px;width:'+DV_W
+    +'px;height:'+DV_H+'px;transform:scale('+z.toFixed(4)+')';
+  app.style.cssText='position:fixed;inset:auto;left:'+(dx+DV_SX*z).toFixed(1)+'px;top:'
+    +(dy+DV_SY*z).toFixed(1)+'px;width:'+DV_SW+'px;height:'+DV_SH
+    +'px;transform:scale('+z.toFixed(4)+');transform-origin:0 0;overflow:hidden';
+}
+function applyDevice(){
+  document.documentElement.setAttribute('data-device',DEV?'on':'off');
+  $('#mDevice').setAttribute('aria-pressed',DEV?'true':'false');
+  try{localStorage.setItem('wte-dev',DEV?'1':'0');}catch(e){}
+  deviceLayout();
+  /* Le champ vient de changer de largeur du tout au tout : tout ce qui se centre
+     sur elle doit être refait. */
+  sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
+  if(STATE==='photos'&&photoList().length)placeRing();
+}
+$('#mDevice').addEventListener('click',function(){DEV=!DEV;applyDevice();});
+addEventListener('resize',function(){
+  if(!DEV)return;
+  deviceLayout();sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
+  if(STATE==='photos'&&photoList().length)placeRing();
+});
+
+/* Les quatre zones font ce que font les touches, pour que la molette ne soit pas
+   un décor : elle commande vraiment. */
+function dvAction(z){
+  if(z==='menu'){
+    if(STATE==='focus')close();
+    else if(STATE!=='parcours')setState('parcours');
+    return;
+  }
+  if(z==='prev'||z==='next'){
+    var d=z==='next'?1:-1;
+    if(STATE==='photos')pStep(d); else if(STATE==='focus')open(CUR+d); else goTo(CUR+d);
+    return;
+  }
+  if(z==='play'){
+    /* Depuis une fiche, la première piste jouable part. Ailleurs, on ouvre. */
+    var b=document.querySelector('#trk .tp');
+    if(STATE==='focus'&&b)b.click(); else if(STATE==='parcours')open(CUR);
+    return;
+  }
+  if(z==='centre'){
+    if(STATE==='parcours')open(CUR);
+    else if(STATE==='photos'){
+      var l=photoList();
+      if(l.length)loupeOpen(l[pIdx],l[pIdx],pad(pIdx+1)+' / '+pad(l.length));
+    }
+  }
+}
+[].slice.call(document.querySelectorAll('.dv-z')).forEach(function(b){
+  b.addEventListener('click',function(e){e.stopPropagation();dvAction(b.getAttribute('data-z'));});
+});
+$('#dvCentre').addEventListener('click',function(e){e.stopPropagation();dvAction('centre');});
+
+/* Tourner la molette parcourt le catalogue. L'angle est suivi en absolu et son
+   écart cumulé : un cran tous les 22°, ce qui fait seize crans par tour. Le
+   passage par ±180° est ramené dans l'intervalle, sinon un demi-tour compterait
+   pour seize d'un coup. */
+var wDrag=null,wAcc=0;
+(function(){
+  var w=$('#dvWheel');if(!w)return;
+  w.addEventListener('pointerdown',function(e){
+    if(e.target.closest('.dv-c,.dv-z'))return;
+    var r=w.getBoundingClientRect();
+    wDrag={cx:r.left+r.width/2,cy:r.top+r.height/2,a:null};wAcc=0;
+    try{w.setPointerCapture(e.pointerId);}catch(err){}
+  });
+  w.addEventListener('pointermove',function(e){
+    if(!wDrag)return;
+    var a=Math.atan2(e.clientY-wDrag.cy,e.clientX-wDrag.cx)*180/Math.PI;
+    if(wDrag.a!==null){
+      var d=a-wDrag.a;
+      if(d>180)d-=360; else if(d<-180)d+=360;
+      wAcc+=d;
+      while(Math.abs(wAcc)>=22){
+        var sg=wAcc>0?1:-1;wAcc-=sg*22;
+        dvAction(sg>0?'next':'prev');
+      }
+    }
+    wDrag.a=a;
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    w.addEventListener(ev,function(){wDrag=null;});
+  });
+})();
+
 /* ─────────── la visite guidée ───────────
    Le site a beaucoup de choses qui ne se devinent pas : les touches, le tiroir,
    les titres qui se jouent d'un clic. Six étapes, chacune désignant une commande
@@ -1516,6 +1625,7 @@ $('#mTheme').addEventListener('click',function(){ti=(ti+1)%tm.length;applyTheme(
 applyTheme();
 applyList();
 applyPix();
+applyDevice();
 
 document.addEventListener('keydown',function(e){
   if(STATE==='intro'){enter();return;}

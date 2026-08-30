@@ -532,6 +532,51 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   text-shadow:0 1px 1px rgba(0,30,70,.5)}
 .survey .cell{position:relative}
 
+/* ─── le mode appareil ───
+   Le site vient loger dans l'écran d'un châssis dessiné. Rien n'est emprunté : ni
+   marque, ni nom, ni silhouette relevée — un corps métal, un écran cerclé, une
+   molette à quatre zones, comme le site redessine déjà son chrome.
+
+   Les mesures sont **virtuelles** : le châssis fait 736 × 916 et l'écran 680 × 510,
+   quel que soit l'écran réel. Un seul facteur, posé en JS, met les deux à
+   l'échelle depuis leur coin haut-gauche — même origine, même facteur, donc
+   l'écran tombe au pixel près sur le cadre. */
+#app{position:fixed;inset:0;z-index:1}
+.device{position:fixed;z-index:0;transform-origin:0 0}
+.device[hidden]{display:none}
+[data-device="on"] body{overflow:hidden}
+.dv-body{position:absolute;inset:0;
+  background:linear-gradient(178deg,#FDFDFE 0,#E8EBEF 34%,#D3D8DF 62%,#BFC5CE);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 6px rgba(0,0,0,.14),
+    0 0 0 1px rgba(0,0,0,.34),0 42px 80px -34px rgba(0,0,0,.55)}
+/* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
+   et la règle des angles nets vise les commandes de l'interface. */
+.dv-body{border-radius:44px}
+.dv-screen{position:absolute;left:28px;top:26px;width:680px;height:510px;
+  background:#0A0B0D;
+  box-shadow:0 0 0 6px #16181C,0 0 0 7px rgba(255,255,255,.5),
+    inset 0 2px 10px rgba(0,0,0,.8)}
+.dv-wheel{position:absolute;left:50%;top:576px;width:300px;height:300px;
+  margin-left:-150px;border-radius:50%;
+  background:linear-gradient(180deg,#F6F8FA 0,#E4E8ED 48%,#D6DBE2 52%,#C6CCD5);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),inset 0 -2px 5px rgba(0,0,0,.13),
+    0 0 0 1px rgba(0,0,0,.16);cursor:grab;touch-action:none}
+.dv-wheel:active{cursor:grabbing}
+.dv-z{position:absolute;padding:4px 8px;font:600 12px/1 var(--sans);
+  letter-spacing:.14em;text-transform:uppercase;color:#8A9099;
+  transition:color .15s var(--e)}
+.dv-z:hover{color:#3A4049}
+.dv-menu{left:50%;top:16px;transform:translateX(-50%)}
+.dv-prev{left:14px;top:50%;transform:translateY(-50%)}
+.dv-next{right:14px;top:50%;transform:translateY(-50%)}
+.dv-play{left:50%;bottom:16px;transform:translateX(-50%)}
+.dv-c{position:absolute;left:50%;top:50%;width:112px;height:112px;margin:-56px 0 0 -56px;
+  border-radius:50%;
+  background:linear-gradient(180deg,#FBFCFD 0,#EAEDF1 48%,#DDE1E7 52%,#CDD3DB);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 0 0 1px rgba(0,0,0,.18),
+    0 2px 5px rgba(0,0,0,.12)}
+.dv-c:active{box-shadow:inset 0 2px 6px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.2)}
+
 /* ─── la visite guidée ───
    La mascotte est posée en bas à gauche, au-dessus du compteur, là où elle ne
    recouvre ni la barre ni la pochette centrale. Elle respire lentement — le bloc
