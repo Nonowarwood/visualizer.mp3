@@ -180,9 +180,6 @@ function buildArtist(idx,first){
       +'<span class="cap"><b>'+esc(r.t)+'</b><span>'+r.y+'</span></span></button>';
   }).join('');
 
-  /* Avant que `lifts` change de longueur : un index retenu pour un artiste de
-     quinze parutions pointerait dans le vide chez un artiste qui en a sept. */
-  bHeld.length=0;bAmp=0;
   slots=[].slice.call(document.querySelectorAll('.slot'));
   lifts=slots.map(function(s){return s.querySelector('.lift');});
   faces=slots.map(function(s){return s.querySelector('.lift > .sleeve');});
@@ -382,147 +379,21 @@ function render(){
   if(best!==CUR){CUR=best;hud();}
 }
 function schedule(){if(!raf)raf=requestAnimationFrame(render);}
-field.addEventListener('scroll',function(){schedule();bendStart();},{passive:true});
+field.addEventListener('scroll',schedule,{passive:true});
 addEventListener('resize',function(){sizeEdges();schedule();});
 addEventListener('load',function(){sizeEdges();goTo(CUR,false);schedule();});
-
-/* ─────────── le glissement, et le cintrage qu'il provoque ───────────
-   Le défilement natif « smooth » a sa propre inertie, symétrique, et ne dit rien
-   de sa vitesse. On l'anime donc soi-même : départ franc, longue glissade — et
-   la vitesse ainsi connue pilote la courbure des pochettes.
-
-   L'accrochage CSS est suspendu le temps du vol : en `mandatory`, le navigateur
-   se réserve le droit de recaler après chaque écriture de `scrollLeft`, ce qui
-   téléporterait la glissade à l'arrivée dès la première image. */
-var tw=null;
-function tweenStop(){
-  if(!tw)return;
-  cancelAnimationFrame(tw.raf);tw=null;
-  field.style.scrollSnapType='';
-}
-function tweenTo(to,ms){
-  tweenStop();
-  var from=field.scrollLeft,d=to-from,t0=0;
-  if(Math.abs(d)<0.5){field.scrollLeft=to;bendSync();return;}
-  field.style.scrollSnapType='none';
-  tw={raf:0};
-  tw.raf=requestAnimationFrame(function step(now){
-    if(!t0)t0=now;
-    var k=Math.min(1,(now-t0)/ms);
-    field.scrollLeft=from+d*(k>=1?1:1-Math.pow(2,-9*k));
-    if(k<1){tw.raf=requestAnimationFrame(step);return;}
-    tw=null;field.style.scrollSnapType='';
-  });
-  bendStart();
-}
 
 function goTo(p,smooth){
   if(!view.length)return;
   p=Math.max(0,Math.min(view.length-1,p));
   if(p!==CUR)sfx.step();
   var s=slots[view[p]];
-  var to=s.offsetLeft-(field.clientWidth-s.offsetWidth)/2;
-  if(smooth===false||reduce){tweenStop();field.scrollLeft=to;bendSync();return;}
-  tweenTo(to,760);
-}
-
-/* ─────────── le ruban ───────────
-   Chaque pochette proche du centre est doublée d'une couche de tranches
-   verticales. Au repos l'amplitude est nulle : la couche s'efface entièrement et
-   la pochette plate reprend toute la place — l'état d'arrêt est exactement celui
-   d'avant. En mouvement, une onde la traverse, d'autant plus creusée que le
-   défilement est rapide, et s'amortit d'elle-même quand il ralentit.
-
-   Toute la géométrie se lit une seule fois par image, dans `bendFrame` : les
-   pochettes partagent la même largeur (`--cw`), et une lecture par tranche
-   ferait alterner mesures et écritures — le pire cas pour la mise en page. */
-var B_N=14,bAmp=0,bPhase=0,bLast=0,bRaf=0,bW=0,bHeld=[];
-
-function bendSync(){bLast=field.scrollLeft;}
-function bendStart(){if(!bRaf&&!reduce)bRaf=requestAnimationFrame(bendFrame);}
-
-function bendLayer(i){
-  var lift=lifts[i],face=faces[i];
-  if(!face.querySelector('img.on'))return null;
-  var el=lift.querySelector('.bend');
-  if(el){if(+el.getAttribute('data-w')===bW)return el;el.remove();}
-  var url=srcOf(REL[i]).replace(/'/g,'%27'),w=bW/B_N,out='';
-  for(var k=0;k<B_N;k++){
-    /* +1px de recouvrement : sans lui, l'arrondi sous-pixel laisse voir le fond
-       entre les tranches, et la pochette se raye de traits clairs. */
-    out+='<i style="width:'+(w+1).toFixed(2)+'px;height:'+bW+'px;'
-      +'background-image:url(\''+url+'\');background-size:'+bW+'px '+bW+'px;'
-      +'background-position:'+(-k*w).toFixed(2)+'px 0"></i>';
-  }
-  el=document.createElement('span');
-  el.className='bend';el.setAttribute('aria-hidden','true');
-  el.setAttribute('data-w',bW);el.innerHTML='<span>'+out+'</span>';
-  lift.insertBefore(el,face.nextSibling);
-  bHeld.push(i);
-  return el;
-}
-
-function bendDrop(){
-  while(bHeld.length){
-    var lift=lifts[bHeld.pop()];
-    if(!lift)continue;
-    var el=lift.querySelector('.bend');
-    if(el)el.remove();
-    lift.style.removeProperty('--bend');
-  }
-}
-
-function paintBend(){
-  var w=bW/B_N,lo=Math.max(0,CUR-2),hi=Math.min(view.length-1,CUR+2);
-  /* Le centre se déplace : une pochette qui vient de sortir de la fenêtre
-     garderait sinon sa dernière amplitude, donc une couche cintrée figée par
-     dessus une pochette à demi effacée. On remet tout le monde à plat d'abord ;
-     la boucle qui suit relève les seules pochettes encore concernées. */
-  for(var h=0;h<bHeld.length;h++){
-    var hl=lifts[bHeld[h]];
-    if(hl)hl.style.setProperty('--bend','0');
-  }
-  for(var p=lo;p<=hi;p++){
-    var i=view[p],lift=lifts[i],el=bendLayer(i);
-    if(!el){lift.style.setProperty('--bend','0');continue;}
-    /* Un décalage de phase par pochette : sinon toute la rangée ondule au pas,
-       ce qui la fige en accordéon au lieu de la faire vivre. */
-    var ph=bPhase+p*0.9,depth=bW*0.17*bAmp,sl=el.firstChild.children;
-    lift.style.setProperty('--bend',bAmp.toFixed(3));
-    /* La couche reprend le flou de profondeur de la pochette qu'elle remplace,
-       sans quoi une voisine floutée redeviendrait nette en se cintrant. */
-    el.style.filter=faces[i].style.filter;
-    for(var k=0;k<B_N;k++){
-      var u=(k+0.5)/B_N-0.5,a=6.2831853*u+ph,sn=Math.sin(a);
-      /* La tranche suit la tangente de l'onde : sans cette rotation, les
-         tranches restent parallèles et la courbe se lit en escalier. */
-      var ry=-Math.atan(depth*6.2831853*Math.cos(a)/bW)*57.29578;
-      sl[k].style.transform='translate3d('+(bW/2+u*bW-w/2).toFixed(2)+'px,0,'
-        +(depth*sn).toFixed(2)+'px) rotateY('+ry.toFixed(2)+'deg)';
-      sl[k].style.filter='brightness('+(1-0.26*bAmp*Math.abs(sn)).toFixed(3)+')';
-    }
-  }
-}
-
-function bendFrame(){
-  bRaf=0;
-  if(!view.length)return;
-  var sl=field.scrollLeft,v=Math.abs(sl-bLast);bLast=sl;
-  bW=slots[view[0]].offsetWidth||0;
-  if(!bW)return;
-  /* La montée est immédiate, la descente amortie : le ruban se creuse dès que ça
-     bouge et se relâche doucement, au lieu de claquer net à l'arrêt. */
-  var target=Math.min(1,v/(bW*0.11));
-  bAmp=target>bAmp?target:bAmp*0.90;
-  if(bAmp<=0.004){bAmp=0;bendDrop();return;}
-  bPhase=-sl*0.013;
-  paintBend();
-  bRaf=requestAnimationFrame(bendFrame);
+  field.scrollTo({left:s.offsetLeft-(field.clientWidth-s.offsetWidth)/2,
+    behavior:(smooth===false||reduce)?'auto':'smooth'});
 }
 var drag=null;
 field.addEventListener('pointerdown',function(e){
   if(e.pointerType==='touch')return;
-  tweenStop();
   drag={x:e.clientX,l:field.scrollLeft,moved:false};
 });
 field.addEventListener('pointermove',function(e){
@@ -540,7 +411,7 @@ field.addEventListener('click',function(e){
   if(p===CUR)open(p); else goTo(p);
 });
 field.addEventListener('wheel',function(e){
-  e.preventDefault();tweenStop();
+  e.preventDefault();
   field.scrollLeft+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY);
 },{passive:false});
 
