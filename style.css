@@ -20,13 +20,17 @@
      cadre borné, doivent se confondre avec le fond */
   --ph-bg:#EDF0F4; --scrim:rgba(240,242,246,.90);
   /* le boîtier : argent en thème clair */
-  /* Gris **neutre** et bande **étroite** : tout le boîtier tient dans 13 % de la
-     plage de valeurs. La forme naît d'écarts minuscules et d'une lumière diffuse,
-     non de dégradés larges — c'était mon erreur. */
-  --dv-1:#F7F7F8; --dv-2:#EFEFF0; --dv-3:#E4E4E6; --dv-4:#D8D8DB;
-  --dv-w1:#F3F3F4; --dv-w2:#ECECEE; --dv-w3:#E6E6E8; --dv-w4:#DFDFE2;
-  --dv-ink:#A0A0A5; --dv-ink-2:#56565C; --dv-lip:rgba(255,255,255,.9);
-  --dv-edge:rgba(255,255,255,.55); --dv-hollow:rgba(0,0,0,.07);
+  /* La courbe de valeurs **remonte en bas** : clair au sommet, creux au milieu,
+     puis une reprise avant l'arête basse. C'est la lumière rebondie du support,
+     et c'est elle qui fait lire une surface courbe — un dégradé qui ne fait que
+     descendre reste un plan incliné. Les hautes lumières sont neutres, les creux
+     légèrement froids : c'est ce petit écart de température qui dit le métal
+     plutôt que le papier. */
+  --dv-1:#F4F6F8; --dv-2:#E4E7EC; --dv-3:#CBD0D8; --dv-4:#DEE2E7;
+  --dv-w1:#EFF1F4; --dv-w2:#DFE3E9; --dv-w3:#CED3DA; --dv-w4:#D9DDE3;
+  --dv-ink:#98A0AA; --dv-ink-2:#4B525B; --dv-lip:rgba(255,255,255,.95);
+  --dv-edge:rgba(255,255,255,.62); --dv-hollow:rgba(0,0,0,.13);
+  --dv-ao:rgba(90,100,115,.20);
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -55,10 +59,11 @@
   --ink:#EDEFF3; --ink-2:#A8B0BC; --ink-3:#767E8A;
   --ph-bg:#0E1114; --scrim:rgba(8,9,11,.88);
   /* et noir en thème sombre : le même objet, dans son autre finition */
-  --dv-1:#38383A; --dv-2:#313134; --dv-3:#29292C; --dv-4:#232326;
-  --dv-w1:#343437; --dv-w2:#2E2E31; --dv-w3:#2A2A2D; --dv-w4:#252528;
-  --dv-ink:#76767C; --dv-ink-2:#D8D8DC; --dv-lip:rgba(255,255,255,.10);
-  --dv-edge:rgba(255,255,255,.055); --dv-hollow:rgba(0,0,0,.30);
+  --dv-1:#4B4F55; --dv-2:#35383D; --dv-3:#212429; --dv-4:#31343A;
+  --dv-w1:#43474D; --dv-w2:#31343A; --dv-w3:#212429; --dv-w4:#2C2F35;
+  --dv-ink:#7E858F; --dv-ink-2:#E8EBEF; --dv-lip:rgba(255,255,255,.20);
+  --dv-edge:rgba(255,255,255,.11); --dv-hollow:rgba(0,0,0,.42);
+  --dv-ao:rgba(0,0,0,.42);
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
    et une règle sur `prefers-color-scheme` ne ferait qu'un noir bref avant que le
@@ -621,22 +626,32 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
      donne la matière sans faire du chrome ; puis le métal lui-même, qui n'est
      pas un fondu régulier mais clair en haut, creusé au milieu, et **remonté
      avant l'arête basse** — c'est cette remontée qui fait la rondeur. */
-  /* Un seul dégradé, très court, et rien d'autre. Ni brossage ni reflet en
-     diagonale : une surface mate sous une lumière douce n'en porte pas, et ils
-     durcissaient tout. */
-  background:linear-gradient(180deg,var(--dv-1) 0,var(--dv-2) 30%,var(--dv-3) 72%,
-    var(--dv-4) 100%);
+  /* Quatre couches, de haut en bas :
+       1. un **spéculaire large** qui déborde par le haut et s'éteint en fondu —
+          un reflet net ferait du verre, celui-ci fait du plastique poli ;
+       2. la **lumière rebondie** sur l'arête basse ;
+       3. le **fuyant des flancs**, qui s'assombrissent en s'éloignant du regard ;
+       4. le corps, dont la valeur descend puis **remonte**. */
+  background:
+    radial-gradient(140% 62% at 50% -14%,rgba(255,255,255,.92) 0,
+      rgba(255,255,255,.34) 42%,rgba(255,255,255,0) 72%),
+    linear-gradient(0deg,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 11%),
+    linear-gradient(90deg,rgba(70,80,95,.10) 0,rgba(0,0,0,0) 15%,
+      rgba(0,0,0,0) 85%,rgba(70,80,95,.10) 100%),
+    linear-gradient(180deg,var(--dv-1) 0,var(--dv-2) 26%,var(--dv-3) 74%,
+      var(--dv-4) 100%);
   /* Les quatre arêtes, chacune sa lumière : vive en haut, sourde en bas, et
      rentrantes sur les côtés — un bord roulé prend la lumière de biais. */
   /* L'arête haute se devine, le pourtour est un cheveu, et l'objet se pose sur
      une ombre **large et pâle** plutôt que profonde — c'est ce qui le fait
      flotter au lieu de le coller au fond. */
   box-shadow:
-    inset 0 1px 0 var(--dv-lip),
-    inset 0 -14px 24px -22px var(--dv-hollow),
-    0 0 0 1px rgba(0,0,0,.07),
-    0 2px 3px rgba(0,0,0,.04),
-    0 44px 88px -34px rgba(0,0,0,.22)}
+    inset 0 1.5px 0 var(--dv-lip),
+    inset 0 -1.5px 0 var(--dv-edge),
+    inset 0 0 0 1px rgba(255,255,255,.22),
+    0 0 0 1px rgba(0,0,0,.10),
+    0 3px 5px -2px rgba(0,0,0,.10),
+    0 40px 80px -30px rgba(0,0,0,.30)}
 /* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
    et la règle des angles nets vise les commandes de l'interface. */
 .dv-body{border-radius:52px}
@@ -645,9 +660,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   /* Le cadre est **creusé** : une gorge sombre, une lèvre claire par-dessus, et
      une ombre interne qui pose la dalle en retrait de la surface. */
   border-radius:5px;
-  box-shadow:0 0 0 5px #1C1C1E,0 0 0 6px rgba(0,0,0,.10),
-    0 3px 9px -3px rgba(0,0,0,.16),
-    inset 0 1px 5px rgba(0,0,0,.5)}
+  /* Le cadre est cerné d'une **occlusion** : là où la dalle rentre dans la coque,
+     la lumière n'entre plus. */
+  box-shadow:0 0 0 5px #1B1D21,0 0 0 6px rgba(255,255,255,.30),
+    0 0 16px 2px var(--dv-ao),
+    inset 0 2px 7px rgba(0,0,0,.6)}
 
 /* ─── la vitre ───
    Deux choses par-dessus l'écran, et rien qui l'obscurcisse : une **trame de
@@ -667,17 +684,19 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   margin-left:-219.5px;border-radius:50%;
   /* Bombée plutôt que striée : la lumière vient d'en haut et se perd sur les
      bords, ce qu'un dégradé linéaire ne sait pas faire. */
-  /* Elle est **du même matériau** que le corps, et ne s'en détache que d'un
-     cheveu et d'un souffle d'ombre. La détacher franchement, comme je l'avais
-     fait, en fait une pièce rapportée. */
-  background:radial-gradient(circle at 50% 26%,var(--dv-w1) 0,var(--dv-w2) 46%,
-    var(--dv-w3) 78%,var(--dv-w4) 100%);
+  /* Elle est **enfoncée**, donc sa lumière est l'inverse de celle d'un dôme :
+     sombre en haut, où le bord porte son ombre dedans, et claire en bas, où le
+     fond la renvoie. C'est le seul indice qui distingue un creux d'une bosse.
+     Autour, une **occlusion** diffuse — pas une ombre portée : un creux
+     n'assombrit pas dans une direction, il assombrit tout autour. */
+  background:linear-gradient(180deg,var(--dv-w3) 0,var(--dv-w2) 34%,
+    var(--dv-w1) 72%,var(--dv-w4) 100%);
   box-shadow:
-    inset 0 1px 1px var(--dv-lip),
-    inset 0 -2px 4px -2px var(--dv-hollow),
-    0 0 0 1px rgba(0,0,0,.045),
-    0 1px 0 var(--dv-edge),
-    0 -1px 4px -1px var(--dv-hollow);
+    inset 0 4px 7px -3px var(--dv-hollow),
+    inset 0 -2px 0 var(--dv-lip),
+    inset 0 0 12px -4px var(--dv-hollow),
+    0 0 0 1px rgba(255,255,255,.42),
+    0 0 20px 1px var(--dv-ao);
   cursor:grab;touch-action:none}
 .dv-wheel:active{cursor:grabbing}
 /* Les quatre repères sont posés **sur l'anneau**, à mi-chemin entre le bouton
@@ -695,13 +714,18 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .dv-play{left:50%;bottom:44px;transform:translateX(-50%);font-size:26px;letter-spacing:.04em}
 .dv-c{position:absolute;left:50%;top:50%;width:164px;height:164px;margin:-82px 0 0 -82px;
   border-radius:50%;
-  background:radial-gradient(circle at 50% 28%,var(--dv-w1) 0,var(--dv-w2) 50%,
-    var(--dv-w3) 82%,var(--dv-w4) 100%);
+  /* Le bouton, lui, est **bombé** : la lumière lui vient d'en haut, et il pose
+     son ombre au fond du creux. */
+  background:
+    radial-gradient(74% 54% at 50% 8%,rgba(255,255,255,.9) 0,rgba(255,255,255,0) 66%),
+    linear-gradient(180deg,var(--dv-w1) 0,var(--dv-w2) 48%,var(--dv-w3) 88%,
+      var(--dv-w4) 100%);
   box-shadow:
-    inset 0 1px 1px var(--dv-lip),
-    inset 0 -2px 4px -2px var(--dv-hollow),
-    0 0 0 1px rgba(0,0,0,.05),
-    0 2px 5px -2px var(--dv-hollow)}
+    inset 0 1.5px 0 var(--dv-lip),
+    inset 0 -1px 0 var(--dv-edge),
+    0 0 0 1px rgba(0,0,0,.07),
+    0 3px 8px -2px var(--dv-ao),
+    0 1px 0 var(--dv-lip)}
 .dv-c:active{box-shadow:inset 0 2px 5px var(--dv-hollow),0 0 0 1px rgba(0,0,0,.07)}
 
 /* ─── un boîtier déposé ───

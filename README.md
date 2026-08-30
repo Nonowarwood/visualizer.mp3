@@ -769,23 +769,39 @@ Le boîtier a d'abord été **plat**, puis **dur**. Les deux fois pour la même 
 j'ajoutais des effets — arêtes marquées, brossage, reflet en diagonale, dégradés
 larges — là où il fallait en retirer.
 
-Ce qui fait un objet de plastique clair sous une lumière douce, c'est **le
-contraire** : un contraste très faible et une lumière diffuse.
+Puis, en corrigeant la dureté, je l'ai rendu **plat une seconde fois** : trop
+blanc, trop uniforme. Un aplat clair n'a pas plus de relief qu'un dégradé large.
 
-| | avant | maintenant |
-|---|---|---|
-| plage de valeurs du corps | 22 % | **12 %** |
-| dominante bleue | 12 | **2** (neutre) |
+Ce qui manquait n'était ni plus ni moins d'effet, mais **la bonne physique**.
 
-Toute la forme naît donc d'écarts minuscules. Un seul dégradé vertical, très court.
-Ni brossage ni reflet : une surface mate n'en porte pas. L'arête haute se devine, le
-pourtour est un cheveu, et l'objet se pose sur une ombre **large et pâle** plutôt
-que profonde — c'est elle qui le fait flotter au lieu de le coller au fond.
+**La courbe de valeurs remonte en bas.** C'est le point que j'avais raté deux fois.
+Un objet courbe ne s'assombrit pas jusqu'au bord : la lumière rebondit du support et
+rallume l'arête basse. Une valeur qui ne fait que descendre décrit un plan incliné,
+pas un galet.
 
-La molette est **du même matériau** que le corps et ne s'en détache que d'un cheveu
-et d'un souffle d'ombre ; la détacher franchement en faisait une pièce rapportée.
-Même retenue pour le bouton central. L'écran n'est plus creusé dans une gorge mais
-cerné d'un liseré fin.
+| haut | | creux | | arête basse |
+|---|---|---|---|---|
+| 246 | → | 208 | → | **226** |
+
+**Le spéculaire est large et s'éteint en fondu.** Un reflet net ferait du verre ;
+celui-ci déborde par le haut et se perd sur 72 % de la hauteur, ce qui fait du
+plastique poli.
+
+**Les creux portent une occlusion, pas une ombre.** Autour de la molette et du
+cadre de l'écran, la lumière n'entre plus — l'assombrissement est diffus et sans
+direction, ce qui est exactement la différence entre un creux et un objet posé.
+
+**La molette est éclairée à l'envers du bouton.** Elle est enfoncée : sombre en
+haut, où le bord porte son ombre dedans, claire en bas, où le fond la renvoie. Le
+bouton central, bombé, fait l'inverse et pose son ombre au fond du creux. C'est le
+seul indice qui distingue un creux d'une bosse.
+
+**La température fait le métal.** Les hautes lumières sont presque neutres (4 points
+d'écart bleu-rouge), les creux nettement plus froids (13). Un gris parfaitement
+neutre lit comme du papier ; c'est ce petit décalage qui dit l'alliage.
+
+La plage de valeurs revient à 15 % — entre les 22 % qui durcissaient et les 12 %
+qui aplatissaient.
 
 **Rien de tout cela n'est repris d'un dessin existant** : ce sont des règles
 d'éclairage, pas une silhouette. Le boîtier reste générique, comme tout ce que le
