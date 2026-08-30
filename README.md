@@ -74,11 +74,41 @@ L'illustration ne vient pas d'ici et le dépôt est public : si son auteur devai
 
 ## Les images
 
-La vue **images** montre une photo à la fois, **incurvée comme une page de carnet**.
-La courbure vient d'un découpage en dix-huit tranches verticales posées sur un
-cylindre : chaque tranche porte un morceau du fond, décalé de sa largeur, et reçoit
-sa propre rotation et son propre assombrissement. Un `rotateY` sur l'image entière
-n'aurait donné qu'un plan incliné.
+Une **hélice de cartes** sur fond noir, reprise d'une référence : la photo de
+devant est d'aplomb et pleine lumière, les autres tournent et s'enfoncent de part
+et d'autre, la chaîne montant en diagonale d'un coin à l'autre.
+
+La diagonale ne vient pas d'un anneau incliné — il aurait penché *toutes* les
+cartes, y compris celle de devant. Chaque carte **tourne d'un cran autour de l'axe
+et monte d'autant** : rotation seule, on obtient un anneau plat ; montée seule,
+une pile ; les deux ensemble donnent l'hélice, et la carte de devant reste droite.
+
+Les cartes existent une fois et ne changent que de transformée, si bien que la
+transition CSS les fait **glisser le long de l'hélice** au lieu de les faire
+réapparaître ailleurs.
+
+Quatre nombres font l'allure, en tête de la section dans `script.js`, et ils se
+règlent à l'œil :
+
+| | |
+|---|---|
+| `P_STEP` | l'angle d'un cran — plus il est grand, plus les voisines se tournent |
+| `P_RISE` | la montée par cran, en largeur de carte : c'est elle qui fait la pente |
+| `P_R` | le rayon, en largeur de carte : il règle le recouvrement |
+| `P_WIN` | combien de cartes de chaque côté restent posées |
+
+Deux conséquences à connaître :
+
+- **la vue passe au noir dans les deux thèmes.** C'est le fond sombre qui creuse
+  l'hélice ; sur le fond clair du reste du site, les cartes s'aplatiraient. Les
+  textes de cette vue ont donc leurs propres couleurs, fixes ;
+- **les cartes sont rognées au même format.** C'est le rognage commun qui fait le
+  jeu de cartes. La photo entière se retrouve **au clic sur la carte de devant**,
+  qui l'ouvre en grand — la même visionneuse que les pochettes. Cliquer une carte
+  de côté l'amène simplement au centre.
+
+Les sources ne sont posées qu'à l'approche : soixante-treize images chargées d'un
+coup pèseraient les quinze mégaoctets du dossier.
 
 Navigation : chevrons, flèches du clavier, molette, ou glisser horizontal.
 Le nom de l'artiste s'affiche en très grand, flouté, derrière.

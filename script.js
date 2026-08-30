@@ -496,16 +496,19 @@ function fiche(i){
    Le Cover Flow se contente du 500 ; ici on demande le 1200 à l'archive. Le
    petit reste affiché derrière tant que le grand n'est pas arrivé : sans quoi
    le cadre s'ouvrirait sur du vide le temps du chargement. */
-function loupe(i){
-  var r=REL[i],el=$('#loupe');
-  el.innerHTML='<img src="'+esc(srcOf(r))+'" alt="Pochette de '+esc(r.t)+'">'
-    +'<figcaption>'+esc(r.t)+'</figcaption>';
-  var big=new Image();
-  big.onload=function(){var im=el.querySelector('img');if(im)im.src=big.src;};
-  big.src=bigOf(r);
+function loupeOpen(small,big,cap){
+  var el=$('#loupe');
+  el.innerHTML='<img src="'+esc(small)+'" alt="'+esc(cap)+'">'
+    +'<figcaption>'+esc(cap)+'</figcaption>';
+  if(big&&big!==small){
+    var im2=new Image();
+    im2.onload=function(){var im=el.querySelector('img');if(im)im.src=im2.src;};
+    im2.src=big;
+  }
   el.hidden=false;
   requestAnimationFrame(function(){el.classList.add('on');});
 }
+function loupe(i){var r=REL[i];loupeOpen(srcOf(r),bigOf(r),r.t);}
 function loupeOff(){
   var el=$('#loupe');
   el.classList.remove('on');
@@ -750,19 +753,14 @@ field.addEventListener('wheel',function(e){
 
 
 
-/* ─────────── images : une page incurvée à la fois ─────────── */
-/* La courbure est obtenue en découpant l'image en tranches verticales posées sur
-   un cylindre : chaque tranche porte un morceau du fond, décalé de sa largeur, et
-   reçoit sa propre rotation. Un simple rotateY sur l'image entière n'inclinerait
-   qu'un plat ; ici la page bombe vraiment. */
-var pIdx=0,pBuilt=false,pFail=0,pDrag=null;
-var P_N=18, P_SPREAD=32*Math.PI/180;
+/* ─────────── images : une hélice de cartes ─────────── */
+var pIdx=0,pBuilt=false,pDrag=null,pMoved=false;
 
 function photoList(){return ARTISTS[A].photos||[];}
 
 function buildPhotos(){
   var a=ARTISTS[A],list=photoList();
-  pIdx=0;pFail=0;pBuilt=true;
+  pIdx=0;pBuilt=true;
   $('#pbig').textContent=a.name;
   var empty=$('#pempty');
   if(!list.length){
@@ -777,69 +775,96 @@ function buildPhotos(){
   }
   empty.hidden=true;
   $('#pPrev').hidden=$('#pNext').hidden=false;
-  showPhoto(0,1);
+  buildRing();
+  showPhoto(0);
 }
 
-function showPhoto(k,dir){
+/* Les photos sont posées sur une **hélice** : chaque carte tourne d'un cran
+   autour d'un axe vertical et monte d'autant. La rotation seule aurait donné un
+   anneau plat, la montée seule une pile ; ensemble elles font la diagonale du
+   modèle, tout en gardant la carte de devant d'aplomb — ce qu'un anneau incliné
+   n'aurait pas fait, puisqu'il aurait penché toutes les cartes avec lui.
+
+   Les cartes ne sont pas redessinées à chaque pas : elles existent une fois et
+   ne changent que de transformée, si bien que la transition CSS les fait glisser
+   le long de l'hélice au lieu de les faire réapparaître ailleurs. */
+/* Les quatre nombres qui font l'allure, et qui se règlent à l'œil :
+   P_STEP  l'angle d'un cran — plus il est grand, plus les voisines se tournent ;
+   P_RISE  la montée par cran, en largeur de carte — c'est elle qui fait la pente ;
+   P_R     le rayon, en largeur de carte — il règle le recouvrement ;
+   P_WIN   combien de cartes de chaque côté restent posées. */
+var P_STEP=17, P_WIN=9, P_R=1.62, P_RISE=0.38, pCards=[], pW=0;
+
+function buildRing(){
+  var list=photoList();
+  $('#pstage').innerHTML='<div class="pring" id="pring">'
+    +list.map(function(_,k){
+      return '<i class="pcard" data-k="'+k+'"><img alt="" decoding="async"></i>';
+    }).join('')+'</div>';
+  pCards=[].slice.call(document.querySelectorAll('#pring .pcard'));
+  pW=0;
+}
+
+function placeRing(){
+  var list=photoList();
+  if(!pCards.length)return;
+  if(!pW)pW=pCards[0].offsetWidth||200;
+  var R=(pW*P_R).toFixed(1),rise=pW*P_RISE;
+  for(var k=0;k<pCards.length;k++){
+    var el=pCards[k],n=k-pIdx,d=Math.abs(n);
+    if(d>P_WIN){el.hidden=true;continue;}
+    el.hidden=false;
+    /* La source n'est posée qu'à l'approche : soixante-treize images chargées
+       d'un coup à l'ouverture pèseraient les quinze mégaoctets du dossier. */
+    var im=el.firstChild;
+    if(!im.getAttribute('src'))im.src=list[k];
+    var a=n*P_STEP,aa=Math.abs(a);
+    el.style.transform='translateY('+(-n*rise).toFixed(1)+'px) rotateY('+a
+      +'deg) translateZ('+R+'px)';
+    el.style.filter='brightness('+(1-Math.min(aa/105,0.74)).toFixed(3)+')';
+    el.style.opacity=(1-Math.min(Math.max(aa-45,0)/95,0.94)).toFixed(3);
+    el.style.zIndex=String(200-Math.round(aa));
+    el.classList.toggle('front',n===0);
+  }
+}
+
+function showPhoto(k){
   var list=photoList();
   if(!list.length)return;
   pIdx=(k%list.length+list.length)%list.length;
-  var url=list[pIdx];
   $('#pcap').textContent=pad(pIdx+1)+' / '+pad(list.length);
-  var im=new Image();
-  im.onerror=function(){
-    if(++pFail>=list.length){
-      $('#pstage').innerHTML='';
-      $('#pPrev').hidden=$('#pNext').hidden=true;
-      var e=$('#pempty');e.hidden=false;
-      e.innerHTML='<b>Images introuvables</b>Les fichiers de <code>assets/photos/'
-        +esc(ARTISTS[A].slug)+'/</code> ne se chargent pas depuis cet emplacement.';
-    }
-  };
-  im.onload=function(){
-    var maxW=Math.min(window.innerWidth*0.54,720);
-    var maxH=window.innerHeight*0.60;
-    var sc=Math.min(maxW/im.naturalWidth,maxH/im.naturalHeight);
-    curl(url,Math.round(im.naturalWidth*sc),Math.round(im.naturalHeight*sc),dir);
-  };
-  im.src=url;
+  placeRing();
 }
 
-function curl(url,W,H,dir){
-  var R=W/(2*Math.sin(P_SPREAD/2));
-  var w=W/P_N, out='';
-  for(var i=0;i<P_N;i++){
-    var u=(i+0.5)/P_N-0.5;
-    var th=u*P_SPREAD;
-    var x=R*Math.sin(th), z=R*Math.cos(th)-R;
-    var left=W/2+x-w/2;
-    var bright=(1-0.30*Math.abs(u)*2).toFixed(3);
-    out+='<i class="pslice" style="width:'+(w+1).toFixed(2)+'px;height:'+H+'px;'
-      +'background-image:url(\''+url.replace(/'/g,"%27")+'\');'
-      +'background-size:'+W+'px '+H+'px;background-position:'+(-i*w).toFixed(2)+'px 0;'
-      +'transform:translate3d('+left.toFixed(2)+'px,0,'+z.toFixed(2)+'px) rotateY('
-      +(th*180/Math.PI).toFixed(2)+'deg);filter:brightness('+bright+')"></i>';
-  }
-  var st=$('#pstage');
-  st.style.width=W+'px';st.style.height=H+'px';
-  st.innerHTML='<div class="pcurl in" style="--from:'+(dir<0?-44:44)+'px;width:'+W+'px;height:'+H+'px">'+out+'</div>';
-}
-
-function pStep(d){sfx.step();showPhoto(pIdx+d,d);}
+function pStep(d){sfx.step();showPhoto(pIdx+d);}
 function openPhotos(){
   if(!pBuilt)buildPhotos();
   setState('photos');
 }
 (function(){
+  /* La carte de devant s'ouvre en grand — les cartes sont rognées au même
+     format pour faire jeu, et c'est là qu'on retrouve la photo entière. Une
+     carte de côté vient simplement au centre. */
+  $('#pstage').addEventListener('click',function(e){
+    var c=e.target.closest('.pcard');
+    /* `pointerup` vide `pDrag` avant que le clic n'arrive : sans ce drapeau
+       gardé à part, un glisser se terminerait par l'ouverture d'une photo. */
+    if(!c||pMoved)return;
+    var k=parseInt(c.getAttribute('data-k'),10);
+    if(k===pIdx)loupeOpen(photoList()[k],photoList()[k],pad(k+1)+' / '+pad(photoList().length));
+    else{sfx.step();showPhoto(k);}
+  });
   $('#pPrev').addEventListener('click',function(){pStep(-1);});
   $('#pNext').addEventListener('click',function(){pStep(1);});
   var st=$('#pstage');
   st.addEventListener('pointerdown',function(e){
+    pMoved=false;
     pDrag={x:e.clientX,done:false};try{st.setPointerCapture(e.pointerId);}catch(err){}
   });
   st.addEventListener('pointermove',function(e){
     if(!pDrag||pDrag.done)return;
     var dx=e.clientX-pDrag.x;
+    if(Math.abs(dx)>8)pMoved=true;
     if(Math.abs(dx)>70){pDrag.done=true;pStep(dx<0?1:-1);}
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
@@ -852,7 +877,8 @@ function openPhotos(){
     pStep(e.deltaY>0||e.deltaX>0?1:-1);
   },{passive:false});
   addEventListener('resize',function(){
-    if(STATE==='photos'&&photoList().length)showPhoto(pIdx,1);
+    pW=0;
+    if(STATE==='photos'&&photoList().length)placeRing();
   });
 })();
 

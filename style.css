@@ -23,6 +23,7 @@
   --e:cubic-bezier(.24,.9,.3,1);
   --e-out:cubic-bezier(.16,1,.3,1);
   --cw:clamp(168px,24vw,340px);
+  --pw:clamp(132px,17vw,236px);
 }
 :root[data-theme="dark"]{
   --st-1:#1B1E23; --st-2:#101216; --st-3:#08090B;
@@ -209,8 +210,10 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   white-space:nowrap;transition:color .2s var(--e)}
 
 /* ─── images : une page incurvée à la fois ─── */
+/* La vue images passe au noir dans les deux thèmes : c'est le fond sombre qui
+   creuse l'hélice. Sur le fond clair du reste du site, les cartes s'aplatiraient. */
 .photos{position:absolute;inset:0;transform:scale(.986);z-index:4;overflow:hidden;
-  display:grid;place-content:center;touch-action:pan-y;
+  background:#08090B;display:grid;place-content:center;touch-action:pan-y;
   opacity:0;pointer-events:none;transition:opacity .5s var(--e),transform .6s var(--e-out)}
 [data-state="photos"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
 [data-state="photos"] .photos{opacity:1;pointer-events:auto;transform:none}
@@ -221,21 +224,40 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .pbig{position:absolute;left:50%;top:clamp(46px,13vh,132px);transform:translateX(-50%);
   font:700 clamp(3rem,11vw,9rem)/1 var(--sans);letter-spacing:-.05em;white-space:nowrap;
   color:var(--bl-3);opacity:.30;filter:blur(7px);pointer-events:none;user-select:none}
-:root[data-theme="dark"] .pbig{opacity:.30}
 
-/* la page : tranches verticales posées sur un cylindre */
-.pstage{position:relative;perspective:1500px;perspective-origin:50% 50%;
+/* La vue est noire quel que soit le thème : ses textes ne peuvent donc pas
+   suivre les couleurs du site, qui s'éteindraient sur ce fond. */
+.pcap{color:#8C93A0}
+.pnav{color:#5E6470}
+.pnav:hover{color:#EDEFF3}
+.pempty{color:#9AA0AC}
+.pempty b{color:#EDEFF3}
+
+/* ─── les photos : une hélice de cartes ───
+   Chaque carte tourne d'un cran autour de l'axe et monte d'autant. Anneau plat
+   si l'on n'a que la rotation, pile si l'on n'a que la montée ; les deux
+   ensemble donnent la diagonale, en gardant la carte de devant d'aplomb — ce
+   qu'un anneau simplement incliné n'aurait pas fait.
+
+   Les transformées sont écrites en JS et la transition les interpole : les
+   cartes glissent le long de l'hélice au lieu de sauter d'une place à l'autre. */
+.pstage{position:absolute;inset:0;
+  perspective:1400px;perspective-origin:50% 50%;
   transform-style:preserve-3d;cursor:grab}
 .pstage:active{cursor:grabbing}
-.pcurl{position:relative;transform-style:preserve-3d}
-.pcurl.in{animation:pin .62s var(--e-out) both}
-@keyframes pin{
-  0%{opacity:0;transform:translateX(var(--from,44px)) rotateY(calc(var(--from,44px) * 0.22)) scale(.96)}
-  60%{opacity:1}
-  100%{opacity:1;transform:none}
-}
-.pslice{position:absolute;top:0;background-repeat:no-repeat;backface-visibility:hidden}
-
+.pring{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.pcard{position:absolute;display:block;
+  /* Format unique : c'est le rognage commun qui fait le jeu de cartes. La photo
+     entière se retrouve en grand, au clic sur celle de devant. */
+  width:var(--pw);height:calc(var(--pw)*1.25);
+  margin-left:calc(var(--pw)*-0.5);margin-top:calc(var(--pw)*-0.625);
+  background:#111;overflow:hidden;backface-visibility:hidden;
+  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 30px 50px -26px rgba(0,0,0,.85);
+  transition:transform .6s var(--e-out),filter .6s var(--e),opacity .6s var(--e)}
+.pcard[hidden]{display:none}
+.pcard img{width:100%;height:100%;object-fit:cover;display:block}
+.pcard.front{cursor:zoom-in;
+  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 44px 70px -28px rgba(0,0,0,.9)}
 .pnav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;
   width:44px;height:44px;font:400 24px/1 var(--sans);color:var(--on-3);
   transition:color .2s var(--e),transform .2s var(--e)}
