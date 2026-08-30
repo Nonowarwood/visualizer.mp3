@@ -580,7 +580,10 @@ L'onglet, lui, est **fermé au départ**. Quatorze fonds dépliés en permanence
 la visite guidée ou les crédits passaient hors de portée sans défiler tout le lot.
 Le dépliement anime `grid-template-rows` de `0fr` à `1fr` : la seule façon de faire
 glisser une hauteur qu'on ne connaît pas d'avance sans aller la mesurer en
-JavaScript.
+JavaScript. Avec un piège, découvert replié : la rangée à `0fr` met la hauteur de
+**contenu** à zéro, mais les 21 px de marge intérieure de l'enfant restent, et son
+texte s'y voyait — l'onglet fermé débordait sur la section suivante. Le
+`overflow:hidden` doit être sur le conteneur, pas seulement sur l'enfant.
 
 ### Le voile
 
@@ -1012,23 +1015,40 @@ deçà de son contenu, et le débordement ressort un cran plus haut.
 Un disque de douze titres occupe désormais 376 px des 420 : il tient tout entier,
 sans défilement.
 
-### Le sol, et la rive de l'écran
+### La coque est grise, pas blanche
 
-Deux défauts que l'œil voyait avant la mesure, et que la mesure a confirmés.
+L'appareil ne se détachait pas du fond. J'ai d'abord accusé le sol et l'ai
+assombri : c'était traiter le symptôme, et cela salissait la page pour rattraper
+autre chose. Le défaut était **dans la coque**, qui montait à `#F4F6F8` — du
+blanc, alors que l'objet dont elle s'inspire est en plastique gris clair et mat.
 
-**Le sol était de la couleur de l'objet.** La coque monte à `#F4F6F8`, le fond de
-page était à `#FBFCFD` : trois points d'écart. L'appareil flottait dans un papier
-de sa propre teinte, et rien ne le détachait. En mode appareil, la page prend donc
-son propre sol — huit points plus sombre **et** légèrement chaud, quand la coque
-est franchement froide. L'objet se détache par la valeur autant que par la
-température, et le métal se lit enfin comme du métal. Le fond de l'écran, lui, ne
-bouge pas : c'est celui du site.
+La voici vingt-cinq points plus bas, entre 195 et 216 de luminance, sur une plage
+resserrée de vingt et un points : un gris quasi uniforme que la lumière module à
+peine. Le sol peut alors redevenir ce qu'il doit être — presque blanc, 233 à 246 —
+et l'écart entre les deux passe à une trentaine de points. L'objet se pose sur du
+papier, il n'y disparaît plus.
 
-**La rive noire était un trait.** Un baladeur de cette époque avait une large
-bordure noire autour de la dalle — la vitre couvrait bien plus que l'image. À 5 px
-la nôtre passait pour un liseré de cadre ; à 13 elle redevient ce qu'elle est, une
-surface. Elle mord sur la coque et jamais sur l'écran : l'image garde ses
-595 × 452, et le site qui s'y loge n'a rien à recalculer.
+**Le mat suit le gris.** Sur un blanc, il fallait beaucoup de blanc pour qu'un
+reflet se voie : le spéculaire était à 92 %. Sur ce gris, la même quantité ferait
+une plaque. Un plastique mat ne renvoie pas l'image de la source, seulement sa
+direction — 30 % suffisent, soit douze points de luminance ajoutés au lieu de
+quarante-quatre.
+
+Le thème sombre suit la même règle qu'avant : on égalise ce que la lumière
+**ajoute en absolu**, pas le pourcentage de blanc. Là où le clair ajoute +12 sur
+un corps à 214, il faut 7 % de blanc pour ajouter les mêmes +12 sur un corps à 76.
+Les deux thèmes restent faits de la même matière.
+
+### La rive de l'écran
+
+Un baladeur de cette époque avait une large bordure noire autour de la dalle — la
+vitre couvrait bien plus que l'image. À 5 px la nôtre passait pour un liseré de
+cadre ; elle est à **16**, et franchement noire. Le filet blanc qu'on avait posé
+autour est retiré : sur la référence, le noir touche le gris sans transition, et
+ce filet dessinait un cadre là où il n'y en a pas.
+
+Elle mord sur la coque et jamais sur l'écran : l'image garde ses 595 × 452, et le
+site qui s'y loge n'a rien à recalculer.
 
 L'occasion a servi à corriger un défaut plus ancien : l'écran était posé 7 px à
 gauche du centre — 67 px de marge à gauche, 74 à droite. Le voilà à 70,5 des deux

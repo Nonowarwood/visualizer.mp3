@@ -28,10 +28,18 @@
      descendre reste un plan incliné. Les hautes lumières sont neutres, les creux
      légèrement froids : c'est ce petit écart de température qui dit le métal
      plutôt que le papier. */
-  --dv-1:#F4F6F8; --dv-2:#E4E7EC; --dv-3:#CBD0D8; --dv-4:#DEE2E7;
-  --dv-w1:#EFF1F4; --dv-w2:#DFE3E9; --dv-w3:#CED3DA; --dv-w4:#D9DDE3;
-  --dv-ink:#98A0AA; --dv-ink-2:#4B525B; --dv-lip:rgba(255,255,255,.95);
-  --dv-edge:rgba(255,255,255,.62); --dv-hollow:rgba(0,0,0,.13);
+  /* ─── un gris, pas un blanc ───
+     La coque montait à #F4F6F8 : du blanc. Or l'objet dont elle s'inspire est en
+     **plastique gris clair**, mat, et c'est de là que venait le manque de
+     contraste — pas du sol, qu'on avait accusé à tort. Le voici vingt-cinq
+     points plus bas, dans les 78-84 % de luminance, sur une plage resserrée de
+     onze points : un gris uniforme que la lumière module à peine, quand un blanc
+     réclamait des reflets pour exister. */
+  --dv-1:#D6D8DB; --dv-2:#CBCED2; --dv-3:#C0C3C8; --dv-4:#C9CCD0;
+  /* La molette est un cheveu plus claire que la coque, comme sur l'objet. */
+  --dv-w1:#DCDEE1; --dv-w2:#D3D6DA; --dv-w3:#C9CCD1; --dv-w4:#D7DADD;
+  --dv-ink:#8E9296; --dv-ink-2:#575B61; --dv-lip:rgba(255,255,255,.55);
+  --dv-edge:rgba(255,255,255,.34); --dv-hollow:rgba(0,0,0,.15);
   --dv-ao:rgba(90,100,115,.20);
   /* Les hautes lumières sont des **variables**, non du blanc en dur. Un même
      blanc n'ajoute pas la même chose selon le fond : 92 % de blanc valent +44 de
@@ -39,15 +47,18 @@
      elles noyaient le thème sombre sous une plaque grise et changeaient le bouton
      en bille. Les valeurs sombres sont réglées pour ajouter **autant en absolu**
      que les claires. */
-  --dv-spec:.92; --dv-spec2:.34; --dv-bounce:.60; --dv-gloss:.90;
-  --dv-ring:.42; --dv-ring2:.30; --dv-ring3:.22;
-  /* Le sol sur lequel l'appareil est posé. Il ne peut pas être le blanc du site :
-     la coque monte à #F4F6F8 et le fond de page à #FBFCFD — trois points d'écart,
-     l'objet flottait dans du papier de sa propre couleur. Ce gris est plus sombre
-     de huit points **et** légèrement chaud, quand la coque est franchement
-     froide : l'objet se détache par la valeur autant que par la température, et
-     le métal se lit enfin comme du métal. */
-  --dv-sol-1:#E6E3DC; --dv-sol-2:#CFCBC2; --dv-sol-3:#B4AFA6;
+  /* Sur un blanc, il fallait beaucoup de blanc pour qu'un reflet se voie ; sur ce
+     gris, la même quantité ferait une plaque. Un plastique mat ne renvoie pas
+     l'image de la source, seulement sa direction : un spéculaire au tiers de ce
+     qu'il était suffit à dire d'où vient la lumière. */
+  --dv-spec:.30; --dv-spec2:.10; --dv-bounce:.26; --dv-gloss:.44;
+  --dv-ring:.32; --dv-ring2:.18; --dv-ring3:.14;
+  /* Le sol reste presque blanc — c'est la coque qui a bougé. J'avais d'abord
+     assombri le sol pour créer l'écart : c'était traiter le symptôme, et cela
+     salissait la page pour rattraper une coque trop claire. Une fois la coque au
+     gris qui est le sien, l'écart est de quinze points et le sol peut redevenir
+     ce qu'il doit être : du blanc, à peine dégradé, sur lequel l'objet se pose. */
+  --dv-sol-1:#F6F6F7; --dv-sol-2:#F1F1F2; --dv-sol-3:#E8E9EA;
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -82,11 +93,16 @@
      boîtier en deux. */
   --dv-1:#484C52; --dv-2:#3A3D43; --dv-3:#2B2E34; --dv-4:#31343A;
   --dv-w1:#42464C; --dv-w2:#35383E; --dv-w3:#2B2E34; --dv-w4:#2F3238;
-  --dv-ink:#7E858F; --dv-ink-2:#E8EBEF; --dv-lip:rgba(255,255,255,.20);
-  --dv-edge:rgba(255,255,255,.11); --dv-hollow:rgba(0,0,0,.42);
+  --dv-ink:#7E858F; --dv-ink-2:#E8EBEF; --dv-lip:rgba(255,255,255,.12);
+  --dv-edge:rgba(255,255,255,.06); --dv-hollow:rgba(0,0,0,.42);
   --dv-ao:rgba(0,0,0,.42);
-  --dv-spec:.19; --dv-spec2:.07; --dv-bounce:.13; --dv-gloss:.21;
-  --dv-ring:.10; --dv-ring2:.08; --dv-ring3:.05;
+  /* Le clair est passé au mat : le sombre suit, sinon les deux thèmes ne seraient
+     plus faits de la même matière. Même règle qu'avant — on égalise ce que la
+     lumière **ajoute en absolu**, pas le pourcentage de blanc. Le spéculaire clair
+     ajoute désormais +12 de luminance sur un corps à 214 ; sur un corps à 76, il
+     faut 7 % de blanc pour ajouter les mêmes +12, non 19. */
+  --dv-spec:.07; --dv-spec2:.03; --dv-bounce:.07; --dv-gloss:.08;
+  --dv-ring:.08; --dv-ring2:.05; --dv-ring3:.04;
   --dv-sol-1:#16181C; --dv-sol-2:#0D0F12; --dv-sol-3:#050607;
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
@@ -715,8 +731,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   gap:var(--pad);padding:0 var(--pad)}
 #outside>*{pointer-events:auto}
 #outside .ctlbar{pointer-events:auto}
-/* Le sol : plus sombre et plus chaud que la coque, pour que l'objet s'en
-   détache. Il ne touche pas au fond de l'écran, qui reste celui du site. */
+/* Le sol : presque blanc, à peine dégradé. C'est la coque qui porte le gris —
+   assombrir le sol était traiter le symptôme. Il ne touche pas au fond de
+   l'écran, qui reste celui du site. */
 [data-device="on"] body{background:radial-gradient(122% 104% at 50% 0%,
   var(--dv-sol-1),var(--dv-sol-2) 56%,var(--dv-sol-3))}
 .device{position:fixed;z-index:0;transform-origin:0 0}
@@ -751,9 +768,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     inset 0 1.5px 0 var(--dv-lip),
     inset 0 -1.5px 0 var(--dv-edge),
     inset 0 0 0 1px rgba(255,255,255,var(--dv-ring3)),
-    0 0 0 1px rgba(0,0,0,.10),
-    0 3px 5px -2px rgba(0,0,0,.10),
-    0 40px 80px -30px rgba(0,0,0,.30)}
+    0 0 0 1px rgba(0,0,0,.08),
+    0 3px 5px -2px rgba(0,0,0,.07),
+    0 40px 80px -30px rgba(0,0,0,.16)}
 /* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
    et la règle des angles nets vise les commandes de l'interface. */
 .dv-body{border-radius:52px}
@@ -769,8 +786,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
      pour un simple trait de cadre ; à 13 elle redevient ce qu'elle est, une
      surface. Elle mord sur la coque, jamais sur l'écran — l'image garde ses
      595 × 452, et le site qui s'y met n'a rien à recalculer. */
-  box-shadow:0 0 0 13px #131519,0 0 0 14px rgba(255,255,255,var(--dv-ring2)),
-    0 0 22px 3px var(--dv-ao),
+  /* Franchement noire, et sans liseré clair autour : sur la référence, le noir
+     touche le gris sans transition. Le filet blanc qu'on avait mis là dessinait
+     un cadre là où il n'y en a pas. */
+  box-shadow:0 0 0 16px #0A0B0C,
+    0 0 20px 3px var(--dv-ao),
     inset 0 2px 7px rgba(0,0,0,.6)}
 
 /* ─── la vitre ───
@@ -1112,7 +1132,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    Le dépliement anime `grid-template-rows` de `0fr` à `1fr` : c'est la seule
    façon de faire glisser une hauteur qu'on ne connaît pas d'avance sans la
    mesurer en JavaScript. */
-.fondsw{display:grid;grid-template-rows:0fr;
+/* `overflow:hidden` sur le **conteneur**, et pas seulement sur l'enfant : la
+   rangée à `0fr` met bien la hauteur de contenu à zéro, mais les 21 px de
+   marge intérieure de l'enfant restent, et son texte s'y voyait — replié,
+   l'onglet débordait quand même sur la section suivante. */
+.fondsw{display:grid;grid-template-rows:0fr;overflow:hidden;
   transition:grid-template-rows .34s var(--e-out)}
 [data-fonds="on"] .fondsw{grid-template-rows:1fr}
 .fondsw>.fonds{overflow:hidden;min-height:0}
