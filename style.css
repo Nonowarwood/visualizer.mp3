@@ -76,6 +76,40 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .splash-bar{width:min(210px,52vw);height:2px;background:#1C1F24;overflow:hidden}
 .splash-bar i{display:block;height:100%;width:0;
   background:linear-gradient(90deg,var(--bl-2),var(--bl-3));transition:width .35s var(--e)}
+/* Un petit afficheur plutôt qu'une barre muette : il dit ce qu'on attend, et
+   combien il en reste. La grille sombre par dessus donne le point de la matrice —
+   sans elle, c'est du texte vert sur du noir, pas un afficheur. */
+.lcd{position:relative;padding:6px 11px;background:#0B0A06;
+  box-shadow:inset 0 0 0 1px #26241B,inset 0 2px 7px rgba(0,0,0,.85);
+  opacity:0;animation:fadein .7s var(--e) 1.15s forwards}
+.lcd b{display:block;font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.22em;
+  color:#F0A83C;text-shadow:0 0 7px rgba(240,168,60,.5)}
+.lcd::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.42) 0 1px,transparent 1px 2px),
+             repeating-linear-gradient(0deg,rgba(0,0,0,.42) 0 1px,transparent 1px 2px)}
+.splash-skip{font:400 10px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;
+  color:#4A4F59;opacity:0;animation:fadein .7s var(--e) 2.1s forwards}
+
+/* ─── l'interrupteur « hold » ───
+   Repris de la commande qui verrouillait l'appareil : plus on le pousse, plus la
+   bande orange se découvre. Le sens tombe juste — à gauche le thème suit le
+   système, et chaque cran vers la droite le verrouille davantage. */
+.hold{display:flex;align-items:center;gap:8px}
+.sw{position:relative;width:28px;height:11px;flex:none;overflow:hidden;
+  background:linear-gradient(180deg,#4A4D53,#6C7076);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.5)}
+.sw::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;
+  background:linear-gradient(180deg,#F0902A,#C4510C);
+  transition:width .28s var(--e-out)}
+.sw i{position:absolute;top:1px;left:1px;width:10px;height:9px;
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px rgba(0,0,0,.45),0 1px 1px rgba(0,0,0,.3);
+  transition:transform .28s var(--e-out)}
+#mTheme[data-t="light"] .sw::before{width:9px}
+#mTheme[data-t="light"] .sw i{transform:translateX(8px)}
+#mTheme[data-t="dark"] .sw::before{width:17px}
+#mTheme[data-t="dark"] .sw i{transform:translateX(16px)}
+
 @keyframes fadein{to{opacity:1}}
 
 /* ═══════════════ curseur ═══════════════ */
@@ -231,7 +265,28 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   .focus{grid-template-columns:minmax(0,clamp(210px,26vw,340px)) minmax(0,min(30rem,44vw));
     align-items:center}
 }
-.focus .plate{width:100%;max-width:min(56vh,340px);justify-self:center;align-self:center}
+.focus .plate{position:relative;width:100%;max-width:min(56vh,340px);
+  justify-self:center;align-self:center}
+/* ─── le microsillon ───
+   Il sort de derrière la pochette et tourne lentement. Le départ est retardé
+   au-delà du vol FLIP : pendant celui-ci la pochette d'arrivée est masquée, et
+   un disque glissant de derrière rien se verrait pour ce qu'il est.
+
+   C'est le seul `border-radius` de la feuille, et il ne contredit pas la règle
+   des angles nets : celle-ci vise les commandes, pas un disque, rond de nature. */
+.disc{position:absolute;top:8%;left:0;width:84%;aspect-ratio:1;border-radius:50%;
+  z-index:0;pointer-events:none;transform:translateX(3%);
+  background:
+    radial-gradient(circle at 50% 50%,
+      var(--pn) 0 15%,rgba(0,0,0,.55) 15.2% 16%,transparent 16.2%),
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(255,255,255,.055) 0 1px,rgba(0,0,0,.42) 1px 3px),
+    conic-gradient(from 210deg,#0d0d0f,#2b2b30 18%,#101013 34%,#26262b 62%,#0d0d0f 82%,#232328);
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 20px 34px -22px rgba(0,0,0,.7)}
+[data-state="focus"] .disc{animation:discOut .9s var(--e-out) .62s both,
+  discSpin 14s linear .62s infinite}
+@keyframes discOut{from{transform:translateX(3%)}to{transform:translateX(30%)}}
+@keyframes discSpin{to{rotate:360deg}}
 .focus .txt{position:relative}
 /* Fermer se fait au bord de la fiche, pas dans le coin de l'écran : la commande
    est là où le regard se trouve déjà. Alignée sur le haut du rang. */
@@ -272,6 +327,27 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .rows div:last-child{border-bottom:none}
 .rows dt{color:var(--ink-2)}
 .rows dd{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
+/* ─── les titres du disque ─── */
+.trk{border-top:1px solid var(--pn-line);padding:10px 14px 12px;
+  opacity:.45;transition:opacity .45s var(--e)}
+.trk.on{opacity:1}
+.trk-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font:600 10.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:8px}
+.trk-h i{font-style:normal;font-variant-numeric:tabular-nums}
+.trk-s{font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);margin:10px 0 6px}
+/* Deux colonnes dès que la place le permet, comme au dos d'une pochette ; une
+   seule en dessous, plutôt que des titres coupés en deux. */
+.trk-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:0 18px}
+.trk-l li{display:flex;align-items:baseline;gap:8px;padding:4px 0;
+  border-bottom:1px solid var(--pn-line);font-size:13px;color:var(--ink-2);min-width:0}
+.trk-l li b{font-weight:400;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
+.trk-l li span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:var(--ink)}
+.trk-l li i{font-style:normal;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
+
 .card .note{padding:12px 14px;border-top:1px solid var(--pn-line);background:var(--pn-2);
   font-size:14px;line-height:1.55;color:var(--ink-2)}
 .card .src{display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -293,6 +369,17 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    On la neutralise le temps du vol — le vol tient lieu de transition. */
 .focus.flipping{transform:none;transition:opacity .45s var(--e)}
 [data-state="intro"] .field{opacity:0;pointer-events:none;transform:scale(1.07)}
+
+/* ─── les libellés en tranche ───
+   Le type de la parution courante, posé debout contre les deux bords. Sortis du
+   flux de la grille du HUD : ils n'ont pas de place à y prendre. */
+.edgelab{position:absolute;top:50%;z-index:1;pointer-events:none;
+  font:600 10px/1 var(--sans);letter-spacing:.34em;text-transform:uppercase;
+  color:var(--on-3);opacity:0;transition:opacity .5s var(--e)}
+.edgelab.l{left:0;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl}
+.edgelab.r{right:0;transform:translateY(-50%);writing-mode:vertical-rl}
+[data-state="parcours"] .edgelab,[data-state="survey"] .edgelab{opacity:1}
+@media(max-width:900px){.edgelab{display:none}}
 
 /* ═══════════════ interface ═══════════════ */
 .hud{position:fixed;inset:0;z-index:30;pointer-events:none;

@@ -37,6 +37,8 @@
 </div>
 
 <div class="hud">
+  <span class="edgelab l" id="edgeL" aria-hidden="true"></span>
+  <span class="edgelab r" id="edgeR" aria-hidden="true"></span>
   <div class="top">
     <div class="brandwrap">
       <button class="brand" id="brandBtn" type="button" aria-haspopup="menu" aria-expanded="false"
@@ -59,7 +61,7 @@
         <button id="mParcours" type="button" aria-pressed="true">parcours</button>
         <button id="mSurvey" type="button" aria-pressed="false">planche</button>
         <button id="mPhotos" type="button" aria-pressed="false">images</button>
-        <button id="mTheme" type="button" aria-pressed="false">thème</button>
+        <button id="mTheme" class="hold" type="button" data-t="light"><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
         <button id="mSnd" type="button" aria-pressed="true">son</button>
       </div>
       <button class="close" id="back" type="button" aria-label="Fermer et revenir au parcours">✕</button>
@@ -91,7 +93,9 @@
          aria-hidden="true"></video>
   <p class="splash-fallback" id="splashFb" hidden>wave to earth</p>
   <p class="splash-sub" id="splashSub">15 parutions · 2019 – 2026</p>
+  <p class="lcd" aria-hidden="true"><b id="lcdTxt">00 / 00</b></p>
   <span class="splash-bar"><i id="barFill"></i></span>
+  <p class="splash-skip" aria-hidden="true">cliquez pour passer</p>
 </div>
 
 <script src="script.js"></script>

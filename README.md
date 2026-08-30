@@ -18,7 +18,8 @@ visuel des iPod à molette :
 - panneaux blancs à filets et chevrons pour la fiche ;
 - **Source Sans 3**, l'héritier de Myriad, la fonte de l'écosystème Apple de l'époque ;
 - **angles nets partout** : l'interface de cette époque n'arrondissait pas ses
-  commandes, aucune règle `border-radius` ne subsiste dans la feuille de style ;
+  commandes. La feuille ne compte qu'un seul `border-radius`, et il dessine un
+  microsillon — rond de nature, et pas une commande ;
 - une **seule barre de commandes** en haut à droite — filtres et vues, séparés par
   des filets, pas par des blocs distincts ; la fiche, elle, porte sa propre croix
   à son coin, là où le regard se trouve déjà ;
@@ -134,6 +135,28 @@ Rien ne sonne avant votre premier geste : les navigateurs l'exigent, et l'introd
 reste silencieuse. Le bouton **son / muet** de la barre coupe tout, et le choix est
 retenu.
 
+## Les titres du disque
+
+La fiche porte la liste des pistes, tirée de MusicBrainz comme le reste — mais
+d'un autre niveau : **les pistes vivent sur l'édition, pas sur le release-group**.
+Quand la parution porte un `rid`, on interroge l'édition directement ; sinon on
+demande la première édition du groupe.
+
+```
+https://musicbrainz.org/ws/2/release/<rid>?inc=recordings&fmt=json
+https://musicbrainz.org/ws/2/release?release-group=<id>&inc=recordings&fmt=json&limit=1
+```
+
+L'appel est différé à **l'ouverture de la fiche**, jamais au chargement : quinze
+requêtes d'un coup au démarrage franchiraient la limite d'une par seconde de
+MusicBrainz, pour une donnée que personne n'a encore demandée à voir. Le résultat
+est gardé en mémoire, et un jeton par ouverture empêche une réponse lente d'écrire
+ses titres dans la fiche suivante.
+
+Certaines parutions rendent **plusieurs supports** — `0.1 flaws and all.` en a deux,
+de huit et six pistes. Ils sont alors affichés séparément. Si MusicBrainz ne
+connaît aucune piste, la section disparaît au lieu de rester vide.
+
 ## Finitions
 
 - l'interface entre **en séquence** après le splash : marque, barre de commandes,
@@ -143,7 +166,21 @@ retenu.
 - chaque vue **se pose** en arrivant — une échelle imperceptible qui se résorbe ;
 - la pochette centrale porte une **ombre plus profonde** que ses voisines ;
 - la page d'image **pivote** en entrant, du côté d'où elle vient ;
-- toute la barre répond à l'appui.
+- toute la barre répond à l'appui ;
+- un **microsillon** sort de derrière la pochette dans la fiche et tourne
+  lentement. Son départ est retardé au-delà du vol FLIP : pendant celui-ci la
+  pochette d'arrivée est masquée, et un disque glissant de derrière rien se verrait
+  pour ce qu'il est. Sa course s'arrête dans la gouttière — au-delà, il passerait
+  sous la colonne de texte ;
+- le thème se règle à l'**interrupteur *hold***, la commande qui verrouillait
+  l'appareil : plus on le pousse, plus la bande orange se découvre. Le sens tombe
+  juste — à gauche le thème suit le système, et chaque cran vers la droite le
+  verrouille davantage. Trois états qui tournent : `aria-pressed`, qui n'en décrit
+  que deux, dirait faux, et c'est l'intitulé qui porte l'état ;
+- le splash compte les pochettes sur un **petit afficheur** plutôt que sur une barre
+  muette. La grille sombre par-dessus donne le point de la matrice — sans elle,
+  c'est du texte ambre sur du noir, pas un afficheur ;
+- le **type de la parution** se tient debout contre les deux bords de la fenêtre.
 
 ## Animations
 

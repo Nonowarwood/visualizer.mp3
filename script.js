@@ -80,6 +80,48 @@ var CAA=function(id){return 'https://coverartarchive.org/release-group/'+id+'/fr
 /* Certaines éditions n'existent qu'au niveau « release » et non « release-group » :
    leur pochette et leur fiche se trouvent alors sur un autre chemin. */
 var CAAR=function(id){return 'https://coverartarchive.org/release/'+id+'/front-500';};
+/* ─────────── les titres du disque ───────────
+   La seule donnée que la fiche ne portait pas. Elle vient du même endroit que
+   tout le reste — MusicBrainz — mais d'un autre niveau : les pistes vivent sur
+   l'*édition*, pas sur le release-group. Quand `rid` est renseigné on interroge
+   l'édition directement ; sinon on demande la première édition du groupe.
+
+   L'appel est différé à l'ouverture de la fiche, jamais au chargement : quinze
+   requêtes d'un coup au démarrage franchiraient la limite d'une par seconde de
+   MusicBrainz, pour une donnée que personne n'a encore demandée à voir. */
+var TRK={},TRKQ={};
+function mbTracks(r,cb){
+  var key=r.rid||r.id;
+  if(TRK[key]){cb(TRK[key]);return;}
+  if(TRKQ[key]){TRKQ[key].push(cb);return;}
+  TRKQ[key]=[cb];
+  var u=r.rid
+    ? 'https://musicbrainz.org/ws/2/release/'+r.rid+'?inc=recordings&fmt=json'
+    : 'https://musicbrainz.org/ws/2/release?release-group='+r.id+'&inc=recordings&fmt=json&limit=1';
+  var done=function(v){
+    TRK[key]=v;
+    var q=TRKQ[key];delete TRKQ[key];
+    q.forEach(function(f){f(v);});
+  };
+  fetch(u,{headers:{Accept:'application/json'}})
+    .then(function(x){return x.ok?x.json():Promise.reject(x.status);})
+    .then(function(d){
+      var rel=d.releases?d.releases[0]:d,out=[];
+      ((rel&&rel.media)||[]).forEach(function(m){
+        var g=[];
+        ((m&&m.tracks)||[]).forEach(function(t){g.push([t.position,t.title||'',t.length||0]);});
+        if(g.length)out.push(g);
+      });
+      done(out);
+    })
+    .catch(function(){done([]);});
+}
+function dur(ms){
+  if(!ms)return '';
+  var t=Math.round(ms/1000);
+  return Math.floor(t/60)+':'+('0'+(t%60)).slice(-2);
+}
+
 function mbLink(r){
   return r.rid?('https://musicbrainz.org/release/'+r.rid)
               :('https://musicbrainz.org/release-group/'+r.id);
@@ -112,8 +154,9 @@ function ready(){
   setTimeout(enter,reste);
 }
 function progress(){
-  var bar=$('#barFill');
+  var bar=$('#barFill'),l=$('#lcdTxt');
   if(bar)bar.style.width=Math.min(100,done/Math.max(1,total)*100)+'%';
+  if(l)l.textContent=done>=total?'PRÊT':(pad(done)+' / '+pad(total));
   if(done>=total)ready();
 }
 function wireImages(first){
@@ -122,7 +165,7 @@ function wireImages(first){
      ce qui levait une exception et interrompait le changement d'artiste. */
   var imgs=[].slice.call($('#rail').querySelectorAll('img'))
     .concat([].slice.call($('#grid').querySelectorAll('img')));
-  if(first){total=imgs.length;done=0;}
+  if(first){total=imgs.length;done=0;progress();}
   imgs.forEach(function(img){
     var i=parseInt(img.getAttribute('data-i'),10),seen=false;
     if(!REL[i]){img.remove();return;}
@@ -253,6 +296,7 @@ function hud(){
   var r=REL[view[CUR]];
   setCount(CUR+1,view.length);
   setLine([r.kind,r.date,r.label].filter(Boolean).join(' · '));
+  $('#edgeL').textContent=$('#edgeR').textContent=r.kind;
   slots.forEach(function(s,i){s.setAttribute('aria-selected',i===view[CUR]?'true':'false');});
   [].slice.call($('#scrub').children).forEach(function(b,p){
     b.setAttribute('aria-current',p===CUR?'true':'false');
@@ -269,6 +313,7 @@ function setLine(txt){
 }
 
 /* ─────────── fiche ─────────── */
+var ficheTok=0;
 function fiche(i){
   var r=REL[i],p=view.indexOf(i);
   var meta=[['Type',r.kind],['Parution',r.date]];
@@ -276,7 +321,8 @@ function fiche(i){
   if(r.v)meta.push(['Série',r.v]);
   meta.push(['Rang',pad(p+1)+' sur '+pad(view.length)]);
   $('#focus').innerHTML=
-    '<div class="plate">'+sleeveHTML(r,i,false)+'</div>'
+    '<div class="plate"><span class="disc" aria-hidden="true"></span>'
+      +sleeveHTML(r,i,false)+'</div>'
     +'<div class="txt">'
       +'<button class="fclose" type="button" style="--d:0ms" '
         +'aria-label="Fermer la fiche et revenir au parcours">\u2715</button>'
@@ -285,11 +331,31 @@ function fiche(i){
         +'<div class="head"><h2>'+esc(r.t)+'</h2><p>'+esc(ARTISTS[A].name)+' · '+r.y+'</p></div>'
         +'<dl class="rows">'+meta.map(function(m){
             return '<div><dt>'+esc(m[0])+'</dt><dd>'+esc(m[1])+'</dd></div>';}).join('')+'</dl>'
+        +'<div class="trk" id="trk"><p class="trk-h">Titres<i>relevé…</i></p></div>'
         +(r.note?'<p class="note">'+esc(r.note)+'</p>':'')
         +'<a class="src" href="'+mbLink(r)
           +'" target="_blank" rel="noopener noreferrer"><span>fiche musicbrainz</span><span>›</span></a>'
       +'</div>'
     +'</div>';
+  /* Un jeton par ouverture : une réponse lente ne doit pas écrire ses titres
+     dans la fiche suivante, déjà affichée à sa place. */
+  var tok=++ficheTok;
+  mbTracks(r,function(media){
+    if(tok!==ficheTok)return;
+    var box=$('#trk');if(!box)return;
+    if(!media.length){box.remove();return;}
+    var many=media.length>1;
+    box.innerHTML='<p class="trk-h">Titres<i>'+media.reduce(function(n,g){return n+g.length;},0)
+      +'</i></p>'
+      +media.map(function(g,mi){
+        return (many?'<p class="trk-s">Support '+(mi+1)+'</p>':'')
+          +'<ol class="trk-l">'+g.map(function(t){
+            return '<li><b>'+pad(t[0])+'</b><span>'+esc(t[1])+'</span><i>'+dur(t[2])+'</i></li>';
+          }).join('')+'</ol>';
+      }).join('');
+    box.classList.add('on');
+  });
+
   var plate=$('#focus .plate .sleeve');
   var img=new Image();
   img.crossOrigin='anonymous';img.className='on';img.alt='Pochette de '+r.t;
@@ -590,14 +656,19 @@ $('#filters').addEventListener('click',function(e){
 });
 
 /* thème : auto → clair → sombre */
-var tm=['light','dark','auto'],ti=0;
+/* L'ordre suit la course de l'interrupteur, de gauche à droite : le système
+   d'abord, puis les deux verrouillages. Le repli reste « clair », comme avant. */
+var tm=['auto','light','dark'],ti=1,tn={auto:'auto',light:'clair',dark:'sombre'};
 try{var st=localStorage.getItem('wte-theme');if(st&&tm.indexOf(st)>=0)ti=tm.indexOf(st);}catch(e){}
 function applyTheme(){
-  var v=tm[ti];
+  var v=tm[ti],b=$('#mTheme');
   if(v==='auto')document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme',v);
-  $('#mTheme').setAttribute('aria-pressed',v==='dark'?'true':'false');
-  $('#mTheme').textContent=v==='light'?'clair':(v==='dark'?'sombre':'auto');
+  b.setAttribute('data-t',v);
+  /* Trois états qui tournent : `aria-pressed`, qui n'en décrit que deux, dirait
+     faux. L'intitulé porte donc l'état courant. */
+  b.setAttribute('aria-label','Thème : '+tn[v]+' — changer');
+  $('#mThemeL').textContent=tn[v];
   try{localStorage.setItem('wte-theme',v);}catch(e){}
 }
 $('#mTheme').addEventListener('click',function(){ti=(ti+1)%tm.length;applyTheme();});
