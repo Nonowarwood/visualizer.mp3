@@ -556,9 +556,31 @@ qu'elle est censée servir.
 ## Le fond d'écran
 
 Le tiroir d'options propose quatorze fonds, **rangés par famille de couleur**.
-Le fond choisi tapisse l'écran de l'appareil quand on y est, et la page entière
-quand on n'y est pas : la couche vit dans `#app`, si bien qu'une seule règle
-couvre les deux cas.
+
+### Seulement dans l'appareil
+
+Le fond tapissait d'abord la page entière quand on n'était pas dans le boîtier.
+C'était une erreur d'échelle : ces images font 1200 px de large. Réduites dans
+l'écran de l'appareil — 595 px — elles sont nettes ; étalées sur une fenêtre de
+1700, elles sont **agrandies**, et le grain d'une photo compressée saute aux yeux.
+
+Le fond ne s'affiche donc que dans l'appareil, où il est d'ailleurs à sa place :
+c'est là qu'un fond d'écran a un sens. Le choix reste retenu et reparaît avec le
+boîtier ; le tiroir le dit d'une ligne, pour qu'on ne cherche pas une panne.
+
+### Le tiroir s'élargit et se replie
+
+Quatorze vignettes ne se regardent pas dans 268 px : à trois par rangée, une photo
+de ville n'est plus qu'une bande. Le tiroir passe donc à 372 px — il flotte
+au-dessus de la page, sa largeur ne coûte rien à la barre — et les vignettes à
+deux par rangée. Seule l'ouverture devait se voir : elle part du coin du bouton,
+aux deux tiers de sa largeur, et se déploie vers la gauche et vers le bas.
+
+L'onglet, lui, est **fermé au départ**. Quatorze fonds dépliés en permanence, et
+la visite guidée ou les crédits passaient hors de portée sans défiler tout le lot.
+Le dépliement anime `grid-template-rows` de `0fr` à `1fr` : la seule façon de faire
+glisser une hauteur qu'on ne connaît pas d'avance sans aller la mesurer en
+JavaScript.
 
 ### Le voile
 
@@ -619,8 +641,9 @@ Renommer un fond dans le manifeste est sans danger : une relance ne le défait p
 
 ### Ce que cela pèse
 
-Les vignettes du tiroir font 240 × 150, 85 ko pour les quatorze, et ne se
-chargent qu'à l'ouverture du tiroir. Le fond en pleine taille n'est demandé que
+Les vignettes du tiroir font 360 × 225 — le double de leur taille d'affichage,
+pour un écran à forte densité —, 169 ko pour les quatorze, et ne se chargent qu'à
+l'ouverture du tiroir. Le fond en pleine taille n'est demandé que
 lorsqu'on le choisit — et le choix est retenu d'une visite à l'autre.
 
 ## L'écran de l'appareil
@@ -989,6 +1012,29 @@ deçà de son contenu, et le débordement ressort un cran plus haut.
 Un disque de douze titres occupe désormais 376 px des 420 : il tient tout entier,
 sans défilement.
 
+### Le sol, et la rive de l'écran
+
+Deux défauts que l'œil voyait avant la mesure, et que la mesure a confirmés.
+
+**Le sol était de la couleur de l'objet.** La coque monte à `#F4F6F8`, le fond de
+page était à `#FBFCFD` : trois points d'écart. L'appareil flottait dans un papier
+de sa propre teinte, et rien ne le détachait. En mode appareil, la page prend donc
+son propre sol — huit points plus sombre **et** légèrement chaud, quand la coque
+est franchement froide. L'objet se détache par la valeur autant que par la
+température, et le métal se lit enfin comme du métal. Le fond de l'écran, lui, ne
+bouge pas : c'est celui du site.
+
+**La rive noire était un trait.** Un baladeur de cette époque avait une large
+bordure noire autour de la dalle — la vitre couvrait bien plus que l'image. À 5 px
+la nôtre passait pour un liseré de cadre ; à 13 elle redevient ce qu'elle est, une
+surface. Elle mord sur la coque et jamais sur l'écran : l'image garde ses
+595 × 452, et le site qui s'y loge n'a rien à recalculer.
+
+L'occasion a servi à corriger un défaut plus ancien : l'écran était posé 7 px à
+gauche du centre — 67 px de marge à gauche, 74 à droite. Le voilà à 70,5 des deux
+côtés. C'est le genre de décalage qui ne se voit pas tant que rien ne le souligne,
+et qu'une rive épaisse aurait souligné.
+
 ### Le passage d'un mode à l'autre
 
 Un basculement instantané ne dit rien de ce qui se passe. La caméra **s'approche**
@@ -1021,13 +1067,18 @@ ce que l'écran montre. Le centre choisit et redescend.
 ## La visite guidée
 
 Le site a beaucoup de choses qui ne se devinent pas : les touches `L`, `P`, `G`, le
-tiroir d'options, les titres qui se jouent d'un clic. Six étapes, chacune
+tiroir d'options, les titres qui se jouent d'un clic. Huit étapes, chacune
 **désignant** une commande réelle — cerclée à l'écran — plutôt que de la décrire de
 loin. Elle s'ouvre d'elle-même à la première venue et se retrouve dans le tiroir.
 
 Les étapes ne changent jamais l'état du site : elles montrent, elles ne font pas à
 la place. Une étape qui ouvrirait la planche pour l'expliquer laisserait le
 visiteur ailleurs qu'il ne croyait.
+
+**Une exception, et une seule :** les deux dernières étapes ouvrent le tiroir
+d'options, et celle du fond d'écran déplie son onglet. Montrer du doigt une
+commande que rien ne rend visible ne montre rien. Le tiroir se referme aux autres
+étapes et à la sortie ; l'état du site, lui, n'est toujours pas touché.
 
 ### La mascotte
 

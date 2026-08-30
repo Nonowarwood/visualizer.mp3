@@ -59,7 +59,7 @@ FAMILLES = [
 ]
 GRIS = 0.015         # en deçà, l'image n'a aucune couleur : noir et blanc
 N = 64               # côté de l'échantillon analysé
-VW, VH = 240, 150    # la vignette du tiroir
+VW, VH = 360, 225    # la vignette du tiroir — le double de son affiché
 
 NOMS = {
     '12f7b70f06a9201dcf8ab2fde082988c': 'central park',

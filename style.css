@@ -41,6 +41,13 @@
      que les claires. */
   --dv-spec:.92; --dv-spec2:.34; --dv-bounce:.60; --dv-gloss:.90;
   --dv-ring:.42; --dv-ring2:.30; --dv-ring3:.22;
+  /* Le sol sur lequel l'appareil est posé. Il ne peut pas être le blanc du site :
+     la coque monte à #F4F6F8 et le fond de page à #FBFCFD — trois points d'écart,
+     l'objet flottait dans du papier de sa propre couleur. Ce gris est plus sombre
+     de huit points **et** légèrement chaud, quand la coque est franchement
+     froide : l'objet se détache par la valeur autant que par la température, et
+     le métal se lit enfin comme du métal. */
+  --dv-sol-1:#E6E3DC; --dv-sol-2:#CFCBC2; --dv-sol-3:#B4AFA6;
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -80,6 +87,7 @@
   --dv-ao:rgba(0,0,0,.42);
   --dv-spec:.19; --dv-spec2:.07; --dv-bounce:.13; --dv-gloss:.21;
   --dv-ring:.10; --dv-ring2:.08; --dv-ring3:.05;
+  --dv-sol-1:#16181C; --dv-sol-2:#0D0F12; --dv-sol-3:#050607;
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
    et une règle sur `prefers-color-scheme` ne ferait qu'un noir bref avant que le
@@ -208,7 +216,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   --fond-a:none;--fond-b:none;
   background:var(--fond-a) center/cover no-repeat;
   opacity:0;transition:opacity .5s var(--e)}
-[data-fond="on"] .fond{opacity:1}
+/* **Seulement dans l'appareil.** Ces images font 1200 px de large : dans l'écran
+   de l'appareil, où elles sont réduites à 595, elles sont nettes ; étalées sur
+   une fenêtre de 1700, elles se voient agrandies et le grain saute aux yeux. Le
+   choix reste retenu — il reparaît en même temps que le boîtier. */
+[data-fond="on"][data-device="on"] .fond{opacity:1}
 .fond::before{content:"";position:absolute;inset:0;
   background:var(--fond-b) center/cover no-repeat;
   opacity:0;transition:opacity .45s var(--e)}
@@ -703,6 +715,10 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   gap:var(--pad);padding:0 var(--pad)}
 #outside>*{pointer-events:auto}
 #outside .ctlbar{pointer-events:auto}
+/* Le sol : plus sombre et plus chaud que la coque, pour que l'objet s'en
+   détache. Il ne touche pas au fond de l'écran, qui reste celui du site. */
+[data-device="on"] body{background:radial-gradient(122% 104% at 50% 0%,
+  var(--dv-sol-1),var(--dv-sol-2) 56%,var(--dv-sol-3))}
 .device{position:fixed;z-index:0;transform-origin:0 0}
 .device[hidden]{display:none}
 [data-device="on"] body{overflow:hidden}
@@ -741,15 +757,20 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 /* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
    et la règle des angles nets vise les commandes de l'interface. */
 .dv-body{border-radius:52px}
-.dv-screen{position:absolute;left:67px;top:48px;width:595px;height:452px;
+.dv-screen{position:absolute;left:70.5px;top:48px;width:595px;height:452px;
   background:#0A0B0D;
   /* Le cadre est **creusé** : une gorge sombre, une lèvre claire par-dessus, et
      une ombre interne qui pose la dalle en retrait de la surface. */
   border-radius:5px;
   /* Le cadre est cerné d'une **occlusion** : là où la dalle rentre dans la coque,
      la lumière n'entre plus. */
-  box-shadow:0 0 0 5px #1B1D21,0 0 0 6px rgba(255,255,255,var(--dv-ring2)),
-    0 0 16px 2px var(--dv-ao),
+  /* Un baladeur de cette époque avait une large **rive noire** autour de la
+     dalle : la vitre couvrait bien plus que l'image. À 5 px la nôtre passait
+     pour un simple trait de cadre ; à 13 elle redevient ce qu'elle est, une
+     surface. Elle mord sur la coque, jamais sur l'écran — l'image garde ses
+     595 × 452, et le site qui s'y met n'a rien à recalculer. */
+  box-shadow:0 0 0 13px #131519,0 0 0 14px rgba(255,255,255,var(--dv-ring2)),
+    0 0 22px 3px var(--dv-ao),
     inset 0 2px 7px rgba(0,0,0,.6)}
 
 /* ─── la vitre ───
@@ -1035,12 +1056,17 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .optb{display:flex;align-items:center;gap:7px}
 .optb .car{font-size:9px;color:var(--cr-ink-2);transition:transform .25s var(--e-out)}
 .optb[aria-expanded="true"] .car{transform:rotate(180deg)}
-.optmenu{position:absolute;top:calc(100% + 5px);right:0;min-width:max(100%,268px);
+/* Le tiroir est **plus large que le bouton qui l'ouvre** : quatorze vignettes ne
+   se regardent pas dans 268 px, elles s'y écrasent. Comme il flotte au-dessus de
+   la page, sa largeur ne coûte rien à la barre — seule l'ouverture devait se
+   voir. Elle part donc du coin du bouton, aux deux tiers de sa largeur, et se
+   déploie vers la gauche et vers le bas. */
+.optmenu{position:absolute;top:calc(100% + 5px);right:0;width:min(372px,92vw);
   z-index:5;background:var(--pn);
-  box-shadow:0 0 0 1px rgba(0,0,0,.32),0 14px 30px -14px rgba(0,0,0,.55);
-  transform-origin:top right;opacity:0;transform:scaleY(.82) translateY(-7px);
+  box-shadow:0 0 0 1px rgba(0,0,0,.32),0 18px 40px -16px rgba(0,0,0,.55);
+  transform-origin:top right;opacity:0;transform:scale(.64,.84) translateY(-8px);
   pointer-events:none;visibility:hidden;
-  transition:opacity .2s var(--e),transform .3s var(--e-out),visibility .3s}
+  transition:opacity .2s var(--e),transform .34s var(--e-out),visibility .34s}
 .optmenu.on{opacity:1;transform:none;pointer-events:auto;visibility:visible}
 .optmenu .ah{padding:6px 12px;border-bottom:1px solid var(--cr-line);
   background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
@@ -1076,11 +1102,40 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 
    Le tiroir prend alors de la hauteur, et se plafonne pour ne jamais dépasser la
    fenêtre — c'est lui qui défile, pas la page. */
-.optmenu{max-height:min(76vh,560px);overflow-y:auto;overscroll-behavior:contain}
-.fonds{padding:8px 12px 11px;border-bottom:1px solid var(--pn-line)}
-.fonds .fg{margin:9px 0 5px;font:600 9px/1 var(--sans);letter-spacing:.18em;
+.optmenu{max-height:min(78vh,620px);overflow-y:auto;overscroll-behavior:contain}
+/* ─── l'onglet se replie ───
+   Quatorze fonds ouverts en permanence, c'est toute la hauteur du tiroir à
+   franchir avant d'atteindre la visite guidée ou les crédits. L'onglet est donc
+   **fermé au départ** : le tiroir retrouve sa longueur d'avant, et l'on ne
+   déplie que si l'on vient pour ça.
+
+   Le dépliement anime `grid-template-rows` de `0fr` à `1fr` : c'est la seule
+   façon de faire glisser une hauteur qu'on ne connaît pas d'avance sans la
+   mesurer en JavaScript. */
+.fondsw{display:grid;grid-template-rows:0fr;
+  transition:grid-template-rows .34s var(--e-out)}
+[data-fonds="on"] .fondsw{grid-template-rows:1fr}
+.fondsw>.fonds{overflow:hidden;min-height:0}
+.optmenu button.ahb{display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:6px 12px;border-bottom:1px solid var(--cr-line);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  font:600 9.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--cr-ink-2);text-shadow:0 1px 0 var(--cr-glow)}
+.optmenu button.ahb:hover{color:var(--cr-ink);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3))}
+.optmenu button.ahb .car{font-size:9px;letter-spacing:0;
+  transition:transform .3s var(--e-out)}
+.optmenu button.ahb[aria-expanded="true"] .car{transform:rotate(180deg)}
+.fonds{padding:9px 12px 12px;border-bottom:1px solid var(--pn-line)}
+/* Le fond n'existe que dans l'appareil : autant le dire là où on le choisit,
+   plutôt que de laisser croire à une panne. */
+.fhint{margin:0 0 9px;font:400 11px/1.4 var(--sans);color:var(--ink-3)}
+[data-device="on"] .fhint{display:none}
+.fonds .fg{margin:11px 0 6px;font:600 9px/1 var(--sans);letter-spacing:.18em;
   text-transform:uppercase;color:var(--ink-3)}
-.fgr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+/* Deux par rangée, pas trois : à trois, une photo de ville n'est plus qu'une
+   bande. À deux, on reconnaît ce qu'on choisit. */
+.fgr{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 /* Les vignettes ne sont pas des lignes de menu : on défait ce que la règle
    générale des boutons du tiroir leur imposait. */
 .optmenu .fonds button{display:block;width:auto;padding:0;border-bottom:none;
@@ -1090,8 +1145,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   transition:box-shadow .16s var(--e),transform .16s var(--e)}
 .optmenu .fonds .fv:hover{box-shadow:0 0 0 1px var(--ink-3)}
 .fonds .fv img{display:block;width:100%;aspect-ratio:8/5;object-fit:cover}
-.fonds .fv span{display:block;padding:3px 5px 4px;background:var(--pn-2);
-  font:400 9.5px/1.2 var(--sans);color:var(--ink-2);
+.fonds .fv span{display:block;padding:4px 7px 5px;background:var(--pn-2);
+  font:400 11px/1.25 var(--sans);color:var(--ink-2);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Sélectionné : la même sélection vernie que partout ailleurs. */
 .optmenu .fonds .fv[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bl-3)}

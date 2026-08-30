@@ -658,7 +658,7 @@ function aboutOpen(on){
    corps : hauteur 1,658 ; écran 0,808 × 0,614 posé en 0,091 / 0,065 ; molette
    0,596 de diamètre à 0,829 du haut. Les miennes étaient franchement fausses —
    écran trop large, molette bien trop petite, corps trop court. */
-var DV_W=736,DV_H=1220,DV_SX=67,DV_SY=48,DV_SW=595,DV_SH=452;
+var DV_W=736,DV_H=1220,DV_SX=70.5,DV_SY=48,DV_SW=595,DV_SH=452;
 /* La barre sortie occupe un bandeau réservé en haut : le boîtier se met à
    l'échelle dans ce qui reste, de sorte qu'aucun des deux ne recouvre l'autre,
    à aucune taille de fenêtre. */
@@ -997,7 +997,15 @@ var TOUR=[
    +'un sélecteur apparaît en bas.'},
  {sel:'#mOpt',t:'Les options',
   x:'La liste appariée (<kbd>L</kbd>), les pochettes en pixels (<kbd>P</kbd>), le thème, '
-   +'le son — et les crédits.'}
+   +'le son — et les crédits.'},
+ /* Le tiroir s'ouvre pour cette étape : montrer une commande que l'on ne peut
+    pas voir ne montre rien. Il se referme aux autres, et à la sortie. */
+ {sel:'#mDevice',ouvre:true,t:'Dans l\'appareil',
+  x:'Le site se loge dans un baladeur dessiné, molette comprise : les commandes '
+   +'sortent de l\'écran et la roue commande vraiment.'},
+ {sel:'#fondsH',ouvre:true,t:'Le fond d\'écran',
+  x:'Quatorze fonds, rangés par couleur, à déplier juste en dessous. Ils ne se '
+   +'voient que dans l\'appareil, où leur définition suffit.'}
 ];
 var tourI=0,tourCible=null;
 
@@ -1015,6 +1023,8 @@ function tourShow(i){
   $('#tourN').textContent=(i+1)+' / '+TOUR.length;
   $('#tourX').innerHTML=e.x;
   $('#tourNext').textContent=(i===TOUR.length-1)?'terminer':'suivant';
+  optOpen(!!e.ouvre);
+  if(e.ouvre&&e.sel==='#fondsH')fondsPli(true);
   tourHi(e.sel);
   var el=$('#tour');
   el.hidden=false;
@@ -1022,6 +1032,7 @@ function tourShow(i){
 }
 function tourEnd(){
   tourHi(null);
+  optOpen(false);
   var el=$('#tour');
   el.classList.remove('on');
   setTimeout(function(){el.hidden=true;},reduce?0:300);
@@ -1749,9 +1760,12 @@ function paintFonds(){
   var box=$('#fonds');if(!box)return;
   var L=fondsListe();
   if(!L){
-    var t=box.previousElementSibling;
-    if(t&&t.className==='ah')t.remove();
-    box.remove();return;
+    /* Pas de manifeste : l'onglet entier s'efface, son titre avec, et le reste
+       du tiroir ne s'aperçoit de rien. */
+    var h=$('#fondsH'),w=$('#fondsW');
+    if(h)h.remove();
+    if(w)w.remove(); else box.remove();
+    return;
   }
   /* Les familles sont prises dans l'ordre du manifeste : c'est l'outil qui a
      rangé, du rose au bleu, et non l'ordre où les fichiers se présentent. */
@@ -1762,7 +1776,9 @@ function paintFonds(){
     grp[k].push(x);
   });
   box.innerHTML=
-    '<button class="fnul" type="button" data-f="" aria-pressed="false">aucun fond</button>'
+    '<p class="fhint">Le fond ne se voit que dans l\'appareil : les images y sont '
+    +'réduites, donc nettes.</p>'
+    +'<button class="fnul" type="button" data-f="" aria-pressed="false">aucun fond</button>'
     +noms.map(function(nom,i){
       return '<p class="fg">'+esc(nom)+'</p><div class="fgr">'
         +grp[i].map(function(x){
@@ -1797,6 +1813,20 @@ function applyFond(){
   }
   try{localStorage.setItem('wte-fond',FOND);}catch(e){}
 }
+/* Fermé au départ, et sans mémoire : on ne vient dans les options que pour une
+   chose à la fois, et quatorze vignettes dépliées mettraient la visite guidée
+   hors de portée sans défiler. */
+var fondsOuvert=false;
+function fondsPli(on){
+  fondsOuvert=on;
+  document.documentElement.setAttribute('data-fonds',on?'on':'off');
+  var h=$('#fondsH');
+  if(h)h.setAttribute('aria-expanded',on?'true':'false');
+}
+if($('#fondsH'))$('#fondsH').addEventListener('click',function(){
+  fondsPli(!fondsOuvert);
+});
+fondsPli(false);
 if($('#fonds'))$('#fonds').addEventListener('click',function(e){
   var b=e.target.closest('button[data-f]');if(!b)return;
   FOND=b.getAttribute('data-f');
