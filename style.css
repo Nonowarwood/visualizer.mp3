@@ -105,8 +105,6 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
   box-shadow:0 0 0 1px rgba(0,0,0,.45),0 1px 1px rgba(0,0,0,.3);
   transition:transform .28s var(--e-out)}
-#mTheme[data-t="light"] .sw::before{width:9px}
-#mTheme[data-t="light"] .sw i{transform:translateX(8px)}
 #mTheme[data-t="dark"] .sw::before{width:17px}
 #mTheme[data-t="dark"] .sw i{transform:translateX(16px)}
 
@@ -267,26 +265,6 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 }
 .focus .plate{position:relative;width:100%;max-width:min(56vh,340px);
   justify-self:center;align-self:center}
-/* ─── le microsillon ───
-   Il sort de derrière la pochette et tourne lentement. Le départ est retardé
-   au-delà du vol FLIP : pendant celui-ci la pochette d'arrivée est masquée, et
-   un disque glissant de derrière rien se verrait pour ce qu'il est.
-
-   C'est le seul `border-radius` de la feuille, et il ne contredit pas la règle
-   des angles nets : celle-ci vise les commandes, pas un disque, rond de nature. */
-.disc{position:absolute;top:8%;left:0;width:84%;aspect-ratio:1;border-radius:50%;
-  z-index:0;pointer-events:none;transform:translateX(3%);
-  background:
-    radial-gradient(circle at 50% 50%,
-      var(--pn) 0 15%,rgba(0,0,0,.55) 15.2% 16%,transparent 16.2%),
-    repeating-radial-gradient(circle at 50% 50%,
-      rgba(255,255,255,.055) 0 1px,rgba(0,0,0,.42) 1px 3px),
-    conic-gradient(from 210deg,#0d0d0f,#2b2b30 18%,#101013 34%,#26262b 62%,#0d0d0f 82%,#232328);
-  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 20px 34px -22px rgba(0,0,0,.7)}
-[data-state="focus"] .disc{animation:discOut .9s var(--e-out) .62s both,
-  discSpin 14s linear .62s infinite}
-@keyframes discOut{from{transform:translateX(3%)}to{transform:translateX(30%)}}
-@keyframes discSpin{to{rotate:360deg}}
 .focus .txt{position:relative}
 /* Fermer se fait au bord de la fiche, pas dans le coin de l'écran : la commande
    est là où le regard se trouve déjà. Alignée sur le haut du rang. */
@@ -344,8 +322,26 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .trk-l li{display:flex;align-items:baseline;gap:8px;padding:4px 0;
   border-bottom:1px solid var(--pn-line);font-size:13px;color:var(--ink-2);min-width:0}
 .trk-l li b{font-weight:400;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
-.trk-l li span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;color:var(--ink)}
+.trk-l li a{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:var(--ink);text-decoration:none;
+  border-bottom:1px solid transparent;transition:color .18s var(--e)}
+.trk-l li a:hover,.trk-l li a:focus-visible{color:var(--bl);border-bottom-color:var(--bl)}
+/* Le repère ne décore pas : il distingue la piste que MusicBrainz sait ouvrir
+   telle quelle de celle qui retombe sur une recherche. */
+.trk-l li.direct a::before{content:"▸ ";color:var(--bl);font-size:.9em}
+
+/* Les écoutes de l'album entier, que MusicBrainz renseigne bien plus souvent
+   que celles des pistes une à une. */
+.play{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
+.play span{font:600 10.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);margin-right:2px}
+.play a{padding:5px 9px;font:600 10.5px/1 var(--sans);letter-spacing:.06em;
+  text-transform:uppercase;color:var(--cr-ink-2);text-decoration:none;
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);text-shadow:0 1px 0 rgba(255,255,255,.7);
+  transition:color .18s var(--e),filter .18s var(--e)}
+.play a:hover{color:var(--cr-ink);filter:brightness(1.03)}
+.play a:active{filter:brightness(.94)}
 .trk-l li i{font-style:normal;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
 
 .card .note{padding:12px 14px;border-top:1px solid var(--pn-line);background:var(--pn-2);
@@ -448,7 +444,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .ctlbar .seg button+button{border-left:1px solid var(--cr-line)}
 .ctlbar button:hover{color:var(--cr-ink)}
 .ctlbar button:active{filter:brightness(.94)}
-.ctlbar button[aria-pressed="true"]{
+.ctlbar button[aria-pressed="true"]:not(.hold){
   color:var(--pn);text-shadow:0 1px 1px rgba(0,0,0,.45);
   background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4));
   box-shadow:0 1px 0 rgba(255,255,255,.35) inset}

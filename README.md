@@ -18,12 +18,11 @@ visuel des iPod à molette :
 - panneaux blancs à filets et chevrons pour la fiche ;
 - **Source Sans 3**, l'héritier de Myriad, la fonte de l'écosystème Apple de l'époque ;
 - **angles nets partout** : l'interface de cette époque n'arrondissait pas ses
-  commandes. La feuille ne compte qu'un seul `border-radius`, et il dessine un
-  microsillon — rond de nature, et pas une commande ;
+  commandes, aucune règle `border-radius` ne subsiste dans la feuille de style ;
 - une **seule barre de commandes** en haut à droite — filtres et vues, séparés par
   des filets, pas par des blocs distincts ; la fiche, elle, porte sa propre croix
   à son coin, là où le regard se trouve déjà ;
-- **thème clair par défaut**, le sombre et l'automatique restant au choix.
+- **thème clair par défaut**, le sombre à un cran de là.
 
 Ce n'est **pas** un appareil : ni molette, ni pile de menus, ni châssis. Aucune marque,
 aucun logo ni aucune ressource de constructeur n'est reproduit — tout est redessiné en CSS.
@@ -41,7 +40,7 @@ Clavier : `←` `→` parcourir · `↵` ouvrir · `G` planche · `esc` revenir 
 On sort d'une fiche par sa croix, par `esc`, ou en touchant un filtre : filtrer
 depuis une fiche la laisserait parler d'une liste qu'on ne voit plus.
 Souris : molette, glisser, clic, et la réglette de position en bas.
-Filtres par type : tout / albums / EP / singles. Thème : auto / clair / sombre.
+Filtres par type : tout / albums / EP / singles. Thème : clair / sombre.
 
 ## L'introduction — votre vidéo
 
@@ -135,7 +134,7 @@ Rien ne sonne avant votre premier geste : les navigateurs l'exigent, et l'introd
 reste silencieuse. Le bouton **son / muet** de la barre coupe tout, et le choix est
 retenu.
 
-## Les titres du disque
+## Les titres du disque, et de quoi les écouter
 
 La fiche porte la liste des pistes, tirée de MusicBrainz comme le reste — mais
 d'un autre niveau : **les pistes vivent sur l'édition, pas sur le release-group**.
@@ -143,19 +142,42 @@ Quand la parution porte un `rid`, on interroge l'édition directement ; sinon on
 demande la première édition du groupe.
 
 ```
-https://musicbrainz.org/ws/2/release/<rid>?inc=recordings&fmt=json
-https://musicbrainz.org/ws/2/release?release-group=<id>&inc=recordings&fmt=json&limit=1
+https://musicbrainz.org/ws/2/release/<rid>?inc=recordings+recording-level-rels+url-rels&fmt=json
+https://musicbrainz.org/ws/2/release?release-group=<id>&inc=…&limit=1
 ```
 
-L'appel est différé à **l'ouverture de la fiche**, jamais au chargement : quinze
-requêtes d'un coup au démarrage franchiraient la limite d'une par seconde de
-MusicBrainz, pour une donnée que personne n'a encore demandée à voir. Le résultat
-est gardé en mémoire, et un jeton par ouverture empêche une réponse lente d'écrire
-ses titres dans la fiche suivante.
+### La limite d'une requête par seconde
+
+C'est le piège de cette section, et il s'était refermé. MusicBrainz plafonne à
+**une requête par seconde** et répond `503` au-delà. Or parcourir les fiches aux
+flèches en lance une par fiche : au troisième appui, `503`. Le code d'alors
+concluait « pas de titres », effaçait la section — **et gardait l'échec en cache
+pour toute la session**.
+
+Un relevé des vingt-et-une parutions l'a confirmé : **toutes ont leurs pistes chez
+MusicBrainz**. Les trois qui semblaient dépourvues étaient trois `503`, pas trois
+trous dans la base. Les appels passent donc en file, espacés d'une seconde et
+quelques ; un `503` renvoie la demande en fin de file, jusqu'à trois fois, avec
+une attente qui s'allonge. Un échec n'est jamais mis en cache : rouvrir la fiche
+retente.
+
+### Écouter
+
+Chaque titre est un lien. Deux cas, et ils ne se valent pas :
+
+- quand MusicBrainz connaît un lien pour **l'enregistrement**, le titre ouvre la
+  piste elle-même — Spotify de préférence, seul service dont l'URL vise la piste
+  et non l'album. Ces titres portent un `▸` ;
+- sinon le titre retombe sur une **recherche**, qui aboutit toujours.
+
+Ce partage n'est pas un choix mais un état de la base : les liens par
+enregistrement y sont rares. Sur `GREENGREEN_playextended`, une piste sur huit en
+a un. Les liens **par album**, eux, sont renseignés pour à peu près tout — Spotify,
+Deezer, Apple Music, Tidal — et forment la rangée `Écouter` sous la liste. C'est
+par là qu'on écoute vraiment.
 
 Certaines parutions rendent **plusieurs supports** — `0.1 flaws and all.` en a deux,
-de huit et six pistes. Ils sont alors affichés séparément. Si MusicBrainz ne
-connaît aucune piste, la section disparaît au lieu de rester vide.
+de huit et six pistes. Ils sont alors affichés séparément.
 
 ## Finitions
 
@@ -167,16 +189,9 @@ connaît aucune piste, la section disparaît au lieu de rester vide.
 - la pochette centrale porte une **ombre plus profonde** que ses voisines ;
 - la page d'image **pivote** en entrant, du côté d'où elle vient ;
 - toute la barre répond à l'appui ;
-- un **microsillon** sort de derrière la pochette dans la fiche et tourne
-  lentement. Son départ est retardé au-delà du vol FLIP : pendant celui-ci la
-  pochette d'arrivée est masquée, et un disque glissant de derrière rien se verrait
-  pour ce qu'il est. Sa course s'arrête dans la gouttière — au-delà, il passerait
-  sous la colonne de texte ;
 - le thème se règle à l'**interrupteur *hold***, la commande qui verrouillait
-  l'appareil : plus on le pousse, plus la bande orange se découvre. Le sens tombe
-  juste — à gauche le thème suit le système, et chaque cran vers la droite le
-  verrouille davantage. Trois états qui tournent : `aria-pressed`, qui n'en décrit
-  que deux, dirait faux, et c'est l'intitulé qui porte l'état ;
+  l'appareil : on le pousse, la bande orange se découvre, le site passe au sombre.
+  Deux positions, clair et sombre — pas d'automatique ;
 - le splash compte les pochettes sur un **petit afficheur** plutôt que sur une barre
   muette. La grille sombre par-dessus donne le point de la matrice — sans elle,
   c'est du texte ambre sur du noir, pas un afficheur ;

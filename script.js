@@ -80,41 +80,99 @@ var CAA=function(id){return 'https://coverartarchive.org/release-group/'+id+'/fr
 /* Certaines éditions n'existent qu'au niveau « release » et non « release-group » :
    leur pochette et leur fiche se trouvent alors sur un autre chemin. */
 var CAAR=function(id){return 'https://coverartarchive.org/release/'+id+'/front-500';};
-/* ─────────── les titres du disque ───────────
-   La seule donnée que la fiche ne portait pas. Elle vient du même endroit que
-   tout le reste — MusicBrainz — mais d'un autre niveau : les pistes vivent sur
-   l'*édition*, pas sur le release-group. Quand `rid` est renseigné on interroge
-   l'édition directement ; sinon on demande la première édition du groupe.
+/* ─────────── les titres du disque, et de quoi les écouter ───────────
+   La donnée vient du même endroit que tout le reste — MusicBrainz — mais d'un
+   autre niveau : les pistes vivent sur l'*édition*, pas sur le release-group.
+   Quand `rid` est renseigné on interroge l'édition ; sinon la première édition
+   du groupe.
 
-   L'appel est différé à l'ouverture de la fiche, jamais au chargement : quinze
-   requêtes d'un coup au démarrage franchiraient la limite d'une par seconde de
-   MusicBrainz, pour une donnée que personne n'a encore demandée à voir. */
-var TRK={},TRKQ={};
+   MusicBrainz limite à **une requête par seconde** et répond 503 au-delà. Les
+   appels passent donc en file, espacés, et un 503 renvoie la demande en fin de
+   file au lieu de conclure « pas de titres ». Sans cette reprise, parcourir les
+   fiches aux flèches vidait la liste de parutions qui en ont pourtant une — et
+   l'échec restait en cache pour toute la session. */
+var TRK={},TRKQ={},mbQ=[],mbBusy=false,mbLast=0,MB_GAP=1150;
+
+function mbGo(){
+  if(mbBusy||!mbQ.length)return;
+  mbBusy=true;
+  setTimeout(function(){
+    var job=mbQ.shift();mbLast=Date.now();
+    fetch(job.u,{headers:{Accept:'application/json'}})
+      .then(function(x){
+        if(x.status===503||x.status===429)return Promise.reject('busy');
+        return x.ok?x.json():Promise.reject(x.status);
+      })
+      .then(function(d){mbBusy=false;job.ok(d);mbGo();})
+      .catch(function(e){
+        mbBusy=false;
+        if(e==='busy'&&job.n<3){
+          job.n++;
+          /* On recule l'horloge : la prochaine attente s'allonge d'autant. */
+          mbLast=Date.now()+900*job.n;
+          mbQ.push(job);
+        }else job.ko();
+        mbGo();
+      });
+  },Math.max(0,MB_GAP-(Date.now()-mbLast)));
+}
+function mbFetch(u,ok,ko){mbQ.push({u:u,ok:ok,ko:ko,n:0});mbGo();}
+
+/* Spotify d'abord : c'est le seul lien qui ouvre la piste exacte plutôt que la
+   page de l'album. Sinon la première écoute gratuite, sinon n'importe laquelle. */
+function pickUrl(rels){
+  var free=null,any=null;
+  for(var i=0;i<(rels||[]).length;i++){
+    var t=rels[i].type||'',u=(rels[i].url||{}).resource||'';
+    if(!u)continue;
+    if(u.indexOf('open.spotify.com')>=0)return u;
+    if(t.indexOf('free streaming')>=0&&!free)free=u;
+    if(!any)any=u;
+  }
+  return free||any;
+}
+var SERV=[['music.youtube.com','YouTube Music'],['youtube.com','YouTube'],
+  ['open.spotify.com','Spotify'],['music.apple.com','Apple Music'],
+  ['deezer.com','Deezer'],['tidal.com','Tidal'],['bandcamp.com','Bandcamp']];
+function services(rels){
+  var out=[],seen={};
+  for(var i=0;i<(rels||[]).length;i++){
+    var t=rels[i].type||'',u=(rels[i].url||{}).resource||'';
+    if(!u||t.indexOf('streaming')<0)continue;
+    for(var k=0;k<SERV.length;k++){
+      if(u.indexOf(SERV[k][0])>=0&&!seen[SERV[k][1]]){seen[SERV[k][1]]=1;out.push([SERV[k][1],u]);break;}
+    }
+  }
+  return out;
+}
+
 function mbTracks(r,cb){
   var key=r.rid||r.id;
   if(TRK[key]){cb(TRK[key]);return;}
   if(TRKQ[key]){TRKQ[key].push(cb);return;}
   TRKQ[key]=[cb];
+  var inc='inc=recordings+recording-level-rels+url-rels&fmt=json';
   var u=r.rid
-    ? 'https://musicbrainz.org/ws/2/release/'+r.rid+'?inc=recordings&fmt=json'
-    : 'https://musicbrainz.org/ws/2/release?release-group='+r.id+'&inc=recordings&fmt=json&limit=1';
-  var done=function(v){
-    TRK[key]=v;
+    ? 'https://musicbrainz.org/ws/2/release/'+r.rid+'?'+inc
+    : 'https://musicbrainz.org/ws/2/release?release-group='+r.id+'&'+inc+'&limit=1';
+  var give=function(v,keep){
+    /* Un échec n'est jamais mis en cache : la fiche rouverte retentera. */
+    if(keep)TRK[key]=v;
     var q=TRKQ[key];delete TRKQ[key];
     q.forEach(function(f){f(v);});
   };
-  fetch(u,{headers:{Accept:'application/json'}})
-    .then(function(x){return x.ok?x.json():Promise.reject(x.status);})
-    .then(function(d){
-      var rel=d.releases?d.releases[0]:d,out=[];
-      ((rel&&rel.media)||[]).forEach(function(m){
-        var g=[];
-        ((m&&m.tracks)||[]).forEach(function(t){g.push([t.position,t.title||'',t.length||0]);});
-        if(g.length)out.push(g);
+  mbFetch(u,function(d){
+    var rel=d.releases?d.releases[0]:d,groups=[];
+    (((rel||{}).media)||[]).forEach(function(m){
+      var g=[];
+      ((m&&m.tracks)||[]).forEach(function(t){
+        g.push({n:t.position,t:t.title||'',ms:t.length||0,
+                u:pickUrl(((t.recording||{}).relations)||[])});
       });
-      done(out);
-    })
-    .catch(function(){done([]);});
+      if(g.length)g&&groups.push(g);
+    });
+    give({groups:groups,serv:services((rel||{}).relations)},true);
+  },function(){give({groups:[],serv:[],failed:true},false);});
 }
 function dur(ms){
   if(!ms)return '';
@@ -321,8 +379,7 @@ function fiche(i){
   if(r.v)meta.push(['Série',r.v]);
   meta.push(['Rang',pad(p+1)+' sur '+pad(view.length)]);
   $('#focus').innerHTML=
-    '<div class="plate"><span class="disc" aria-hidden="true"></span>'
-      +sleeveHTML(r,i,false)+'</div>'
+    '<div class="plate">'+sleeveHTML(r,i,false)+'</div>'
     +'<div class="txt">'
       +'<button class="fclose" type="button" style="--d:0ms" '
         +'aria-label="Fermer la fiche et revenir au parcours">\u2715</button>'
@@ -340,19 +397,40 @@ function fiche(i){
   /* Un jeton par ouverture : une réponse lente ne doit pas écrire ses titres
      dans la fiche suivante, déjà affichée à sa place. */
   var tok=++ficheTok;
-  mbTracks(r,function(media){
+  mbTracks(r,function(d){
     if(tok!==ficheTok)return;
     var box=$('#trk');if(!box)return;
-    if(!media.length){box.remove();return;}
-    var many=media.length>1;
-    box.innerHTML='<p class="trk-h">Titres<i>'+media.reduce(function(n,g){return n+g.length;},0)
-      +'</i></p>'
-      +media.map(function(g,mi){
-        return (many?'<p class="trk-s">Support '+(mi+1)+'</p>':'')
-          +'<ol class="trk-l">'+g.map(function(t){
-            return '<li><b>'+pad(t[0])+'</b><span>'+esc(t[1])+'</span><i>'+dur(t[2])+'</i></li>';
-          }).join('')+'</ol>';
-      }).join('');
+    if(d.failed){
+      box.innerHTML='<p class="trk-h">Titres<i>indisponible</i></p>';
+      box.classList.add('on');return;
+    }
+    if(!d.groups.length&&!d.serv.length){box.remove();return;}
+    var many=d.groups.length>1;
+    var n=d.groups.reduce(function(a,g){return a+g.length;},0);
+    box.innerHTML=(d.groups.length
+      ? '<p class="trk-h">Titres<i>'+n+'</i></p>'
+        +d.groups.map(function(g,mi){
+            return (many?'<p class="trk-s">Support '+(mi+1)+'</p>':'')
+              +'<ol class="trk-l">'+g.map(function(t){
+                  /* Chaque titre mène à l'écoute. Quand MusicBrainz connaît un
+                     lien pour l'enregistrement, il ouvre la piste elle-même ;
+                     sinon on retombe sur une recherche, qui aboutit toujours. */
+                  var direct=!!t.u;
+                  var href=t.u||('https://www.youtube.com/results?search_query='
+                    +encodeURIComponent(ARTISTS[A].name+' '+t.t));
+                  return '<li'+(direct?' class="direct"':'')+'><b>'+pad(t.n)+'</b>'
+                    +'<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer"'
+                    +' title="'+(direct?'Écouter cette piste':'Chercher cette piste')+'">'
+                    +esc(t.t)+'</a><i>'+dur(t.ms)+'</i></li>';
+                }).join('')+'</ol>';
+          }).join('')
+      : '')
+      +(d.serv.length
+        ? '<p class="play"><span>Écouter</span>'+d.serv.map(function(x){
+            return '<a href="'+esc(x[1])+'" target="_blank" rel="noopener noreferrer">'
+              +esc(x[0])+'</a>';
+          }).join('')+'</p>'
+        : '');
     box.classList.add('on');
   });
 
@@ -658,16 +736,14 @@ $('#filters').addEventListener('click',function(e){
 /* thème : auto → clair → sombre */
 /* L'ordre suit la course de l'interrupteur, de gauche à droite : le système
    d'abord, puis les deux verrouillages. Le repli reste « clair », comme avant. */
-var tm=['auto','light','dark'],ti=1,tn={auto:'auto',light:'clair',dark:'sombre'};
+var tm=['light','dark'],ti=0,tn={light:'clair',dark:'sombre'};
 try{var st=localStorage.getItem('wte-theme');if(st&&tm.indexOf(st)>=0)ti=tm.indexOf(st);}catch(e){}
 function applyTheme(){
   var v=tm[ti],b=$('#mTheme');
-  if(v==='auto')document.documentElement.removeAttribute('data-theme');
-  else document.documentElement.setAttribute('data-theme',v);
+  document.documentElement.setAttribute('data-theme',v);
   b.setAttribute('data-t',v);
-  /* Trois états qui tournent : `aria-pressed`, qui n'en décrit que deux, dirait
-     faux. L'intitulé porte donc l'état courant. */
-  b.setAttribute('aria-label','Thème : '+tn[v]+' — changer');
+  b.setAttribute('aria-pressed',v==='dark'?'true':'false');
+  b.setAttribute('aria-label','Thème sombre');
   $('#mThemeL').textContent=tn[v];
   try{localStorage.setItem('wte-theme',v);}catch(e){}
 }
