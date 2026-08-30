@@ -1,6 +1,6 @@
 # visualizer.mp3
 
-Les parutions de **wave to earth**, **CORTIS** et **george**, parcourues une à une.
+Les parutions de **wave to earth** et de **CORTIS**, parcourues une à une.
 
 Site statique : `index.html`, `style.css`, `script.js`, et `assets/tracks.js`
 pour les titres. Aucune dépendance à compiler, aucun script tiers.
@@ -223,9 +223,9 @@ tous sur un lien sortant.
 Le fragment porte l'artiste, la vue, et la parution quand il y en a une :
 
 ```
-#/wave-to-earth            le parcours
-#/cortis/planche           la planche
-#/george/frr               une fiche
+#/wave-to-earth             le parcours
+#/cortis/planche            la planche
+#/wave-to-earth/bad-pieces  une fiche
 ```
 
 Sans état dans l'URL, aucune parution ne se partageait ni ne se mettait en favori,
@@ -235,9 +235,10 @@ fiche. Les trois sont réglés.
 La parution est désignée par son titre mis à plat, pas par son identifiant
 MusicBrainz : une adresse se lit et se dicte. Les accents sont défaits avant
 d'être jetés, les apostrophes typographiques disparaissent au lieu de devenir des
-tirets, et un titre entièrement non latin — `싸이월드 BGM 2021` — se réduit à ce
-qu'il en reste plutôt qu'à rien. Aucune collision sur les trente-quatre parutions
-actuelles.
+tirets, la ponctuation tombe — `Mention Me (From The Movie "GOAT")` donne
+`mention-me-from-the-movie-goat`. Un titre entièrement non latin se réduirait à
+rien : il reçoit alors une adresse de repli plutôt qu'une adresse vide. Aucune
+collision sur les vingt-deux parutions actuelles.
 
 Au démarrage, l'adresse a le dernier mot — mais **le splash garde la main** :
 la destination est mise de côté et appliquée à l'entrée, sinon l'intro serait
@@ -363,14 +364,6 @@ Toutes tirées de **MusicBrainz**, triées par date de première parution.
 Deux réserves : MusicBrainz classe `play with earth! 0.03` en **Album**, Wikipédia
 en **EP** ; le site suit MusicBrainz, d'où viennent les identifiants. Et la
 compilation `uncounted 0.00` (mai 2024) n'y figure pas, donc elle est absente.
-
-**george** — `d2189e8e-fb85-4fd9-b566-edc5d16e956f`, 12 parutions.
-MusicBrainz l'enregistre sous son nom coréen, **죠지** ; le site garde la graphie
-latine, comme pour les deux autres. Quatre de ses parutions sont des commandes ou
-des duos plutôt que des disques à lui — `Digging Club Seoul Pt. 1`,
-`TAKE CARE with KozyPop`, `싸이월드 BGM 2021`, `Song for you project Vol.4`. Elles
-sont gardées parce que MusicBrainz les lui crédite ; retirez-les du tableau `rel`
-si vous préférez ne montrer que les disques.
 
 **CORTIS** — `d27808c8-d3a6-4bbe-acc2-22d5e19f3bca`, 7 parutions.
 `What You Want` y figure deux fois, aux 18 et 22 août 2025 : un doublon de catalogue.

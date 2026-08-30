@@ -71,36 +71,6 @@ var ARTISTS=[
   {id:'24470887-d9fe-4a32-b17e-939f413972c9', rid:'d461e691-e5c5-49a7-a69b-f82ae2e8895e',
    t:"GREENGREEN_playextended", kind:'EP', date:'23 août 2026', y:2026, v:'', label:'',
    cover:'', note:"L'édition étendue de GREENGREEN. Elle n'existe pas comme parution distincte dans MusicBrainz, seulement comme édition à l'intérieur de celle de mai."}
-]},
- {id:'d2189e8e-fb85-4fd9-b566-edc5d16e956f', name:'george', place:'Séoul', since:2016,
-  slug:'george', photos:[],
-  /* Enregistré chez MusicBrainz sous son nom coréen, 죠지. Le site garde la
-     graphie latine, comme pour les deux autres. */
-  rel:[
-  {id:'95ff6e50-eca3-4761-a26c-20b3cdff150d', t:"I Am GEORGE", kind:'Single', date:'16 mars 2016', y:2016, v:'', label:'Kakao M Corp.',
-   cover:'', note:"Le premier single, sorti chez Kakao M. Le nom s'y écrit encore en capitales."},
-  {id:'9b8dbc05-a146-4c1a-acbc-9279bdacbcc1', t:"Boat", kind:'Single', date:'17 novembre 2017', y:2017, v:'', label:'Craft and Jun',
-   cover:'', note:"Premier single sous Craft and Jun, le label qui l'accompagne depuis."},
-  {id:'24880955-3081-4742-a73b-11dd66044ed7', t:"cassette", kind:'EP', date:'6 juillet 2018', y:2018, v:'', label:'Craft and Jun',
-   cover:'', note:"Le premier EP, et le premier disque qu'on peut écouter d'un bout à l'autre."},
-  {id:'f3121154-80e1-4f3e-8221-f9f890fb8e7e', t:"Digging Club Seoul Pt. 1", kind:'Single', date:'17 septembre 2018', y:2018, v:'', label:'YG PLUS',
-   cover:'', note:"Une commande du projet Digging Club Seoul, hors de la série des disques."},
-  {id:'1e158870-7935-4b2f-87af-86930a0480c7', t:"LEEEE", kind:'EP', date:'3 octobre 2019', y:2019, v:'', label:'Craft and Jun',
-   cover:'', note:"Le deuxième EP. Le titre reprend le nom de famille de l'artiste, Lee."},
-  {id:'b92b3a67-fbff-49d3-a3c8-976398c42dde', t:"TAKE CARE with KozyPop", kind:'Single', date:'6 juillet 2020', y:2020, v:'', label:'Craft and Jun',
-   cover:'', note:"Un single à deux, avec KozyPop."},
-  {id:'11bfe2f7-edd6-4f31-89ea-33844a54500c', t:"Love in summer", kind:'EP', date:'23 septembre 2020', y:2020, v:'', label:'Craft and Jun',
-   cover:'', note:"Un EP d'été, entre les deux disques longs."},
-  {id:'81deb324-921d-4b76-900b-5cc9b1d4fe6a', t:"싸이월드 BGM 2021", kind:'Single', date:'9 août 2021', y:2021, v:'', label:'Cyworld Z',
-   cover:'', note:"Une commande pour Cyworld, le réseau social coréen, dans sa tentative de retour."},
-  {id:'1785bdf0-f37c-41bc-a5e2-5f387ce9e841', t:"Song for you project Vol.4 : Dear My Winter", kind:'Single', date:'5 décembre 2022', y:2022, v:'', label:'',
-   cover:'', note:"Un single de commande, sans label renseigné."},
-  {id:'672522f0-5df3-4443-a0d2-6e637a7e1c6e', t:"FRR", kind:'Album', date:'6 avril 2023', y:2023, v:'', label:'Craft and Jun',
-   cover:'', note:"Le premier album, sept ans après le premier single."},
-  {id:'24c08766-90b0-4dd1-9740-cf5a2c19213b', t:"gimbap", kind:'EP', date:'18 août 2024', y:2024, v:'', label:'Craft and Jun',
-   cover:'', note:"L'EP de 2024, nommé d'après le plat."},
-  {id:'d58cf863-3679-428e-b307-81d7ee8c3e0d', t:"if i’m with you", kind:'Single', date:'29 juillet 2026', y:2026, v:'', label:'',
-   cover:'', note:"La parution la plus récente au moment où ce site a été fait."}
 ]}
 ];
 var A=0, REL=ARTISTS[0].rel;
@@ -633,7 +603,7 @@ function flipTo(fromEl,toEl,done){
 
      #/wave-to-earth            le parcours
      #/cortis/planche           la planche
-     #/george/frr               une fiche
+     #/wave-to-earth/bad-pieces  une fiche
 
    La parution est désignée par son titre mis à plat plutôt que par son
    identifiant MusicBrainz : une adresse se lit et se dicte. Les collisions sont
@@ -646,7 +616,8 @@ function slugify(t){
   x=x.replace(/[\u2018\u2019']/g,'')
      .replace(/[^a-z0-9]+/g,'-')
      .replace(/^-+|-+$/g,'');
-  /* Un titre entièrement non latin — « 싸이월드 BGM 2021 » — se réduirait à rien. */
+  /* Un titre entièrement non latin se réduirait à rien : mieux vaut une adresse
+     de repli qu'une adresse vide, qui renverrait au parcours. */
   return x||'x';
 }
 var hashLock=false;
