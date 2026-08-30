@@ -87,14 +87,24 @@ Les cartes existent une fois et ne changent que de transformée, si bien que la
 transition CSS les fait **glisser le long de l'hélice** au lieu de les faire
 réapparaître ailleurs.
 
-Quatre nombres font l'allure, en tête de la section dans `script.js`, et ils se
-règlent à l'œil :
+**La carte est taillée pour que l'hélice tienne dans la fenêtre**, et non l'inverse.
+Une taille fixe la faisait déborder en haut et en bas ; les débords se calculent
+maintenant en largeurs de carte, et la largeur s'en déduit. La perspective n'entre
+pas dans le calcul parce qu'elle ne fait que **rétrécir** : la carte de devant,
+seule à l'échelle 1, est déjà le pire cas.
+
+**La fenêtre de cartes boucle.** Sans cela, en début et en fin de liste elle était
+tronquée d'un côté et l'hélice partait de travers. Elle ne peut pas dépasser la
+moitié de la liste, sinon une même photo devrait tenir deux places à la fois.
+
+Quatre nombres font l'allure, en tête de la section dans `script.js`. Ils sont
+**sans unité — en largeurs de carte** — puisque c'est la carte qui s'adapte :
 
 | | |
 |---|---|
-| `P_STEP` | l'angle d'un cran — plus il est grand, plus les voisines se tournent |
-| `P_RISE` | la montée par cran, en largeur de carte : c'est elle qui fait la pente |
-| `P_R` | le rayon, en largeur de carte : il règle le recouvrement |
+| `P_STEP` | l'angle d'un cran, en degrés — plus il est grand, plus les voisines se tournent |
+| `P_RISE` | la montée par cran : c'est elle qui fait la pente, et elle seule décide de la hauteur occupée |
+| `P_R` | le rayon : il règle le recouvrement. À 1,6 les cartes se chevauchent à moitié et forment un mur ; à 2,6 il reste un quart de recouvrement, et de l'air |
 | `P_WIN` | combien de cartes de chaque côté restent posées |
 
 Deux conséquences à connaître :

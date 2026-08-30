@@ -23,7 +23,6 @@
   --e:cubic-bezier(.24,.9,.3,1);
   --e-out:cubic-bezier(.16,1,.3,1);
   --cw:clamp(168px,24vw,340px);
-  --pw:clamp(132px,17vw,236px);
 }
 :root[data-theme="dark"]{
   --st-1:#1B1E23; --st-2:#101216; --st-3:#08090B;
@@ -241,8 +240,10 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 
    Les transformées sont écrites en JS et la transition les interpole : les
    cartes glissent le long de l'hélice au lieu de sauter d'une place à l'autre. */
-.pstage{position:absolute;inset:0;
-  perspective:1400px;perspective-origin:50% 50%;
+/* `--pw` est écrite en JS : la carte est taillée pour que l'hélice tienne dans
+   la fenêtre, ce qu'une taille fixe ne pouvait pas garantir. */
+.pstage{position:absolute;inset:0;--pw:180px;
+  perspective:1600px;perspective-origin:50% 50%;
   transform-style:preserve-3d;cursor:grab}
 .pstage:active{cursor:grabbing}
 .pring{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
