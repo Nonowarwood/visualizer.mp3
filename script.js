@@ -243,6 +243,73 @@ function progress(){
   if(l)l.textContent=done>=total?'PRÊT':(pad(done)+' / '+pad(total));
   if(done>=total)ready();
 }
+/* ─────────── l'écran de l'appareil ───────────
+   Emprunté à une direction artistique de jeu en pixels : de la 3D rendue en basse
+   définition, puis quantifiée et tramée. Rien d'autre n'en est repris — sa palette
+   tropicale et ses décors n'ont rien à faire ici. Mais la basse définition, si :
+   un baladeur de cette époque avait un écran de 320×240, et les pochettes y
+   tenaient à peine plus qu'une vignette. Les montrer **comme l'appareil les aurait
+   affichées** est du pixel art et d'époque à la fois.
+
+   La réduction seule donnerait des aplats sales. Ce qui fait l'image, c'est le
+   **tramage ordonné** : avant d'arrondir chaque composante à l'un des six niveaux
+   retenus, on lui ajoute un seuil qui varie selon la position dans une matrice de
+   Bayer 4×4. Deux pixels voisins d'une même teinte s'arrondissent alors de part et
+   d'autre, et le mélange rend la nuance que la palette ne contient pas. */
+/* PIX_L, le nombre de niveaux gardés par composante, a été réglé en comparant :
+   à 6 le ciel vire au damier uniforme et l'image se délave ; à 16 la
+   quantification ne se lit plus, indiscernable de la simple réduction. À 10 la
+   trame se devine dans les aplats sans manger les couleurs. */
+var PIX=false,PIX_N=96,PIX_L=10,pixCache={};
+var BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+
+function pixelate(url,cb){
+  if(pixCache[url]){cb(pixCache[url]);return;}
+  var im=new Image();
+  im.crossOrigin='anonymous';
+  im.onerror=function(){cb(null);};
+  im.onload=function(){
+    try{
+      var c=document.createElement('canvas');c.width=c.height=PIX_N;
+      var x=c.getContext('2d');
+      x.drawImage(im,0,0,PIX_N,PIX_N);
+      var d=x.getImageData(0,0,PIX_N,PIX_N),a=d.data,step=255/(PIX_L-1);
+      for(var i=0,px=0;i<a.length;i+=4,px++){
+        var seuil=(BAYER[(px%PIX_N%4)+((px/PIX_N|0)%4)*4]/16-0.5)*step;
+        for(var k=0;k<3;k++){
+          var v=Math.round((a[i+k]+seuil)/step)*step;
+          a[i+k]=v<0?0:(v>255?255:v);
+        }
+      }
+      x.putImageData(d,0,0);
+      var u=c.toDataURL('image/png');
+      pixCache[url]=u;cb(u);
+    }catch(e){
+      /* Canevas souillé : l'archive n'a pas renvoyé l'en-tête qui l'autorise.
+         On laisse la pochette telle quelle plutôt que de la perdre. */
+      cb(null);
+    }
+  };
+  im.src=url;
+}
+
+/* Toute pochette passe par ici : l'adresse d'origine est gardée, si bien qu'on
+   peut revenir en arrière sans la recharger. */
+function setCover(img,url){
+  img.setAttribute('data-src',url);
+  if(!PIX){img.src=url;return;}
+  pixelate(url,function(u){
+    if(img.getAttribute('data-src')===url)img.src=u||url;
+  });
+}
+function applyPix(){
+  document.documentElement.setAttribute('data-pix',PIX?'on':'off');
+  $('#mPix').setAttribute('aria-pressed',PIX?'true':'false');
+  try{localStorage.setItem('wte-pix',PIX?'1':'0');}catch(e){}
+  var imgs=[].slice.call(document.querySelectorAll('img[data-src]'));
+  imgs.forEach(function(im){setCover(im,im.getAttribute('data-src'));});
+}
+
 function wireImages(first){
   /* Restreint au rail et à la planche : une recherche sur tout le document
      ramassait aussi l'image de la fiche, ajoutée en JS et sans `data-i`,
@@ -261,7 +328,7 @@ function wireImages(first){
       img.remove();
       if(first&&!seen){seen=true;done++;progress();}
     });
-    img.src=srcOf(REL[i]);
+    setCover(img,srcOf(REL[i]));
   });
   if(first&&!imgs.length)ready();
 }
@@ -507,7 +574,7 @@ function fiche(i){
   var img=new Image();
   img.crossOrigin='anonymous';img.className='on';img.alt='Pochette de '+r.t;
   img.onerror=function(){img.remove();};
-  plate.appendChild(img);img.src=srcOf(r);
+  plate.appendChild(img);setCover(img,srcOf(r));
   return plate;
 }
 
@@ -1233,6 +1300,8 @@ function applyList(){
   hud();
 }
 $('#mList').addEventListener('click',function(){LIST=!LIST;applyList();});
+try{PIX=localStorage.getItem('wte-pix')==='1';}catch(e){}
+$('#mPix').addEventListener('click',function(){PIX=!PIX;applyPix();});
 $('#rlist').addEventListener('click',function(e){
   var b=e.target.closest('button[data-p]');
   if(b)goTo(parseInt(b.getAttribute('data-p'),10));
@@ -1272,6 +1341,7 @@ function applyTheme(){
 $('#mTheme').addEventListener('click',function(){ti=(ti+1)%tm.length;applyTheme();});
 applyTheme();
 applyList();
+applyPix();
 
 document.addEventListener('keydown',function(e){
   if(STATE==='intro'){enter();return;}
@@ -1286,6 +1356,7 @@ document.addEventListener('keydown',function(e){
     else if(amenu.classList.contains('on'))amenuOpen(false); else close();}
   else if(k==='g'||k==='G'){e.preventDefault();setState(STATE==='survey'?'parcours':'survey');}
   else if(k==='l'||k==='L'){e.preventDefault();LIST=!LIST;applyList();}
+  else if(k==='p'||k==='P'){e.preventDefault();PIX=!PIX;applyPix();}
   else if(k==='Home'){e.preventDefault();goTo(0);}
   else if(k==='End'){e.preventDefault();goTo(view.length-1);}
 });

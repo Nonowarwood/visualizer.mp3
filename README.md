@@ -524,6 +524,38 @@ Le choix est retenu d'une visite à l'autre : c'est une façon de naviguer, pas 
 coup d'œil. Sous 900 px de large, la liste disparaît — elle mangerait la pochette
 qu'elle est censée servir.
 
+## L'écran de l'appareil
+
+Emprunt à une direction artistique de jeu en pixels : de la 3D rendue en **basse
+définition**, puis quantifiée et tramée. Rien d'autre n'en est repris — sa palette
+saturée et ses décors n'auraient rien à faire ici.
+
+Mais la basse définition, si. Un baladeur de cette époque avait un écran de
+320 × 240, et les pochettes y tenaient à peine plus qu'une vignette. Les montrer
+**comme l'appareil les aurait affichées** est du pixel art et d'époque à la fois :
+c'est le seul point où les deux partis pris se rejoignent.
+
+Le bouton `pixels`, ou la touche `P`, réduit chaque pochette à 96 px, ramène
+chaque composante à dix niveaux, puis la remonte en plus proche voisin — sans quoi
+le navigateur la lisserait et rendrait la réduction invisible.
+
+**Ce qui fait l'image, c'est le tramage.** Avant d'arrondir une composante, on lui
+ajoute un seuil qui varie selon la position dans une matrice de Bayer 4 × 4 : deux
+pixels voisins d'une même teinte s'arrondissent alors de part et d'autre, et leur
+mélange rend la nuance que la palette ne contient pas.
+
+Le nombre de niveaux a été réglé en comparant, pas au jugé :
+
+| niveaux | ce que ça donne |
+|---|---|
+| 6 | le ciel vire au damier uniforme, l'image se délave |
+| **10** | la trame se devine dans les aplats, les couleurs tiennent |
+| 16 | indiscernable de la simple réduction — la quantification ne se lit plus |
+
+Si l'archive ne renvoie pas l'en-tête qui autorise la lecture du canevas, la
+pochette est laissée telle quelle plutôt que perdue. Le choix est retenu d'une
+visite à l'autre.
+
 ## Finitions
 
 - l'interface entre **en séquence** après le splash : marque, barre de commandes,
