@@ -728,6 +728,28 @@ la diagonale passe à droite du visage plutôt qu'entre les yeux. Avec cette pal
 une coupure au milieu aurait mis un œil sur un fond presque noir, où il aurait
 disparu ; ici le visage reste du côté clair et se lit toujours.
 
+### Y mettre la vôtre
+
+La figure dessinée n'est qu'un défaut. Déposez la vôtre dans **`assets/mascotte/`**,
+nommée `mascotte.png`, et elle prend sa place sans rien d'autre à faire. Le dossier
+porte un `LISEZMOI.txt` qui redit tout ça sur place.
+
+```
+assets/mascotte/mascotte.png
+```
+
+Pour un autre nom ou un autre format — `.webp`, `.gif` animé, `.svg` —, changez la
+constante `MASCOTTE` en tête de la section. Videz-la pour revenir à la figure
+dessinée.
+
+Le fichier n'est cherché **qu'à l'ouverture de la visite**, jamais au chargement de
+la page : rien n'est demandé pour rien à qui ne la lance pas. S'il manque, la figure
+dessinée reste — il n'y a donc pas d'état cassé.
+
+Elle est posée dans une boîte de 66 × 82 points, **ajustée sans être déformée** quel
+que soit son format, alignée sur le bas. L'ombre portée et le balancement lent
+viennent de la feuille de style : votre image n'a pas à les porter.
+
 Elle est en **graphite et non en bleu**. Le verni du site est monochrome par
 choix — « la structure fait l'effet, pas la teinte » — et une mascotte Aqua serait
 la seule chose colorée de la page, à démentir la règle. Pour l'essayer en bleu, il

@@ -654,6 +654,26 @@ function aboutOpen(on){
    Les étapes ne changent jamais l'état du site — elles montrent, elles ne font
    pas à la place. Une étape qui ouvrirait la planche pour l'expliquer laisserait
    le visiteur ailleurs qu'il ne croyait. */
+/* Votre illustration se pose dans `assets/mascotte/`. Nommée `mascotte.png`, elle
+   remplace d'elle-même la figure dessinée. Videz cette constante pour revenir à
+   celle-ci. Le fichier n'est cherché **qu'à l'ouverture de la visite**, jamais au
+   chargement de la page : rien n'est demandé pour rien à qui ne la lance pas. */
+var MASCOTTE='assets/mascotte/mascotte.png',mascVue=false;
+function mascotte(){
+  if(mascVue||!MASCOTTE)return;
+  mascVue=true;
+  var im=new Image();
+  im.onload=function(){
+    var box=$('#tour');if(!box)return;
+    var svg=box.querySelector('.tour-m');
+    if(svg)svg.remove();
+    im.className='tour-m';im.alt='';
+    box.insertBefore(im,box.firstChild);
+  };
+  im.onerror=function(){};   /* pas de fichier : la figure dessinée reste */
+  im.src=MASCOTTE;
+}
+
 var TOUR=[
  {sel:'#field',t:'Le parcours',
   x:'Les pochettes défilent à la molette, au glisser, ou aux flèches <kbd>←</kbd> <kbd>→</kbd>. '
@@ -681,6 +701,7 @@ function tourHi(sel){
 }
 function tourShow(i){
   if(i>=TOUR.length){tourEnd();return;}
+  mascotte();
   tourI=i;
   var e=TOUR[i];
   $('#tourT').textContent=e.t;

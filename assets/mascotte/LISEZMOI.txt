@@ -1,0 +1,20 @@
+Votre illustration de mascotte se pose ici.
+
+Nommez-la  mascotte.png  et elle remplacera d'elle-même la figure dessinée en
+SVG dans index.html. Rien d'autre à faire.
+
+  assets/mascotte/mascotte.png
+
+Pour un autre nom ou un autre format — .webp, .gif animé, .svg —, changez la
+constante MASCOTTE en tête de script.js. Laissez-la vide pour revenir à la
+figure dessinée.
+
+Ce qui marche le mieux :
+
+  · un fond transparent (PNG ou WebP), la figure étant posée sur le fond du site ;
+  · une image de face, plutôt haute que large — elle est affichée dans une boîte
+    de 66 x 82 points, ajustée sans être déformée, quel que soit son format ;
+  · deux fois cette taille en pixels pour les écrans fins, soit environ 132 x 164.
+
+L'ombre portée et le balancement lent sont ajoutés par la feuille de style : votre
+image n'a pas besoin de les porter.
