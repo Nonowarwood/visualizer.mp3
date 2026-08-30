@@ -559,19 +559,24 @@ function plPlay(k){
   if(k<0||k>=PL.list.length)return;
   PL.i=k;
   var t=PL.list[k];
-  /* L'enchaînement sans l'API de YouTube : une intégration accepte une suite
-     d'identifiants en paramètre et passe d'elle-même à la suivante. On lui donne
-     donc la fin du disque à partir d'ici — la piste jouée reste dans le chemin,
-     `playlist` ne portant que ce qui vient après. */
-  var suite=PL.list.slice(k+1).map(function(x){return x.yt;}).join(',');
+  /* Une seule piste, et rien d'autre dans l'adresse.
+
+     L'enchaînement passait auparavant par le paramètre `playlist`, censé ne
+     porter que la suite du disque, la piste demandée restant dans le chemin.
+     C'est ce que dit la documentation, et ce sur quoi repose le tour connu du
+     `?loop=1&playlist=<le même identifiant>`. Mais tous les lecteurs ne s'y
+     tiennent pas : certains prennent `playlist` pour la liste entière et
+     commencent à son premier élément — donc **à la piste suivante**. Lancer TNT
+     jouait REDRED, lancer REDRED jouait ACAI.
+
+     Comme on ne peut pas savoir d'avance lequel des deux comportements
+     s'appliquera, on ne s'y fie plus. Jouer la piste demandée n'est pas
+     négociable ; l'enchaînement automatique n'était qu'un agrément, et les
+     boutons ◂◂ ▸▸ le remplacent. */
   $('#plFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(t.yt)
-    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1'
-    +(suite?'&playlist='+suite:'');
+    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
   $('#plTitle').textContent=t.t;
   $('#plNum').textContent=pad(k+1)+' / '+pad(PL.list.length)+' · '+PL.rel;
-  /* Le lecteur avance seul : le compteur ne le sait pas, faute de retour de
-     l'iframe. Il dit d'où l'on est parti, ce que la mention ci-dessous précise. */
-  $('#plSuite').hidden=!suite;
   $('#plPrev').disabled=k<=0;
   $('#plNext').disabled=k>=PL.list.length-1;
   $('#player').hidden=false;
