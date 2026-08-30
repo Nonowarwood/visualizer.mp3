@@ -322,13 +322,16 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .trk-l li{display:flex;align-items:baseline;gap:8px;padding:4px 0;
   border-bottom:1px solid var(--pn-line);font-size:13px;color:var(--ink-2);min-width:0}
 .trk-l li b{font-weight:400;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
-.trk-l li a{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;color:var(--ink);text-decoration:none;
-  border-bottom:1px solid transparent;transition:color .18s var(--e)}
-.trk-l li a:hover,.trk-l li a:focus-visible{color:var(--bl);border-bottom-color:var(--bl)}
-/* Le repère ne décore pas : il distingue la piste que MusicBrainz sait ouvrir
-   telle quelle de celle qui retombe sur une recherche. */
-.trk-l li.direct a::before{content:"▸ ";color:var(--bl);font-size:.9em}
+.trk-l li a,.trk-l li .tp{flex:1 1 auto;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;color:var(--ink);text-decoration:none;
+  text-align:left;font:inherit;border-bottom:1px solid transparent;
+  transition:color .18s var(--e)}
+.trk-l li a:hover,.trk-l li a:focus-visible,
+.trk-l li .tp:hover,.trk-l li .tp:focus-visible{color:var(--bl);border-bottom-color:var(--bl)}
+/* Le repère ne décore pas : il dit que la piste se joue ici même. Celles qui
+   partent au dehors portent le chevron sortant. */
+.trk-l li .tp::before{content:"▸ ";color:var(--bl);font-size:.9em}
+.trk-l li.out a::after{content:" ↗";color:var(--ink-3);font-size:.85em}
 
 /* Les écoutes de l'album entier, que MusicBrainz renseigne bien plus souvent
    que celles des pistes une à une. */
@@ -376,6 +379,47 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .edgelab.r{right:0;transform:translateY(-50%);writing-mode:vertical-rl}
 [data-state="parcours"] .edgelab,[data-state="survey"] .edgelab{opacity:1}
 @media(max-width:900px){.edgelab{display:none}}
+
+/* ─── le lecteur ───
+   Posé dans le coin, hors du HUD : il survit au changement de vue et à la
+   fermeture de la fiche. On referme un disque, on continue de l'écouter. */
+.player{position:fixed;right:var(--pad);bottom:var(--pad);z-index:60;
+  width:min(340px,calc(100vw - var(--pad)*2));
+  background:var(--pn);
+  box-shadow:0 0 0 1px rgba(0,0,0,.38),0 22px 44px -20px rgba(0,0,0,.6);
+  animation:plIn .45s var(--e-out) both}
+.player[hidden]{display:none}
+@keyframes plIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pl-bar{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 11px;
+  border-bottom:1px solid var(--cr-line);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3))}
+.pl-t{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font:700 12px/1.3 var(--sans);color:var(--cr-ink);letter-spacing:-.01em;
+  text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.pl-x{flex:none;width:22px;height:18px;font:400 11px/1 var(--sans);color:var(--cr-ink-2);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);transition:color .18s var(--e)}
+.pl-x:hover{color:var(--cr-ink)}
+/* Le cadre de la vidéo garde son rapport 16/9 quoi qu'il arrive : sans hauteur
+   imposée, une iframe se replie sur 150px et coupe l'image. */
+.pl-screen{position:relative;aspect-ratio:16/9;background:#000}
+.pl-screen iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.pl-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:5px 8px;border-top:1px solid var(--pn-line);background:var(--pn-2)}
+.pl-foot button{width:34px;height:20px;font:400 11px/1 var(--sans);color:var(--cr-ink-2);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);transition:color .18s var(--e),filter .18s var(--e)}
+.pl-foot button:hover{color:var(--cr-ink);filter:brightness(1.03)}
+.pl-foot button:active{filter:brightness(.94)}
+.pl-foot button[disabled]{opacity:.4;pointer-events:none}
+.pl-n{font:400 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);font-variant-numeric:tabular-nums;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:600px){.player{left:var(--pad);width:auto}}
+
+/* La piste en cours se signale dans la liste. */
+.trk-l li.playing a{color:var(--bl);font-weight:600}
+.trk-l li.playing b::after{content:"▸";margin-left:.3em;color:var(--bl)}
 
 /* ═══════════════ interface ═══════════════ */
 .hud{position:fixed;inset:0;z-index:30;pointer-events:none;

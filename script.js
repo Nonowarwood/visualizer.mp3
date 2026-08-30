@@ -146,8 +146,19 @@ function services(rels){
   return out;
 }
 
+/* Le relevé fabriqué d'abord : il est là au chargement, complet, et porte les
+   identifiants YouTube que MusicBrainz ne connaît pas. L'appel en direct ne
+   sert plus que de filet, pour une parution ajoutée sans avoir relancé
+   tools/build-tracks.py. */
 function mbTracks(r,cb){
   var key=r.rid||r.id;
+  if(typeof TRACKS!=='undefined'&&TRACKS[key]){
+    var b=TRACKS[key];
+    cb({serv:b.s||[],groups:(b.g||[]).map(function(g){
+      return g.map(function(t){return {n:t[0],t:t[1],ms:t[2],yt:t[3]||null,u:null};});
+    })});
+    return;
+  }
   if(TRK[key]){cb(TRK[key]);return;}
   if(TRKQ[key]){TRKQ[key].push(cb);return;}
   TRKQ[key]=[cb];
@@ -166,7 +177,7 @@ function mbTracks(r,cb){
     (((rel||{}).media)||[]).forEach(function(m){
       var g=[];
       ((m&&m.tracks)||[]).forEach(function(t){
-        g.push({n:t.position,t:t.title||'',ms:t.length||0,
+        g.push({n:t.position,t:t.title||'',ms:t.length||0,yt:null,
                 u:pickUrl(((t.recording||{}).relations)||[])});
       });
       if(g.length)g&&groups.push(g);
@@ -407,20 +418,28 @@ function fiche(i){
     if(!d.groups.length&&!d.serv.length){box.remove();return;}
     var many=d.groups.length>1;
     var n=d.groups.reduce(function(a,g){return a+g.length;},0);
+    /* Le lecteur ne connaît que les pistes jouables, dans leur ordre. */
+    var flat=[];
     box.innerHTML=(d.groups.length
       ? '<p class="trk-h">Titres<i>'+n+'</i></p>'
         +d.groups.map(function(g,mi){
             return (many?'<p class="trk-s">Support '+(mi+1)+'</p>':'')
               +'<ol class="trk-l">'+g.map(function(t){
-                  /* Chaque titre mène à l'écoute. Quand MusicBrainz connaît un
-                     lien pour l'enregistrement, il ouvre la piste elle-même ;
-                     sinon on retombe sur une recherche, qui aboutit toujours. */
-                  var direct=!!t.u;
+                  /* Trois sorts, du meilleur au moins bon : une vidéo qu'on
+                     joue sur place ; un lien d'écoute que MusicBrainz connaît
+                     pour l'enregistrement ; sinon une recherche, qui aboutit
+                     toujours. Seul le premier reste dans la page. */
+                  var lab=pad(t.n);
+                  if(t.yt){
+                    return '<li data-y="'+esc(t.yt)+'"><b>'+lab+'</b>'
+                      +'<button type="button" class="tp" data-k="'+(flat.push(t)-1)+'">'
+                      +esc(t.t)+'</button><i>'+dur(t.ms)+'</i></li>';
+                  }
                   var href=t.u||('https://www.youtube.com/results?search_query='
                     +encodeURIComponent(ARTISTS[A].name+' '+t.t));
-                  return '<li'+(direct?' class="direct"':'')+'><b>'+pad(t.n)+'</b>'
+                  return '<li class="out"><b>'+lab+'</b>'
                     +'<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer"'
-                    +' title="'+(direct?'Écouter cette piste':'Chercher cette piste')+'">'
+                    +' title="'+(t.u?'Écouter cette piste':'Chercher cette piste')+'">'
                     +esc(t.t)+'</a><i>'+dur(t.ms)+'</i></li>';
                 }).join('')+'</ol>';
           }).join('')
@@ -432,6 +451,11 @@ function fiche(i){
           }).join('')+'</p>'
         : '');
     box.classList.add('on');
+    /* La fiche affichée expose sa liste, mais ne la donne pas au lecteur : sinon
+       ouvrir une autre parution pendant l'écoute déplacerait « suivant » vers un
+       disque qu'on n'écoute pas. Le lecteur ne prend le fil qu'au moment du clic. */
+    SHOWN={list:flat,rel:r.t,key:r.rid||r.id};
+    plMark();
   });
 
   var plate=$('#focus .plate .sleeve');
@@ -441,6 +465,49 @@ function fiche(i){
   plate.appendChild(img);img.src=srcOf(r);
   return plate;
 }
+
+/* ─────────── le lecteur ───────────
+   Une iframe YouTube, pas l'API JavaScript de YouTube : celle-ci exigerait de
+   charger un script tiers dans la page, ce que le site s'interdit partout
+   ailleurs. On perd l'enchaînement automatique en fin de piste — d'où les deux
+   boutons — et on garde une page qui n'exécute que son propre code.
+
+   Le domaine `youtube-nocookie.com` est celui qui dépose le moins. Il n'annule
+   pas tout : intégrer YouTube, c'est faire entrer un tiers dans la page, et le
+   README le dit maintenant sans détour. */
+var PL={list:[],i:-1,rel:'',key:''},SHOWN={list:[],rel:'',key:''};
+function plMark(){
+  /* On ne surligne que si la fiche ouverte est bien celle qu'on écoute. */
+  var same=PL.key&&PL.key===SHOWN.key;
+  var l=document.querySelectorAll('#trk .trk-l li');
+  for(var k=0;k<l.length;k++){
+    var b=l[k].querySelector('.tp');
+    l[k].classList.toggle('playing',
+      same&&!!b&&PL.i>=0&&parseInt(b.getAttribute('data-k'),10)===PL.i);
+  }
+}
+function plPlay(k){
+  if(k<0||k>=PL.list.length)return;
+  PL.i=k;
+  var t=PL.list[k];
+  $('#plFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(t.yt)
+    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+  $('#plTitle').textContent=t.t;
+  $('#plNum').textContent=pad(k+1)+' / '+pad(PL.list.length)+' · '+PL.rel;
+  $('#plPrev').disabled=k<=0;
+  $('#plNext').disabled=k>=PL.list.length-1;
+  $('#player').hidden=false;
+  plMark();
+}
+function plStop(){
+  /* Vider la source coupe le son : masquer l'iframe ne l'aurait pas fait. */
+  $('#plFrame').src='';
+  $('#player').hidden=true;
+  PL.i=-1;PL.key='';plMark();
+}
+$('#plClose').addEventListener('click',plStop);
+$('#plPrev').addEventListener('click',function(){plPlay(PL.i-1);});
+$('#plNext').addEventListener('click',function(){plPlay(PL.i+1);});
 
 /* ─────────── transition FLIP ─────────── */
 function flipTo(fromEl,toEl,done){
@@ -714,7 +781,12 @@ $('#next').addEventListener('click',function(){
 $('#back').addEventListener('click',close);
 /* La fiche est reconstruite à chaque ouverture : on écoute le conteneur. */
 $('#focus').addEventListener('click',function(e){
-  if(e.target.closest('.fclose'))close();
+  if(e.target.closest('.fclose')){close();return;}
+  var t=e.target.closest('.tp');
+  if(t){
+    PL.list=SHOWN.list;PL.rel=SHOWN.rel;PL.key=SHOWN.key;
+    plPlay(parseInt(t.getAttribute('data-k'),10));
+  }
 });
 $('#mParcours').addEventListener('click',function(){setState('parcours');goTo(CUR,false);});
 $('#mSurvey').addEventListener('click',function(){setState(STATE==='survey'?'parcours':'survey');});

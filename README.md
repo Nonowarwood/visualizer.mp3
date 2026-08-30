@@ -2,8 +2,14 @@
 
 Les parutions de **wave to earth** et de **CORTIS**, parcourues une à une.
 
-Site statique en trois fichiers : `index.html`, `style.css`, `script.js`.
-Aucune dépendance à compiler, aucun script tiers, aucun cookie.
+Site statique : `index.html`, `style.css`, `script.js`, et `assets/tracks.js`
+pour les titres. Aucune dépendance à compiler, aucun script tiers.
+
+**Une réserve, et elle est réelle** : le lecteur intègre une vidéo YouTube. Tant
+qu'on ne lance rien, rien n'est chargé depuis YouTube ; dès qu'on joue une piste,
+un tiers entre dans la page et peut déposer. Le domaine `youtube-nocookie.com`
+limite la casse sans l'annuler. C'est le prix de l'écoute sur place — pour vous en
+passer, voyez « Le lecteur » plus bas.
 
 ## Direction artistique
 
@@ -136,48 +142,71 @@ retenu.
 
 ## Les titres du disque, et de quoi les écouter
 
-La fiche porte la liste des pistes, tirée de MusicBrainz comme le reste — mais
-d'un autre niveau : **les pistes vivent sur l'édition, pas sur le release-group**.
-Quand la parution porte un `rid`, on interroge l'édition directement ; sinon on
-demande la première édition du groupe.
+La liste des pistes est **relevée d'avance**, dans `assets/tracks.js`, par
+`tools/build-tracks.py`. Deux raisons, toutes deux apprises à mes dépens.
 
+**MusicBrainz plafonne à une requête par seconde** et répond `503` au-delà.
+Interrogé à l'ouverture de chaque fiche, il suffisait de parcourir les parutions
+aux flèches pour déclencher des `503` — que le code prenait pour « pas de
+titres », effaçant la section et gardant l'échec en cache pour la session. Un
+relevé des vingt-deux parutions l'a établi : **toutes ont leurs pistes chez
+MusicBrainz**, aucune ne manquait vraiment.
+
+**Retrouver la vidéo d'un titre demande une recherche YouTube.** Sans clé d'API,
+elle ne peut se faire qu'en lisant la page de résultats — ce qui n'a rien à faire
+dans le navigateur d'un visiteur. C'est fait une fois, ici.
+
+C'est le même parti que le tableau `rel` de `script.js` : la donnée vient bien de
+MusicBrainz, mais elle est relevée puis figée, pas redemandée à chaque visite. Le
+site n'appelle plus personne au chargement, et la liste s'affiche d'un coup.
+
+```bash
+cd site && python3 tools/build-tracks.py
 ```
-https://musicbrainz.org/ws/2/release/<rid>?inc=recordings+recording-level-rels+url-rels&fmt=json
-https://musicbrainz.org/ws/2/release?release-group=<id>&inc=…&limit=1
-```
 
-### La limite d'une requête par seconde
+À relancer après avoir ajouté une parution. Si le fichier ne connaît pas une
+parution, le site **retombe sur l'appel direct** à MusicBrainz — avec sa file
+d'attente et ses reprises sur `503`. Rien ne casse, la liste arrive juste plus
+tard et sans vidéo.
 
-C'est le piège de cette section, et il s'était refermé. MusicBrainz plafonne à
-**une requête par seconde** et répond `503` au-delà. Or parcourir les fiches aux
-flèches en lance une par fiche : au troisième appui, `503`. Le code d'alors
-concluait « pas de titres », effaçait la section — **et gardait l'échec en cache
-pour toute la session**.
+### Comment la vidéo est choisie
 
-Un relevé des vingt-et-une parutions l'a confirmé : **toutes ont leurs pistes chez
-MusicBrainz**. Les trois qui semblaient dépourvues étaient trois `503`, pas trois
-trous dans la base. Les appels passent donc en file, espacés d'une seconde et
-quelques ; un `503` renvoie la demande en fin de file, jusqu'à trois fois, avec
-une attente qui s'allonge. Un échec n'est jamais mis en cache : rouvrir la fiche
-retente.
+La chaîne **« <artiste> - Topic »** d'abord : c'est la piste auto-générée par
+YouTube à partir de la sortie officielle, donc exactement le morceau et rien
+d'autre — la « section sorties » d'un compte d'artiste. Puis la chaîne de
+l'artiste. La durée relevée chez MusicBrainz sert d'arbitre : elle écarte les
+live, les reprises et les vidéos d'album entier qui portent le même titre. **Plus
+d'une minute d'écart et le candidat est rejeté** : mieux vaut pas de vidéo qu'une
+mauvaise, la fiche retombe alors sur une recherche.
 
-### Écouter
+Le fichier produit est lisible, et une correction à la main y est sans danger.
 
-Chaque titre est un lien. Deux cas, et ils ne se valent pas :
+### Les liens d'album
 
-- quand MusicBrainz connaît un lien pour **l'enregistrement**, le titre ouvre la
-  piste elle-même — Spotify de préférence, seul service dont l'URL vise la piste
-  et non l'album. Ces titres portent un `▸` ;
-- sinon le titre retombe sur une **recherche**, qui aboutit toujours.
+MusicBrainz renseigne bien mieux les liens **par album** que ceux par piste :
+Spotify, Deezer, Apple Music, Tidal, pour à peu près toutes les parutions. Ils
+forment la rangée `Écouter` sous la liste, et ils sortent du site.
 
-Ce partage n'est pas un choix mais un état de la base : les liens par
-enregistrement y sont rares. Sur `GREENGREEN_playextended`, une piste sur huit en
-a un. Les liens **par album**, eux, sont renseignés pour à peu près tout — Spotify,
-Deezer, Apple Music, Tidal — et forment la rangée `Écouter` sous la liste. C'est
-par là qu'on écoute vraiment.
+Certaines parutions rendent **plusieurs supports** — `0.1 flaws and all.` en a
+deux, de huit et six pistes. Ils sont alors affichés séparément.
 
-Certaines parutions rendent **plusieurs supports** — `0.1 flaws and all.` en a deux,
-de huit et six pistes. Ils sont alors affichés séparément.
+## Le lecteur
+
+Cliquer un titre le joue **dans la page**, sur un petit lecteur posé en bas à
+droite. Il vit hors du HUD : refermer la fiche, changer de vue ou d'artiste ne
+l'interrompt pas — on referme un disque, on continue de l'écouter.
+
+C'est une **iframe**, pas l'API JavaScript de YouTube. Celle-ci offrirait
+l'enchaînement automatique en fin de piste, mais au prix d'un script tiers exécuté
+dans la page, ce que le site s'interdit partout ailleurs. D'où les deux boutons
+◂◂ ▸▸ qui parcourent les pistes jouables de la parution.
+
+Les pistes qui portent un `▸` se jouent ici ; celles qui portent un `↗` s'ouvrent
+au dehors, faute de vidéo trouvée.
+
+**Pour retirer le lecteur** et revenir à un site qui ne charge rien de tiers :
+supprimez la `<section class="player">` de `index.html`. Les titres retomberont
+tous sur un lien sortant.
 
 ## Finitions
 

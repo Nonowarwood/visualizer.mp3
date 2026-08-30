@@ -88,6 +88,20 @@
   </div>
 </div>
 
+<section class="player" id="player" hidden aria-label="Lecteur">
+  <header class="pl-bar">
+    <span class="pl-t" id="plTitle"></span>
+    <button class="pl-x" id="plClose" type="button" aria-label="Fermer le lecteur">✕</button>
+  </header>
+  <div class="pl-screen"><iframe id="plFrame" title="Lecteur vidéo" allow="autoplay; encrypted-media"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+  <footer class="pl-foot">
+    <button id="plPrev" type="button" aria-label="Piste précédente">◂◂</button>
+    <span class="pl-n" id="plNum"></span>
+    <button id="plNext" type="button" aria-label="Piste suivante">▸▸</button>
+  </footer>
+</section>
+
 <div class="splash" id="splash">
   <video class="splash-vid" id="splashVid" muted playsinline autoplay preload="auto"
          aria-hidden="true"></video>
@@ -98,6 +112,7 @@
   <p class="splash-skip" aria-hidden="true">cliquez pour passer</p>
 </div>
 
+<script src="assets/tracks.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
