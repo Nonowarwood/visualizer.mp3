@@ -637,6 +637,19 @@ function loupeOff(){
 }
 $('#loupe').addEventListener('click',loupeOff);
 
+/* ─────────── à propos ───────────
+   Le site se sert de quatre sources et n'en créditait aucune dans son interface.
+   Vu qu'il montre des visuels qui ne lui appartiennent pas et fait entrer un
+   tiers dans la page, le dire relève moins de l'agrément que de la correction. */
+function aboutOpen(on){
+  var el=$('#about');
+  if(on){el.hidden=false;requestAnimationFrame(function(){el.classList.add('on');});}
+  else{el.classList.remove('on');setTimeout(function(){el.hidden=true;},reduce?0:220);}
+}
+$('#mAbout').addEventListener('click',function(){optOpen(false);aboutOpen(true);});
+$('#aboutX').addEventListener('click',function(){aboutOpen(false);});
+$('#about').addEventListener('click',function(e){if(e.target===this)aboutOpen(false);});
+
 /* ─────────── le lecteur ───────────
    Une iframe YouTube, pas l'API JavaScript de YouTube : celle-ci exigerait de
    charger un script tiers dans la page, ce que le site s'interdit partout
@@ -1033,7 +1046,13 @@ function pMeasureVel(dt){
   pVel=pVel*0.55+v*0.45;
   if(pVel<0.0015)pVel=0;
 }
-function pRun(){if(!pRaf){pT0=0;pRaf=requestAnimationFrame(pTick);}}
+function pRun(){
+  /* Mouvement réduit : on va droit au but. L'hélice est le système le plus
+     remuant du site — boucle continue, filé, lancer — et c'est exactement ce
+     qu'un réglage « moins d'animations » demande d'éteindre. */
+  if(reduce){pPos=pAim;pVel=0;pPrev=pPos;placeRing();pSync();return;}
+  if(!pRaf){pT0=0;pRaf=requestAnimationFrame(pTick);}
+}
 function pAimAt(t){pAim=t;pRun();}
 function pSync(){
   var list=photoList(),len=list.length;
@@ -1048,7 +1067,13 @@ function pSync(){
   /* Le grand compteur à rouleaux sert aussi ici : il disait le rang d'une
      parution qu'on ne regarde plus. La réglette, elle, reste cachée — elle porte
      un calendrier de sorties, qui ne veut rien dire pour des photos. */
-  if(STATE==='photos'){setCount(k+1,len);setLine('Images');}
+  if(STATE==='photos'){
+    setCount(k+1,len);
+    /* Le nom de la série et sa mention étaient renseignés sans être montrés
+       nulle part. La ligne de métadonnées, libre ici, les porte. */
+    var st=photoSets()[pSet];
+    setLine(st?[st.t,st.d].filter(Boolean).join(' · '):'Images');
+  }
 }
 
 function buildRing(){
@@ -1056,7 +1081,8 @@ function buildRing(){
   pAR={};pARmin=1;pARmax=1;
   $('#pstage').innerHTML='<div class="pring" id="pring">'
     +list.map(function(_,k){
-      return '<i class="pcard" data-k="'+k+'"><img alt="" decoding="async"></i>';
+      return '<button class="pcard" type="button" tabindex="-1" data-k="'+k+'">'
+        +'<img alt="" decoding="async"></button>';
     }).join('')+'</div>';
   pCards=[].slice.call(document.querySelectorAll('#pring .pcard'));
 }
@@ -1145,7 +1171,7 @@ function placeRing(){
   /* Le filé est proportionnel à la vitesse et borné : au-delà, on ne lit plus
      rien. Il est écrit une fois par image, en pixels, d'après la taille du
      moment — un flou en valeur fixe serait énorme sur petite carte. */
-  var blur=pVel?Math.min(S*0.075,pVel*S*0.30):0;
+  var blur=(pVel&&!reduce)?Math.min(S*0.075,pVel*S*0.30):0;
   blur=blur>0.4?blur.toFixed(1):0;
   /* On mesure cinq crans plus loin qu'on ne montre. */
   for(var m=-win-5;m<=win+5;m++){
@@ -1171,7 +1197,15 @@ function placeRing(){
       +((blur&&op>0.1)?' blur('+blur+'px)':'');
     el.style.opacity=op.toFixed(3);
     el.style.zIndex=String(200-Math.round(aa));
-    el.classList.toggle('front',i===0);
+    var devant=(i===0);
+    el.classList.toggle('front',devant);
+    /* Un seul point d'entrée au clavier : soixante-treize cartes dans l'ordre de
+       tabulation seraient une traversée du désert. On atteint celle de devant,
+       les flèches font le reste, et « entrée » l'ouvre en grand. */
+    el.tabIndex=devant?0:-1;
+    el.setAttribute('aria-label',
+      devant?('Photo '+(k+1)+' sur '+len+', ouvrir en grand')
+            :('Aller à la photo '+(k+1)+' sur '+len));
   }
   for(var j=0;j<pCards.length;j++)if(!seen[j])pCards[j].hidden=true;
 }
@@ -1236,8 +1270,9 @@ function openPhotos(){
       if(pDrag&&pMoved){
         /* Le lancer prolonge le geste au lieu de le couper net : la position
            part là où la vitesse la portait, puis se pose sur le cran le plus
-           proche. Sans cela, relâcher en plein élan arrêtait tout d'un coup. */
-        var jet=Math.max(-4,Math.min(4,pDrag.v*170));
+           proche. Sans cela, relâcher en plein élan arrêtait tout d'un coup.
+           Sous mouvement réduit, on ne lance pas : on se pose où l'on est. */
+        var jet=reduce?0:Math.max(-4,Math.min(4,pDrag.v*170));
         pAimAt(Math.round(pAim+jet));
       }
       pDrag=null;
@@ -1351,7 +1386,9 @@ function applyList(){
      recalcule donc **à chaque image** le temps du glissement : marges de bout et
      position de la pochette centrale suivent la largeur réelle du moment, et les
      pochettes prennent leur place au lieu de s'y téléporter. */
-  var fin=Date.now()+460;
+  /* Sous mouvement réduit la transition CSS dure une milliseconde : une seule
+     passe suffit, la boucle n'aurait rien à suivre. */
+  var fin=Date.now()+(reduce?0:460);
   (function suivre(){
     sizeEdges();goTo(CUR,false);render();
     if(Date.now()<fin)requestAnimationFrame(suivre);
@@ -1411,7 +1448,8 @@ document.addEventListener('keydown',function(e){
     if(STATE==='photos')pStep(-1); else if(STATE==='focus')open(CUR-1); else goTo(CUR-1);}
   else if(k==='Enter'&&STATE==='parcours'){e.preventDefault();open(CUR);}
   else if(k==='Escape'){e.preventDefault();
-    if(!$('#loupe').hidden)loupeOff();
+    if(!$('#about').hidden)aboutOpen(false);
+    else if(!$('#loupe').hidden)loupeOff();
     else if(amenu.classList.contains('on'))amenuOpen(false); else close();}
   else if(k==='g'||k==='G'){e.preventDefault();setState(STATE==='survey'?'parcours':'survey');}
   else if(k==='l'||k==='L'){e.preventDefault();LIST=!LIST;applyList();}

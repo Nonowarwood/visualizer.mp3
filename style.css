@@ -363,6 +363,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   transition:width .35s var(--e-out),height .35s var(--e-out),
     filter .25s var(--e),opacity .25s var(--e)}
 .pcard[hidden]{display:none}
+.pcard:focus-visible{outline:2px solid var(--bl);outline-offset:3px}
 .pcard img{width:100%;height:100%;object-fit:contain;display:block}
 .pcard.front{cursor:zoom-in;
   box-shadow:0 0 0 1px rgba(0,0,0,.5),0 44px 70px -28px rgba(0,0,0,.9)}
@@ -530,6 +531,39 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4));
   text-shadow:0 1px 1px rgba(0,30,70,.5)}
 .survey .cell{position:relative}
+
+/* ─── à propos ───
+   Même panneau à filets que la fiche : c'est un document, pas une commande. */
+.about{position:fixed;inset:0;z-index:75;display:grid;place-content:center;
+  padding:var(--pad);background:var(--scrim);
+  opacity:0;transition:opacity .22s var(--e)}
+.about.on{opacity:1}
+.about[hidden]{display:none}
+.ab-pan{width:min(520px,92vw);max-height:84vh;overflow-y:auto;background:var(--pn);
+  box-shadow:0 0 0 1px rgba(0,0,0,.35),0 26px 54px -24px rgba(0,0,0,.6)}
+.ab-bar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:7px 9px 7px 13px;border-bottom:1px solid var(--cr-line);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  font:700 12.5px/1.3 var(--sans);color:var(--cr-ink);text-shadow:0 1px 0 var(--cr-glow)}
+.ab-x{width:22px;height:18px;font:400 11px/1 var(--sans);color:var(--cr-ink-2);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+.ab-x:hover{color:var(--cr-ink)}
+.ab-body{padding:4px 0 0}
+.ab-body dl{display:grid;margin:0}
+.ab-body dl div{display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding:9px 14px;border-bottom:1px solid var(--pn-line);font-size:14px}
+.ab-body dt{color:var(--ink-2)}
+.ab-body dd{margin:0;text-align:right;color:var(--ink)}
+.ab-body dd a{color:var(--bl)}
+.ab-body p{margin:0;padding:12px 14px;border-bottom:1px solid var(--pn-line);
+  background:var(--pn-2);font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+.ab-body p b{color:var(--ink);font-weight:600}
+.ab-body code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--bl)}
+.ab-src{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 14px;font-size:13.5px;color:var(--bl);text-decoration:none;background:var(--pn)}
+.ab-src span:last-child{color:var(--ink-3);font-size:17px;line-height:1}
+.ab-src:hover{background:var(--pn-2)}
 
 /* ─── le lecteur ───
    Posé dans le coin, hors du HUD : il survit au changement de vue et à la

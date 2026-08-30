@@ -6,6 +6,25 @@
 <title>visualizer.mp3</title>
 <meta name="description" content="Les parutions de wave to earth et de CORTIS, parcourues une à une.">
 <meta name="color-scheme" content="dark light">
+<link rel="canonical" href="https://nonowarwood.github.io/visualizer.mp3/">
+<!-- L'aperçu des liens partagés. Le fragment d'une adresse — #/cortis/greengreen —
+     n'atteint jamais le serveur : une carte par parution demanderait un pré-rendu,
+     celle-ci vaut donc pour tout le site. Elle est composée par tools/build-card.py
+     à partir des pochettes basse définition, pour ressembler au site. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="visualizer.mp3">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://nonowarwood.github.io/visualizer.mp3/">
+<meta property="og:title" content="visualizer.mp3">
+<meta property="og:description" content="Les parutions de wave to earth et de CORTIS, parcourues une à une.">
+<meta property="og:image" content="https://nonowarwood.github.io/visualizer.mp3/assets/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Des pochettes qui se chevauchent, en basse définition.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="visualizer.mp3">
+<meta name="twitter:description" content="Les parutions de wave to earth et de CORTIS, parcourues une à une.">
+<meta name="twitter:image" content="https://nonowarwood.github.io/visualizer.mp3/assets/card.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="180x180" href="assets/favicon-180.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -74,6 +93,8 @@
           <p class="ah">Réglages</p>
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
+          <p class="ah">Le site</p>
+          <button id="mAbout" type="button"><span class="lbl">à propos</span><b>↗</b></button>
         </div>
       </div>
       <button class="close" id="back" type="button" aria-label="Fermer et revenir au parcours">✕</button>
@@ -102,6 +123,29 @@
 </div>
 
 <figure class="loupe" id="loupe" hidden aria-label="Pochette en grand"></figure>
+
+<div class="about" id="about" hidden role="dialog" aria-modal="true" aria-label="À propos">
+  <div class="ab-pan">
+    <header class="ab-bar"><span>À propos</span>
+      <button class="ab-x" id="aboutX" type="button" aria-label="Fermer">✕</button></header>
+    <div class="ab-body">
+      <dl>
+        <div><dt>Parutions, titres, durées</dt><dd><a href="https://musicbrainz.org/" target="_blank" rel="noopener noreferrer">MusicBrainz</a></dd></div>
+        <div><dt>Pochettes</dt><dd><a href="https://coverartarchive.org/" target="_blank" rel="noopener noreferrer">Cover Art Archive</a></dd></div>
+        <div><dt>Vidéos d'écoute</dt><dd>chaînes officielles des artistes, sur YouTube</dd></div>
+        <div><dt>Photographies</dt><dd>réunies depuis kpopping.com</dd></div>
+      </dl>
+      <p>Les pochettes et les photographies <b>appartiennent aux artistes et à leur
+      label</b>. Elles ne sont montrées ici qu'à titre de catalogue.</p>
+      <p>Le site est statique et n'exécute aucun script tiers. <b>Une réserve :</b>
+      lancer une piste fait entrer une vidéo YouTube dans la page, qui peut déposer.
+      Le domaine <code>youtube-nocookie.com</code> limite sans annuler ; tant qu'on
+      ne joue rien, rien n'est chargé de leur côté.</p>
+      <a class="ab-src" href="https://github.com/Nonowarwood/visualizer.mp3"
+         target="_blank" rel="noopener noreferrer"><span>le code, sur GitHub</span><span>›</span></a>
+    </div>
+  </div>
+</div>
 
 <section class="player" id="player" hidden aria-label="Lecteur">
   <header class="pl-bar">

@@ -234,7 +234,14 @@ Les sources ne sont posées qu'à l'approche : soixante-treize images chargées 
 coup pèseraient les quinze mégaoctets du dossier.
 
 Navigation : chevrons, flèches du clavier, molette, ou glisser horizontal.
-Le nom de l'artiste s'affiche en très grand, flouté, derrière.
+Le nom de l'artiste s'affiche en très grand, flouté, derrière, et la ligne de
+métadonnées porte le nom de la série et sa mention — renseignés de longue date,
+ils n'étaient montrés nulle part.
+
+Les cartes sont des **boutons**, mais **une seule est atteignable au clavier** :
+celle de devant. Soixante-treize cartes dans l'ordre de tabulation seraient une
+traversée du désert ; on atteint celle du milieu, les flèches font le reste, et
+`entrée` l'ouvre en grand.
 
 **CORTIS a deux séries**, récupérées depuis kpopping.com :
 
@@ -662,6 +669,47 @@ atterrissant — le vol tient lieu de transition.
 
 Le fond coloré tiré des pochettes a été retiré : il contredisait le chrome argenté.
 Toute l'extraction de couleur qui l'alimentait a disparu avec lui. Tout est neutralisé sous `prefers-reduced-motion`.
+
+## Mouvement réduit
+
+`prefers-reduced-motion` n'était honoré qu'à cinq endroits — le splash, la ligne
+de métadonnées, la loupe, le vol FLIP, le défilement. Les deux systèmes les plus
+remuants l'ignoraient : **l'hélice des photos** et sa boucle continue, et le
+glissement du champ à l'ouverture de la liste. C'est précisément ce qu'un tel
+réglage demande d'éteindre, et c'est nous qui l'avions ajouté.
+
+Sous mouvement réduit, désormais : l'hélice va droit au but sans boucle, le **filé**
+s'éteint, le **lancer** ne prolonge plus le geste — on se pose où l'on est — et le
+suivi image par image du champ n'a plus lieu, la transition CSS y durant déjà une
+milliseconde.
+
+## Partager un lien
+
+Les adresses par parution ont été faites pour qu'un disque se partage ; sans
+`og:image`, le lien partagé n'affichait aucun aperçu.
+
+```bash
+python3 tools/build-card.py
+```
+
+La carte reprend la composition du splash — des pochettes qui se chevauchent sur le
+fond clair — en puisant dans `assets/pix/` et en les remontant **en plus proche
+voisin** : la marche d'escalier est gardée, l'aperçu ressemble donc au site plutôt
+qu'à un montage étranger.
+
+**Une réserve :** le fragment d'une adresse (`#/cortis/greengreen`) n'atteint jamais
+le serveur. Une carte *par parution* demanderait un pré-rendu ; celle-ci vaut pour
+tout le site.
+
+## À propos, dans le site
+
+Le site se sert de quatre sources — MusicBrainz, la Cover Art Archive, les chaînes
+officielles sur YouTube, kpopping — et n'en créditait aucune dans son interface. Vu
+qu'il montre des visuels qui ne lui appartiennent pas et fait entrer un tiers dans
+la page, le dire relève moins de l'agrément que de la correction.
+
+Le panneau, ouvert depuis le tiroir d'options, porte les sources, la position sur
+les droits, et la réserve sur YouTube.
 
 ## Publier sur GitHub Pages
 
