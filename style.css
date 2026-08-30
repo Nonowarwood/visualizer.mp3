@@ -69,15 +69,30 @@ a{color:inherit;text-decoration:none}
 kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 
 /* ═══════════════ splash — floraison RVB ═══════════════ */
+/* Le fond suit le thème comme le reste : un site clair ne doit pas s'ouvrir sur
+   un rectangle noir. */
 .splash{
-  position:fixed;inset:0;z-index:90;background:#000;
+  position:fixed;inset:0;z-index:90;
+  background:radial-gradient(122% 104% at 50% 0%,var(--st-1),var(--st-2) 56%,var(--st-3));
   display:grid;place-content:center;justify-items:center;gap:24px;
   transition:opacity .45s var(--e),visibility .45s;
 }
 .splash.done{opacity:0;visibility:hidden;pointer-events:none}
-.splash-vid{display:block;max-width:min(78vw,620px);max-height:62vh;width:auto;height:auto}
-.splash-vid[hidden]{display:none!important}
-.splash-fallback{font:700 clamp(1.8rem,6.4vw,4.2rem)/1 var(--sans);letter-spacing:-.035em;color:#fff}
+/* ─── le collage d'attente ───
+   Des pochettes arrivent une à une, se chevauchent, puis s'en vont dans l'ordre
+   inverse. Les places sont posées à la main dans `script.js` : une composition se
+   compose, elle ne se tire pas au sort. Aucune rotation — les angles restent nets,
+   comme partout ailleurs. */
+.coll{position:relative;width:min(560px,80vw);aspect-ratio:1}
+.coll i{position:absolute;aspect-ratio:1;display:block;
+  box-shadow:0 0 0 1px rgba(0,0,0,.28),0 20px 40px -22px rgba(0,0,0,.55);
+  opacity:0;animation:collIn .3s var(--e-out) var(--d,0ms) both}
+.coll i img{display:block;width:100%;height:100%;object-fit:cover}
+.coll.out i{animation:collOut .24s var(--e) var(--od,0ms) both}
+@keyframes collIn{from{opacity:0;transform:translateY(12px) scale(.94)}
+                  to{opacity:1;transform:none}}
+@keyframes collOut{from{opacity:1;transform:none}
+                   to{opacity:0;transform:translateY(-10px) scale(.97)}}
 .splash::after{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;mix-blend-mode:overlay;
   background-size:118px 118px;
@@ -211,7 +226,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
   perspective:1500px;perspective-origin:50% 45%;
   scrollbar-width:none;-ms-overflow-style:none;cursor:grab;
-  transition:opacity .55s var(--e),filter .55s var(--e),transform .55s var(--e);
+  transition:opacity .55s var(--e),filter .55s var(--e),transform .55s var(--e),
+    left .42s var(--e-out);
 }
 .field::-webkit-scrollbar{display:none}
 .field:active{cursor:grabbing}

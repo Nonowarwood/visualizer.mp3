@@ -306,12 +306,35 @@ function pixelate(url,cb){
 function setCover(img,url,key){
   img.setAttribute('data-src',url);
   if(key)img.setAttribute('data-pk',key);
-  if(!PIX){img.src=url;return;}
   var toute=(typeof PIXMAP!=='undefined')&&key&&PIXMAP[key];
-  if(toute){img.src=toute;return;}
-  pixelate(url,function(u){
-    if(img.getAttribute('data-src')===url)img.src=u||url;
-  });
+  if(PIX){
+    if(toute){img.src=toute;return;}
+    pixelate(url,function(u){
+      if(img.getAttribute('data-src')===url)img.src=u||url;
+    });
+    return;
+  }
+  /* Hors mode pixels, la version basse définition sert d'**aperçu immédiat** :
+     elle est locale et pèse six kilo-octets, donc elle s'affiche avant même que
+     l'archive n'ait répondu. Le navigateur la lisse — sans `image-rendering`
+     imposé — et on la lit comme une image encore floue, ce qu'elle est. La vraie
+     pochette la remplace dès qu'elle arrive.
+
+     Le préchargeur porte le même `crossOrigin` que l'image visible : sans quoi la
+     réponse serait mise en cache sous une autre clé et la pochette retéléchargée
+     une seconde fois pour rien. */
+  if(toute)img.src=toute;
+  var vraie=new Image();
+  vraie.crossOrigin='anonymous';
+  vraie.onload=function(){
+    if(img.getAttribute('data-src')===url)img.src=url;
+  };
+  vraie.onerror=function(){
+    /* Sans aperçu, il faut tout de même tenter : l'image porte ses propres
+       gestionnaires d'erreur, qui la retireront si elle échoue aussi. */
+    if(!toute&&img.getAttribute('data-src')===url)img.src=url;
+  };
+  vraie.src=url;
 }
 function applyPix(){
   document.documentElement.setAttribute('data-pix',PIX?'on':'off');
@@ -1323,9 +1346,16 @@ function applyList(){
   document.documentElement.setAttribute('data-list',LIST?'on':'off');
   $('#mList').setAttribute('aria-pressed',LIST?'true':'false');
   try{localStorage.setItem('wte-list',LIST?'1':'0');}catch(e){}
-  /* Le champ vient de changer de largeur : ses marges de bout et la position de
-     la pochette centrale se recalculent, sinon elle reste décalée du bord. */
-  sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
+  /* Le champ change de largeur en glissant, et non plus d'un coup. Mesurer une
+     seule fois donnerait un centrage faux — c'est le piège du vol FLIP. On
+     recalcule donc **à chaque image** le temps du glissement : marges de bout et
+     position de la pochette centrale suivent la largeur réelle du moment, et les
+     pochettes prennent leur place au lieu de s'y téléporter. */
+  var fin=Date.now()+460;
+  (function suivre(){
+    sizeEdges();goTo(CUR,false);render();
+    if(Date.now()<fin)requestAnimationFrame(suivre);
+  })();
   hud();
 }
 $('#mList').addEventListener('click',function(){LIST=!LIST;applyList();});
@@ -1390,22 +1420,43 @@ document.addEventListener('keydown',function(e){
   else if(k==='End'){e.preventDefault();goTo(view.length-1);}
 });
 
-/* ─────────── splash : la vidéo ───────────
-   Déposez votre fichier en assets/splash.mp4. S'il manque, le nom prend sa place
-   et l'entrée se fait normalement — rien n'est chargé depuis l'extérieur. */
-(function(){
-  var v=$('#splashVid');if(!v)return;
-  v.addEventListener('error',function(){
-    v.hidden=true;
-    var fb=$('#splashFb');
-    if(fb){fb.hidden=false;fb.textContent=ARTISTS[0].name;}
-  });
-  v.addEventListener('ended',function(){ready();});
-  v.src='assets/splash.mp4';
-  var pr=v.play();
-  if(pr&&pr.catch)pr.catch(function(){});
-})();
+/* ─────────── splash : le collage ───────────
+   Repris d'une animation de référence : des images arrivent une à une, se
+   chevauchent en une composition dense, puis s'en vont dans l'ordre inverse.
+   Ici ce sont les pochettes — le splash montre donc ce que le site contient,
+   au lieu d'une image sans rapport.
 
+   Il puise dans les versions **basse définition**, locales et de six kilo-octets :
+   le collage se monte sans attendre l'archive, ce qui est tout l'intérêt d'un
+   écran d'attente. Les places sont posées à la main, jamais tirées au hasard —
+   une composition se compose. */
+var COLL=[[30,4,30],[6,24,34],[44,26,36],[58,2,24],[24,44,32],[10,58,30],[48,58,34]];
+
+function collage(){
+  var box=$('#coll');if(!box)return;
+  /* L'artiste est celui que l'adresse a désigné, pas le premier du tableau : un
+     lien vers CORTIS ne doit pas s'ouvrir sur les pochettes de wave to earth. */
+  var a=ARTISTS[A],rel=a.rel,vus={},srcs=[];
+  var sub=$('#splashSub');
+  if(sub)sub.textContent=rel.length+' parutions · '
+    +Math.min.apply(null,rel.map(function(r){return r.y;}))+' – '
+    +Math.max.apply(null,rel.map(function(r){return r.y;}));
+  for(var i=0;i<rel.length&&srcs.length<COLL.length;i++){
+    var k=rel[i].rid||rel[i].id;
+    if(vus[k])continue;vus[k]=1;
+    srcs.push((typeof PIXMAP!=='undefined'&&PIXMAP[k])||srcOf(rel[i]));
+  }
+  if(!srcs.length)return;
+  box.innerHTML=srcs.map(function(u,i){
+    var p=COLL[i];
+    return '<i style="left:'+p[0]+'%;top:'+p[1]+'%;width:'+p[2]+'%;'
+      +'--d:'+(i*110)+'ms;--od:'+((srcs.length-1-i)*70)+'ms">'
+      +'<img src="'+esc(u)+'" alt=""></i>';
+  }).join('');
+  /* Le démontage part quand le montage est fini : sept cartes à 110 ms, puis un
+     temps d'arrêt pour qu'on voie la composition entière. */
+  setTimeout(function(){box.classList.add('out');},srcs.length*110+380);
+}
 
 /* ─────────── sons ───────────
    Entièrement synthétisés à l'exécution : aucun fichier audio n'est chargé.
@@ -1521,5 +1572,6 @@ document.documentElement.setAttribute('data-state','intro');
 /* L'adresse a le dernier mot au démarrage : ouvrir un lien partagé doit mener
    là où il pointe, pas au parcours du premier artiste. */
 readHash(true);
+collage();
 
 })();

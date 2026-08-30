@@ -61,19 +61,27 @@ depuis une fiche la laisserait parler d'une liste qu'on ne voit plus.
 Souris : molette, glisser, clic, et la réglette de position en bas.
 Filtres par type : tout / albums / EP / singles. Thème : clair / sombre.
 
-## L'introduction — votre vidéo
+## L'introduction — un collage
 
-Le splash lit **`assets/splash.mp4`**. Déposez-y le fichier de votre choix : il se
-joue plein cadre sur fond noir, et le site s'ouvre dès qu'il se termine. Si le
-fichier est absent, le nom de l'artiste le remplace et l'entrée se fait normalement.
+Repris d'une animation de référence : des images arrivent une à une, se chevauchent
+en une composition dense, puis s'en vont dans l'ordre inverse. Ici ce sont **les
+pochettes** — le splash montre donc ce que le site contient, au lieu d'une image
+sans rapport.
 
-```bash
-cp /chemin/vers/votre-video.mp4 site/assets/splash.mp4
-```
+Il puise dans les versions **basse définition** de `assets/pix/`, locales et de six
+kilo-octets : le collage se monte sans rien attendre de l'archive, ce qui est tout
+l'intérêt d'un écran d'attente.
 
-Aucune vidéo n'est fournie ni chargée depuis l'extérieur. N'utilisez qu'un fichier
-dont vous détenez les droits ou dont la licence permet la republication : ce dépôt
-est public.
+Les sept places sont **posées à la main**, dans le tableau `COLL` en tête de la
+section : une composition se compose, elle ne se tire pas au sort. Aucune rotation —
+les angles restent nets, comme partout ailleurs. Le montage prend sept fois 110 ms,
+la composition tient un instant, puis se démonte à 70 ms par carte.
+
+L'artiste est celui que l'adresse a désigné : un lien vers CORTIS ne s'ouvre pas sur
+les pochettes de wave to earth.
+
+*Le splash lisait auparavant `assets/splash.mp4`. Pour y revenir, il suffit de
+remettre une `<video>` à la place du `<div class="coll">`.*
 
 ## Le favicon
 
@@ -517,10 +525,11 @@ sans une seule mesure à corriger ailleurs.
 
 Deux choix qui méritent d'être dits :
 
-- **la largeur du champ change d'un coup, sans transition**, alors que le panneau
-  glisse. La mesurer pendant qu'elle bouge donnerait un centrage faux — c'est le
-  même piège que le vol FLIP. La place est donc faite d'abord, le panneau la
-  remplit ensuite ;
+- **le champ change de largeur en glissant**, et les pochettes prennent leur place
+  au lieu de s'y téléporter. Une mesure unique donnerait un centrage faux — c'est
+  le piège du vol FLIP — alors marges de bout et position de la pochette centrale
+  sont recalculées **à chaque image** le temps du glissement, sur la largeur réelle
+  du moment ;
 - **la ligne courante n'est ramenée dans le cadre que si elle en est sortie.** La
   rappeler à chaque pas ferait sauter la liste sous le curseur de qui la parcourt
   à la main.
@@ -553,6 +562,13 @@ le site ne charge plus qu'une image prête, une dizaine de kilo-octets.
 ```bash
 python3 tools/build-pix.py
 ```
+
+**Ces mêmes fichiers servent d'aperçu hors du mode pixels.** Six kilo-octets et en
+local : la pochette basse définition s'affiche avant même que l'archive n'ait
+répondu, le navigateur la lisse — on la lit comme une image encore floue, ce qu'elle
+est — et la vraie la remplace dès qu'elle arrive. Le préchargeur porte le même
+`crossOrigin` que l'image visible, sans quoi la réponse serait mise en cache sous
+une autre clé et la pochette retéléchargée pour rien.
 
 L'outil saute ce qui est déjà là, donc on le relance sans crainte. La Cover Art
 Archive répond par moments `500` : ce sont des défaillances passagères de son côté,
