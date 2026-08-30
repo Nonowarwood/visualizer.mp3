@@ -396,12 +396,27 @@ l'interrompt pas — on referme un disque, on continue de l'écouter.
 C'est une **iframe**, pas l'API JavaScript de YouTube : celle-ci exigerait un
 script tiers exécuté dans la page, ce que le site s'interdit partout ailleurs.
 
-**Le disque s'enchaîne quand même.** Une intégration YouTube accepte une suite
-d'identifiants en paramètre et passe d'elle-même à la suivante : on lui donne la
-fin de la parution à partir de la piste lancée. Ce qu'on perd, faute de retour de
-l'iframe, c'est de *savoir* où elle en est — le compteur dit d'où l'on est parti,
-et la mention « et la suite » signale qu'il y a un après. Les boutons ◂◂ ▸▸
-reprennent la main.
+**Une piste à la fois**, et les boutons ◂◂ ▸▸ pour passer à la suivante.
+
+L'enchaînement automatique a été tenté, par le paramètre `playlist` de
+l'intégration. Il est censé ne porter que la **suite** du disque, la piste
+demandée restant dans le chemin de l'adresse — c'est ce que dit la documentation,
+et ce sur quoi repose le tour bien connu du `?loop=1&playlist=<le même
+identifiant>` pour faire boucler une vidéo.
+
+**Tous les lecteurs ne s'y tiennent pas.** Certains prennent `playlist` pour la
+liste entière et commencent à son premier élément, c'est-à-dire à la piste
+*suivante* : lancer `TNT` jouait `REDRED`, lancer `REDRED` jouait `ACAI`. Le
+décalage venait de là, et non de la donnée — chaque identifiant a été recoupé
+contre YouTube, tous correspondaient à leur titre.
+
+Comme on ne peut pas savoir d'avance lequel des deux comportements s'appliquera,
+on ne s'y fie plus. Jouer la piste demandée n'est pas négociable ; l'enchaînement
+n'était qu'un agrément.
+
+Le récupérer proprement demanderait l'**API JavaScript de YouTube**, qui donne un
+retour d'état et donc un vrai enchaînement — mais au prix d'un script tiers exécuté
+dans la page, ce que le site s'interdit partout ailleurs.
 
 Les pistes qui portent un `▸` se jouent ici ; celles qui portent un `↗` s'ouvrent
 au dehors, faute de vidéo trouvée.
