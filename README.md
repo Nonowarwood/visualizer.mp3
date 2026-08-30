@@ -763,24 +763,33 @@ Le point qui rend tout le reste gratuit : donner une transformée à `#app` en f
 le **référent des positions fixes** qu'il contient. Le lecteur, la loupe, la visite
 et les panneaux restent dans l'écran sans qu'aucun d'eux n'ait à savoir qu'il y est.
 
-### Le relief
+### La matière
 
-Le boîtier était **plat** : un dégradé et deux ombres ne font pas un objet. Le
-relief tient à l'empilement, non à un fondu.
+Le boîtier a d'abord été **plat**, puis **dur**. Les deux fois pour la même raison :
+j'ajoutais des effets — arêtes marquées, brossage, reflet en diagonale, dégradés
+larges — là où il fallait en retirer.
 
-Le corps porte, de haut en bas : un reflet doux en diagonale ; un **brossage
-horizontal** presque invisible, qui donne la matière sans faire du chrome ; puis
-le métal, qui n'est pas un fondu régulier mais clair en haut, creusé au milieu, et
-**remonté avant l'arête basse** — c'est cette remontée qui fait la rondeur.
+Ce qui fait un objet de plastique clair sous une lumière douce, c'est **le
+contraire** : un contraste très faible et une lumière diffuse.
 
-Les quatre arêtes ont chacune leur lumière : vive en haut, sourde en bas,
-rentrantes sur les côtés, parce qu'un bord roulé prend la lumière de biais.
+| | avant | maintenant |
+|---|---|---|
+| plage de valeurs du corps | 22 % | **12 %** |
+| dominante bleue | 12 | **2** (neutre) |
 
-L'écran est **creusé** — une gorge sombre, une lèvre claire, une ombre interne qui
-pose la dalle en retrait. La molette et le bouton central sont **bombés** : leur
-dégradé part d'un point haut et se perd sur les bords, ce qu'un dégradé linéaire ne
-sait pas faire. La molette est en outre logée dans un creux, avec une lèvre claire
-en dessous.
+Toute la forme naît donc d'écarts minuscules. Un seul dégradé vertical, très court.
+Ni brossage ni reflet : une surface mate n'en porte pas. L'arête haute se devine, le
+pourtour est un cheveu, et l'objet se pose sur une ombre **large et pâle** plutôt
+que profonde — c'est elle qui le fait flotter au lieu de le coller au fond.
+
+La molette est **du même matériau** que le corps et ne s'en détache que d'un cheveu
+et d'un souffle d'ombre ; la détacher franchement en faisait une pièce rapportée.
+Même retenue pour le bouton central. L'écran n'est plus creusé dans une gorge mais
+cerné d'un liseré fin.
+
+**Rien de tout cela n'est repris d'un dessin existant** : ce sont des règles
+d'éclairage, pas une silhouette. Le boîtier reste générique, comme tout ce que le
+site redessine.
 
 ### Les repères de la molette
 

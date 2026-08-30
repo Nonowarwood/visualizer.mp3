@@ -20,10 +20,13 @@
      cadre borné, doivent se confondre avec le fond */
   --ph-bg:#EDF0F4; --scrim:rgba(240,242,246,.90);
   /* le boîtier : argent en thème clair */
-  --dv-1:#FDFDFE; --dv-2:#E8EBEF; --dv-3:#D3D8DF; --dv-4:#BFC5CE;
-  --dv-w1:#F6F8FA; --dv-w2:#E4E8ED; --dv-w3:#D6DBE2; --dv-w4:#C6CCD5;
-  --dv-ink:#7B828C; --dv-ink-2:#2F343C; --dv-lip:rgba(255,255,255,.95);
-  --dv-edge:rgba(255,255,255,.72); --dv-hollow:rgba(0,0,0,.16);
+  /* Gris **neutre** et bande **étroite** : tout le boîtier tient dans 13 % de la
+     plage de valeurs. La forme naît d'écarts minuscules et d'une lumière diffuse,
+     non de dégradés larges — c'était mon erreur. */
+  --dv-1:#F7F7F8; --dv-2:#EFEFF0; --dv-3:#E4E4E6; --dv-4:#D8D8DB;
+  --dv-w1:#F3F3F4; --dv-w2:#ECECEE; --dv-w3:#E6E6E8; --dv-w4:#DFDFE2;
+  --dv-ink:#A0A0A5; --dv-ink-2:#56565C; --dv-lip:rgba(255,255,255,.9);
+  --dv-edge:rgba(255,255,255,.55); --dv-hollow:rgba(0,0,0,.07);
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -52,10 +55,10 @@
   --ink:#EDEFF3; --ink-2:#A8B0BC; --ink-3:#767E8A;
   --ph-bg:#0E1114; --scrim:rgba(8,9,11,.88);
   /* et noir en thème sombre : le même objet, dans son autre finition */
-  --dv-1:#4A4E55; --dv-2:#2B2E34; --dv-3:#1B1E23; --dv-4:#0E1013;
-  --dv-w1:#3E434A; --dv-w2:#2A2E34; --dv-w3:#1F2228; --dv-w4:#15181C;
-  --dv-ink:#8A929E; --dv-ink-2:#F2F4F7; --dv-lip:rgba(255,255,255,.17);
-  --dv-edge:rgba(255,255,255,.10); --dv-hollow:rgba(0,0,0,.42);
+  --dv-1:#38383A; --dv-2:#313134; --dv-3:#29292C; --dv-4:#232326;
+  --dv-w1:#343437; --dv-w2:#2E2E31; --dv-w3:#2A2A2D; --dv-w4:#252528;
+  --dv-ink:#76767C; --dv-ink-2:#D8D8DC; --dv-lip:rgba(255,255,255,.10);
+  --dv-edge:rgba(255,255,255,.055); --dv-hollow:rgba(0,0,0,.30);
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
    et une règle sur `prefers-color-scheme` ne ferait qu'un noir bref avant que le
@@ -618,31 +621,33 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
      donne la matière sans faire du chrome ; puis le métal lui-même, qui n'est
      pas un fondu régulier mais clair en haut, creusé au milieu, et **remonté
      avant l'arête basse** — c'est cette remontée qui fait la rondeur. */
-  background:
-    linear-gradient(104deg,var(--dv-edge) 0,rgba(255,255,255,0) 30%),
-    repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,rgba(0,0,0,.028) 1px 2px),
-    linear-gradient(180deg,var(--dv-1) 0,var(--dv-2) 20%,var(--dv-3) 56%,
-      var(--dv-2) 88%,var(--dv-4) 100%);
+  /* Un seul dégradé, très court, et rien d'autre. Ni brossage ni reflet en
+     diagonale : une surface mate sous une lumière douce n'en porte pas, et ils
+     durcissaient tout. */
+  background:linear-gradient(180deg,var(--dv-1) 0,var(--dv-2) 30%,var(--dv-3) 72%,
+    var(--dv-4) 100%);
   /* Les quatre arêtes, chacune sa lumière : vive en haut, sourde en bas, et
      rentrantes sur les côtés — un bord roulé prend la lumière de biais. */
+  /* L'arête haute se devine, le pourtour est un cheveu, et l'objet se pose sur
+     une ombre **large et pâle** plutôt que profonde — c'est ce qui le fait
+     flotter au lieu de le coller au fond. */
   box-shadow:
-    inset 0 2px 0 var(--dv-lip),
-    inset 0 -1px 0 var(--dv-edge),
-    inset 3px 0 5px -3px var(--dv-edge),
-    inset -3px 0 5px -3px var(--dv-edge),
-    inset 0 -18px 30px -20px var(--dv-hollow),
-    0 0 0 1px rgba(0,0,0,.3),
-    0 60px 104px -40px rgba(0,0,0,.62)}
+    inset 0 1px 0 var(--dv-lip),
+    inset 0 -14px 24px -22px var(--dv-hollow),
+    0 0 0 1px rgba(0,0,0,.07),
+    0 2px 3px rgba(0,0,0,.04),
+    0 44px 88px -34px rgba(0,0,0,.22)}
 /* Le seul arrondi du site avec le microsillon : un boîtier n'a pas d'angles vifs,
    et la règle des angles nets vise les commandes de l'interface. */
-.dv-body{border-radius:44px}
+.dv-body{border-radius:52px}
 .dv-screen{position:absolute;left:67px;top:48px;width:595px;height:452px;
   background:#0A0B0D;
   /* Le cadre est **creusé** : une gorge sombre, une lèvre claire par-dessus, et
      une ombre interne qui pose la dalle en retrait de la surface. */
-  box-shadow:0 0 0 7px #15171B,0 0 0 8px var(--dv-edge),
-    0 1px 2px 8px var(--dv-hollow),
-    inset 0 4px 16px rgba(0,0,0,.9),inset 0 -1px 0 rgba(255,255,255,.07)}
+  border-radius:5px;
+  box-shadow:0 0 0 5px #1C1C1E,0 0 0 6px rgba(0,0,0,.10),
+    0 3px 9px -3px rgba(0,0,0,.16),
+    inset 0 1px 5px rgba(0,0,0,.5)}
 
 /* ─── la vitre ───
    Deux choses par-dessus l'écran, et rien qui l'obscurcisse : une **trame de
@@ -662,14 +667,17 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   margin-left:-219.5px;border-radius:50%;
   /* Bombée plutôt que striée : la lumière vient d'en haut et se perd sur les
      bords, ce qu'un dégradé linéaire ne sait pas faire. */
-  background:radial-gradient(circle at 50% 20%,var(--dv-w1) 0,var(--dv-w2) 40%,
-    var(--dv-w3) 72%,var(--dv-w4) 100%);
+  /* Elle est **du même matériau** que le corps, et ne s'en détache que d'un
+     cheveu et d'un souffle d'ombre. La détacher franchement, comme je l'avais
+     fait, en fait une pièce rapportée. */
+  background:radial-gradient(circle at 50% 26%,var(--dv-w1) 0,var(--dv-w2) 46%,
+    var(--dv-w3) 78%,var(--dv-w4) 100%);
   box-shadow:
-    inset 0 3px 3px -1px var(--dv-lip),
-    inset 0 -5px 10px -4px var(--dv-hollow),
+    inset 0 1px 1px var(--dv-lip),
+    inset 0 -2px 4px -2px var(--dv-hollow),
+    0 0 0 1px rgba(0,0,0,.045),
     0 1px 0 var(--dv-edge),
-    0 0 0 1px rgba(0,0,0,.13),
-    0 -2px 6px -2px var(--dv-hollow);
+    0 -1px 4px -1px var(--dv-hollow);
   cursor:grab;touch-action:none}
 .dv-wheel:active{cursor:grabbing}
 /* Les quatre repères sont posés **sur l'anneau**, à mi-chemin entre le bouton
@@ -677,7 +685,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    pas, on les reconnaît, et leur place ne change jamais. */
 .dv-z{position:absolute;padding:0;line-height:1;color:var(--dv-ink);
   font:400 30px/1 var(--sans);
-  text-shadow:0 1px 0 var(--dv-lip);
+  text-shadow:0 1px 0 var(--dv-edge);
   transition:color .15s var(--e)}
 .dv-z:hover{color:var(--dv-ink-2)}
 .dv-menu{left:50%;top:44px;transform:translateX(-50%);
@@ -687,14 +695,14 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .dv-play{left:50%;bottom:44px;transform:translateX(-50%);font-size:26px;letter-spacing:.04em}
 .dv-c{position:absolute;left:50%;top:50%;width:164px;height:164px;margin:-82px 0 0 -82px;
   border-radius:50%;
-  background:radial-gradient(circle at 50% 24%,var(--dv-w1) 0,var(--dv-w2) 44%,
-    var(--dv-w3) 76%,var(--dv-w4) 100%);
+  background:radial-gradient(circle at 50% 28%,var(--dv-w1) 0,var(--dv-w2) 50%,
+    var(--dv-w3) 82%,var(--dv-w4) 100%);
   box-shadow:
-    inset 0 3px 3px -1px var(--dv-lip),
-    inset 0 -4px 8px -3px var(--dv-hollow),
-    0 0 0 1px rgba(0,0,0,.15),
-    0 4px 9px -3px var(--dv-hollow)}
-.dv-c:active{box-shadow:inset 0 2px 6px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.2)}
+    inset 0 1px 1px var(--dv-lip),
+    inset 0 -2px 4px -2px var(--dv-hollow),
+    0 0 0 1px rgba(0,0,0,.05),
+    0 2px 5px -2px var(--dv-hollow)}
+.dv-c:active{box-shadow:inset 0 2px 5px var(--dv-hollow),0 0 0 1px rgba(0,0,0,.07)}
 
 /* ─── la visite guidée ───
    La mascotte est posée en bas à gauche, au-dessus du compteur, là où elle ne
