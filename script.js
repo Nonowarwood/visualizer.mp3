@@ -655,7 +655,15 @@ function aboutOpen(on){
    Donner une transformée à `#app` en fait le référent des positions fixes qu'il
    contient : le lecteur, la loupe, la visite et les panneaux restent dans l'écran
    sans qu'aucun d'eux n'ait à savoir qu'il y est. */
-var DV_W=736,DV_H=916,DV_SX=28,DV_SY=26,DV_SW=680,DV_SH=510;
+/* Proportions relevées sur des rendus de l'appareil, rapportées à la largeur du
+   corps : hauteur 1,658 ; écran 0,808 × 0,614 posé en 0,091 / 0,065 ; molette
+   0,596 de diamètre à 0,829 du haut. Les miennes étaient franchement fausses —
+   écran trop large, molette bien trop petite, corps trop court. */
+var DV_W=736,DV_H=1220,DV_SX=67,DV_SY=48,DV_SW=595,DV_SH=452;
+/* La barre sortie occupe un bandeau réservé en haut : le boîtier se met à
+   l'échelle dans ce qui reste, de sorte qu'aucun des deux ne recouvre l'autre,
+   à aucune taille de fenêtre. */
+var DV_BAND=62;
 var DEV=false;
 try{DEV=localStorage.getItem('wte-dev')==='1';}catch(e){}
 
@@ -666,8 +674,9 @@ function deviceLayout(){
     return;
   }
   dv.hidden=false;
-  var z=Math.min(innerWidth*0.94/DV_W,innerHeight*0.94/DV_H);
-  var dx=(innerWidth-DV_W*z)/2,dy=(innerHeight-DV_H*z)/2;
+  var hDispo=innerHeight-DV_BAND;
+  var z=Math.min(innerWidth*0.94/DV_W,hDispo*0.94/DV_H);
+  var dx=(innerWidth-DV_W*z)/2,dy=DV_BAND+(hDispo-DV_H*z)/2;
   dv.style.cssText='left:'+dx.toFixed(1)+'px;top:'+dy.toFixed(1)+'px;width:'+DV_W
     +'px;height:'+DV_H+'px;transform:scale('+z.toFixed(4)+')';
   app.style.cssText='position:fixed;inset:auto;left:'+(dx+DV_SX*z).toFixed(1)+'px;top:'
@@ -682,7 +691,7 @@ var outMoved=[];
 function deviceMove(on){
   if(on){
     if(outMoved.length)return;
-    ['.ctlbar','#tour'].forEach(function(sel){
+    ['.ctlbar','#tour','#player'].forEach(function(sel){
       var el=document.querySelector(sel);
       if(!el)return;
       outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
@@ -724,6 +733,10 @@ function dvAction(z){
   }
   if(z==='prev'||z==='next'){
     var d=z==='next'?1:-1;
+    /* Sur un baladeur, ces deux touches changent de morceau. Tant qu'une piste
+       joue, elles commandent donc le lecteur ; sinon elles parcourent, comme les
+       flèches du clavier. */
+    if(!$('#player').hidden&&PL.i>=0){plPlay(PL.i+d);return;}
     if(STATE==='photos')pStep(d); else if(STATE==='focus')open(CUR+d); else goTo(CUR+d);
     return;
   }

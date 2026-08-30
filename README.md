@@ -734,12 +734,26 @@ teintes.
 est suivi en absolu, son écart cumulé, et un cran tombe tous les 22° — seize par
 tour. Le passage par ±180° est ramené dans l'intervalle, sinon un demi-tour
 compterait pour seize crans d'un coup. Les quatre zones font ce que font les
-touches : `menu` revient, `◂◂` `▸▸` parcourent, `▸❙❙` ouvre ou lance la première
-piste, le centre vaut `↵`.
+touches, à une nuance près : **tant qu'une piste joue, `◂◂` `▸▸` changent de
+morceau** plutôt que de parcourir le catalogue — c'est ce que font ces deux touches
+sur un baladeur. Sinon elles parcourent. `menu` revient, `▸❙❙` ouvre ou lance la
+première piste, le centre vaut `↵`.
 
-Les mesures sont **virtuelles** — châssis 736 × 916, écran 680 × 510 — et un seul
+Les mesures sont **virtuelles** — châssis 736 × 1220, écran 595 × 452 — et un seul
 facteur met les deux à l'échelle **depuis le même coin haut-gauche**. L'écran tombe
 donc au pixel près sur son cadre, sans centrage à refaire deux fois de son côté.
+
+Les proportions sont **relevées**, non estimées : rapportées à la largeur du corps,
+hauteur 1,658 ; écran 0,808 × 0,614 posé en 0,091 / 0,065 ; molette 0,596 de
+diamètre à 0,829 du haut. Le premier jet était franchement faux — écran trop large,
+molette bien trop petite, corps trop court.
+
+La barre sortie occupe un **bandeau réservé** en haut, et non une barre posée
+par-dessus : le boîtier se met à l'échelle dans ce qui reste, de sorte qu'aucun des
+deux ne recouvre l'autre, à aucune taille de fenêtre.
+
+Le **lecteur sort aussi** dans le châssis : il n'a pas sa place dans l'écran d'un
+appareil qui a déjà ses commandes de lecture.
 
 Le point qui rend tout le reste gratuit : donner une transformée à `#app` en fait
 le **référent des positions fixes** qu'il contient. Le lecteur, la loupe, la visite
