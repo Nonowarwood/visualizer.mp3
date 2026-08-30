@@ -106,24 +106,6 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background-size:118px 118px;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='118' height='118'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.splash-sub{font:400 11px/1 var(--sans);letter-spacing:.32em;text-transform:uppercase;color:#7E8492;
-  opacity:0;animation:fadein .7s var(--e) 1.05s forwards}
-.splash-bar{width:min(210px,52vw);height:2px;background:#1C1F24;overflow:hidden}
-.splash-bar i{display:block;height:100%;width:0;
-  background:linear-gradient(90deg,var(--bl-2),var(--bl-3));transition:width .35s var(--e)}
-/* Un petit afficheur plutôt qu'une barre muette : il dit ce qu'on attend, et
-   combien il en reste. La grille sombre par dessus donne le point de la matrice —
-   sans elle, c'est du texte vert sur du noir, pas un afficheur. */
-.lcd{position:relative;padding:6px 11px;background:#0B0A06;
-  box-shadow:inset 0 0 0 1px #26241B,inset 0 2px 7px rgba(0,0,0,.85);
-  opacity:0;animation:fadein .7s var(--e) 1.15s forwards}
-.lcd b{display:block;font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.22em;
-  color:#F0A83C;text-shadow:0 0 7px rgba(240,168,60,.5)}
-.lcd::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:repeating-linear-gradient(90deg,rgba(0,0,0,.42) 0 1px,transparent 1px 2px),
-             repeating-linear-gradient(0deg,rgba(0,0,0,.42) 0 1px,transparent 1px 2px)}
-.splash-skip{font:400 10px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;
-  color:#4A4F59;opacity:0;animation:fadein .7s var(--e) 2.1s forwards}
 
 /* ─── l'interrupteur « hold » ───
    Repris de la commande qui verrouillait l'appareil : plus on le pousse, plus la

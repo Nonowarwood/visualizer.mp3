@@ -84,6 +84,11 @@ la composition tient un instant, puis se démonte à 70 ms par carte.
 L'artiste est celui que l'adresse a désigné : un lien vers CORTIS ne s'ouvre pas sur
 les pochettes de wave to earth.
 
+**Les pochettes, et rien d'autre** : ni compteur, ni barre de chargement, ni
+mention. Le collage dit déjà ce qu'on attend et où l'on en est — chaque carte qui
+se pose est une pochette de plus. Le décompte subsiste dans le code, mais pour la
+seule chose qu'il sert encore : savoir quand tout est là.
+
 *Le splash lisait auparavant `assets/splash.mp4`. Pour y revenir, il suffit de
 remettre une `<video>` à la place du `<div class="coll">`.*
 
@@ -332,7 +337,6 @@ surimpression. Environ 1,5 seconde.
 Il n'y a **pas de bouton d'entrée** : le splash s'efface de lui-même dès que
 l'animation est jouée et les pochettes chargées, et le site apparaît d'un coup.
 Un clic l'abrège ; un filet de sécurité borne l'attente à quatre secondes.
-La barre fine suit le préchargement.
 
 ## Curseur et sons
 
@@ -617,9 +621,6 @@ visite à l'autre.
 - le thème se règle à l'**interrupteur *hold***, la commande qui verrouillait
   l'appareil : on le pousse, la bande orange se découvre, le site passe au sombre.
   Deux positions, clair et sombre — pas d'automatique ;
-- le splash compte les pochettes sur un **petit afficheur** plutôt que sur une barre
-  muette. La grille sombre par-dessus donne le point de la matrice — sans elle,
-  c'est du texte ambre sur du noir, pas un afficheur ;
 - le **type de la parution** se tient debout contre les deux bords de la fenêtre ;
 - la fiche annonce la **durée du disque**, `14 titres · 58 min`. Le total est tu
   si une seule piste n'est pas mesurée, plutôt que d'en annoncer un faux ;

@@ -237,10 +237,9 @@ function ready(){
   var reste=Math.max(0,(reduce?250:1620)-(Date.now()-t0));
   setTimeout(enter,reste);
 }
+/* Le splash ne porte plus que les pochettes : ni barre, ni compteur à remplir.
+   Ce décompte ne sert donc qu'à savoir quand tout est là. */
 function progress(){
-  var bar=$('#barFill'),l=$('#lcdTxt');
-  if(bar)bar.style.width=Math.min(100,done/Math.max(1,total)*100)+'%';
-  if(l)l.textContent=done>=total?'PRÊT':(pad(done)+' / '+pad(total));
   if(done>=total)ready();
 }
 /* ─────────── l'écran de l'appareil ───────────
@@ -1825,10 +1824,6 @@ function collage(){
   /* L'artiste est celui que l'adresse a désigné, pas le premier du tableau : un
      lien vers CORTIS ne doit pas s'ouvrir sur les pochettes de wave to earth. */
   var a=ARTISTS[A],rel=a.rel,vus={},srcs=[];
-  var sub=$('#splashSub');
-  if(sub)sub.textContent=rel.length+' parutions · '
-    +Math.min.apply(null,rel.map(function(r){return r.y;}))+' – '
-    +Math.max.apply(null,rel.map(function(r){return r.y;}));
   for(var i=0;i<rel.length&&srcs.length<COLL.length;i++){
     var k=rel[i].rid||rel[i].id;
     if(vus[k])continue;vus[k]=1;
