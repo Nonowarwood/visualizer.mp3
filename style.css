@@ -579,10 +579,40 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    Il porte donc celui de la page : noir seulement si le thème l'est. */
 [data-device="on"] #app{
   background:radial-gradient(122% 104% at 50% 0%,var(--st-1),var(--st-2) 56%,var(--st-3))}
-/* Dans l'appareil, l'écran ne garde que ce qu'il montre : le nom de l'artiste et
-   la réglette de position. La barre de commandes et le guide sont sortis dans le
-   châssis, le compteur et les flèches n'ont plus lieu d'être. */
-[data-device="on"] .meter,[data-device="on"] .tail{display:none}
+/* Dans l'appareil, l'écran ne garde que ce qu'il montre : la réglette de position.
+   La barre de commandes et le guide sont sortis dans le châssis, le compteur et
+   les flèches n'ont plus lieu d'être — et le sélecteur d'artiste non plus, depuis
+   qu'un menu lui est consacré. */
+[data-device="on"] .meter,[data-device="on"] .tail,
+[data-device="on"] .brandwrap{display:none}
+
+/* ─── remettre les mesures à l'échelle de l'écran ───
+   Le site exprime ses tailles en unités de fenêtre — `vw`, `vh`. Or **ces unités
+   se réfèrent toujours à la vraie fenêtre**, même à l'intérieur d'un conteneur
+   mis à l'échelle : la fiche se croyait sur 1710 px et demandait 872 px de large
+   dans un écran de 595, avec 134 px de marge en haut et autant en bas sur 452 de
+   haut. Il ne restait que 183 px utiles.
+
+   Tout ce qui dépendait de la fenêtre est donc redit en pixels pour ce mode. Les
+   requêtes de média, elles aussi aveugles à l'échelle, sont surpassées par la
+   spécificité plutôt que par l'ordre. */
+[data-device="on"] #app{--pad:10px;--cw:132px;--listw:150px}
+[data-device="on"] .focus{grid-template-columns:minmax(0,190px) minmax(0,1fr);
+  gap:16px;padding:16px 14px}
+[data-device="on"] .focus .plate{max-width:190px}
+[data-device="on"] .focus .idx{font-size:30px}
+[data-device="on"] .card{margin-top:9px}
+[data-device="on"] .pbig{font-size:52px;top:18px}
+[data-device="on"] .p-prev{left:8px}
+[data-device="on"] .p-next{right:8px}
+[data-device="on"] .pnav{width:34px;height:34px;font-size:19px}
+[data-device="on"] .survey{padding:18px 14px}
+[data-device="on"] .survey .grid{
+  grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:9px}
+[data-device="on"] .amenus button{padding:10px 13px;font-size:15px}
+/* Sur un écran de cette taille, la liste appariée mangerait la pochette. */
+[data-device="on"] .rlist{display:none}
+[data-device="on"][data-list="on"][data-state="parcours"] .field{left:0}
 /* Un bandeau réservé en haut, et non plus une barre posée par-dessus : le
    boîtier se met à l'échelle dans ce qui reste, donc les deux ne se recouvrent
    jamais. Le lecteur y vient aussi — il n'a pas sa place dans l'écran. */
