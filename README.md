@@ -89,9 +89,24 @@ réapparaître ailleurs.
 
 **La carte est taillée pour que l'hélice tienne dans la fenêtre**, et non l'inverse.
 Une taille fixe la faisait déborder en haut et en bas ; les débords se calculent
-maintenant en largeurs de carte, et la largeur s'en déduit. La perspective n'entre
-pas dans le calcul parce qu'elle ne fait que **rétrécir** : la carte de devant,
-seule à l'échelle 1, est déjà le pire cas.
+maintenant en côtés de carte, et la taille s'en déduit. La perspective n'entre pas
+dans le calcul parce qu'elle ne fait que **rétrécir** : la carte de devant, seule
+à l'échelle 1, est déjà le pire cas.
+
+Ce calcul réservait au départ bien plus de place qu'il n'en fallait. Deux
+corrections ont rendu les photos **un tiers plus grandes**, sans rien retirer de
+ce qu'on voit :
+
+- une carte tournée ne prend pas sa largeur entière à l'écran mais sa largeur
+  **projetée**, `w·|cos a|`. À 88° elle ne montre qu'une tranche, et on lui
+  réservait pourtant tout son côté. La hauteur, elle, ne bouge pas : une rotation
+  autour de l'axe vertical ne raccourcit rien verticalement ;
+- **le fondu s'achève franchement au dernier cran**, au lieu de s'arrêter à 6 %.
+  Deux cartes traînaient aux extrémités, invisibles mais bien comptées dans la
+  place à réserver — elles rapetissaient toute l'hélice pour rester dans le cadre.
+
+Sur une fenêtre de 1710 px, la carte de base passe ainsi de 221 à 290 px : une
+photo en 4:3 mesure 335 × 251 au lieu de 255 × 191.
 
 **La fenêtre de cartes boucle.** Sans cela, en début et en fin de liste elle était
 tronquée d'un côté et l'hélice partait de travers. Elle ne peut pas dépasser la

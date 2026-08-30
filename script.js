@@ -794,7 +794,7 @@ function buildPhotos(){
    P_RISE  la montée par cran — c'est elle qui fait la pente ;
    P_R     le rayon — il règle le recouvrement ;
    P_WIN   combien de cartes de chaque côté restent posées. */
-var P_STEP=22, P_WIN=7, P_R=2.8, P_RISE=0.26, P_MAXS=250;
+var P_STEP=22, P_WIN=5, P_R=2.8, P_RISE=0.26, P_MAXS=340;
 var pCards=[], pAR={}, pARmin=1, pARmax=1;
 
 /* La position est un **nombre à virgule**, pas un rang. L'affichage avançait par
@@ -867,20 +867,42 @@ function cardBox(k,S){
   return [S*q,S/q];
 }
 
+/* Le fondu s'achève franchement au dernier cran, au lieu de s'arrêter à 6 %.
+   Deux cartes traînaient ainsi aux extrémités, invisibles mais bien présentes
+   dans le calcul de place : elles rapetissaient toute l'hélice pour rester dans
+   le cadre. La chaîne est plus courte de deux crans et les photos un tiers plus
+   grandes — on n'a rien perdu qu'on pouvait voir. */
+function pOpacity(a){return 1-Math.min(Math.max(Math.abs(a)-40,0)/70,1);}
+
 /* La carte est taillée pour que l'hélice tienne dans la fenêtre. Les débords se
    comptent en côtés de carte ; la perspective n'entre pas dans le calcul parce
    qu'elle ne fait que **rétrécir** — la carte de devant, seule à l'échelle 1,
-   est déjà le pire cas. Les formats extrêmes rencontrés élargissent la marge. */
+   est déjà le pire cas.
+
+   Deux corrections ont rendu les photos un quart plus grandes :
+
+   - une carte tournée ne prend pas sa largeur entière à l'écran mais sa largeur
+     **projetée**, `w·|cos a|`. À 88° elle ne montre qu'une tranche, et on lui
+     réservait pourtant toute sa largeur. La hauteur, elle, ne bouge pas : une
+     rotation autour de l'axe vertical ne raccourcit rien verticalement ;
+   - les cartes trop pâles pour être vues ne comptent plus. Aux deux bouts de la
+     chaîne, l'opacité tombe sous 8 % ; ces cartes-là rapetissaient toute
+     l'hélice pour rester dans le cadre alors que personne ne les distingue. Si
+     elles débordent maintenant, nul ne le verra. */
 function fitCard(W,H,win){
   var ex=0,ey=0,qw=Math.sqrt(pARmax),qh=1/Math.sqrt(pARmin);
   for(var n=-win;n<=win;n++){
-    var r=n*P_STEP*Math.PI/180;
-    ex=Math.max(ex,Math.abs(P_R*Math.sin(r))+0.5*qw);
+    var a=n*P_STEP,r=a*Math.PI/180;
+    if(pOpacity(a)<0.15)continue;
+    ex=Math.max(ex,Math.abs(P_R*Math.sin(r))+0.5*qw*Math.abs(Math.cos(r)));
     ey=Math.max(ey,Math.abs(n*P_RISE)+0.5*qh);
   }
+  /* Un peu plus de marge en hauteur qu'en largeur : le compteur et le nom de
+     l'artiste occupent le haut et le bas. */
+  if(!ex||!ey)return 120;
   /* Pas de plancher au-dessus de ce que la fenêtre permet : mieux vaut de
      petites cartes qu'une hélice qui déborde. */
-  return Math.max(40,Math.min(P_MAXS,(W*0.92)/(2*ex),(H*0.92)/(2*ey)));
+  return Math.max(40,Math.min(P_MAXS,(W*0.97)/(2*ex),(H*0.90)/(2*ey)));
 }
 
 function placeRing(){
@@ -893,7 +915,7 @@ function placeRing(){
   /* Sur une fenêtre étroite, une chaîne plus courte : neuf cartes de chaque
      côté n'y laisseraient que des miettes. */
   var win=Math.min(P_WIN,Math.floor((len-1)/2),
-    (st.clientWidth||innerWidth)<700?5:P_WIN);
+    (st.clientWidth||innerWidth)<700?4:P_WIN);
   var S=fitCard(st.clientWidth||innerWidth,st.clientHeight||innerHeight,win);
   var R=(S*P_R).toFixed(1),rise=S*P_RISE,seen={};
   /* Le rang de référence est l'entier le plus proche ; l'écart à la position
@@ -918,7 +940,7 @@ function placeRing(){
     el.style.transform='translateY('+(-n*rise).toFixed(1)+'px) rotateY('+a
       +'deg) translateZ('+R+'px)';
     el.style.filter='brightness('+(1-Math.min(aa/105,0.74)).toFixed(3)+')';
-    el.style.opacity=(1-Math.min(Math.max(aa-45,0)/95,0.94)).toFixed(3);
+    el.style.opacity=pOpacity(aa).toFixed(3);
     el.style.zIndex=String(200-Math.round(aa));
     el.classList.toggle('front',i===0);
   }
