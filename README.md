@@ -701,6 +701,33 @@ qu'à un montage étranger.
 le serveur. Une carte *par parution* demanderait un pré-rendu ; celle-ci vaut pour
 tout le site.
 
+## La visite guidée
+
+Le site a beaucoup de choses qui ne se devinent pas : les touches `L`, `P`, `G`, le
+tiroir d'options, les titres qui se jouent d'un clic. Six étapes, chacune
+**désignant** une commande réelle — cerclée à l'écran — plutôt que de la décrire de
+loin. Elle s'ouvre d'elle-même à la première venue et se retrouve dans le tiroir.
+
+Les étapes ne changent jamais l'état du site : elles montrent, elles ne font pas à
+la place. Une étape qui ouvrirait la planche pour l'expliquer laisserait le
+visiteur ailleurs qu'il ne croyait.
+
+### La mascotte
+
+Elle est **dessinée ici, en SVG**, et n'emprunte à aucune figure existante — pas
+plus que le reste du site ne reproduit de marque ou de ressource de constructeur.
+Ce qui est repris, c'est la **construction** du verni de l'époque : dégradé
+vertical, cassure nette à mi-hauteur, brillance haute, filet sombre.
+
+Elle est en **graphite et non en bleu**. Le verni du site est monochrome par
+choix — « la structure fait l'effet, pas la teinte » — et une mascotte Aqua serait
+la seule chose colorée de la page, à démentir la règle. Pour l'essayer en bleu, il
+suffit de donner d'autres teintes aux quatre arrêts `.g1` à `.g4`.
+
+Ces teintes sont d'ailleurs posées **par la feuille de style et non en attribut** :
+`var()` dans un attribut de présentation SVG n'est pas résolu partout, et la
+mascotte serait sortie noire. Elle suit donc le thème comme le reste.
+
 ## À propos, dans le site
 
 Le site se sert de quatre sources — MusicBrainz, la Cover Art Archive, les chaînes

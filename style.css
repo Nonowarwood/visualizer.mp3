@@ -532,6 +532,50 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   text-shadow:0 1px 1px rgba(0,30,70,.5)}
 .survey .cell{position:relative}
 
+/* ─── la visite guidée ───
+   La mascotte est posée en bas à gauche, au-dessus du compteur, là où elle ne
+   recouvre ni la barre ni la pochette centrale. Elle respire lentement — le bloc
+   « mouvement réduit » l'immobilise. */
+.tour{position:fixed;left:var(--pad);bottom:calc(var(--pad)*5.6);z-index:66;
+  display:flex;align-items:flex-end;gap:12px;max-width:min(430px,86vw);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .3s var(--e),transform .38s var(--e-out)}
+.tour.on{opacity:1;transform:none}
+.tour[hidden]{display:none}
+.tour-m{flex:none;width:66px;height:82px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));
+  animation:bob 3.4s ease-in-out infinite}
+.tour-m .g1{stop-color:var(--bl-1)}
+.tour-m .g2{stop-color:var(--bl-2)}
+.tour-m .g3{stop-color:var(--bl-3)}
+.tour-m .g4{stop-color:var(--bl-4)}
+.tour-m .s1,.tour-m .s2{stop-color:#fff}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.tour-pan{flex:1 1 auto;min-width:0;background:var(--pn);
+  box-shadow:0 0 0 1px rgba(0,0,0,.34),0 18px 38px -20px rgba(0,0,0,.55)}
+.tour-bar{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:6px 11px;border-bottom:1px solid var(--cr-line);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  font:700 12px/1.3 var(--sans);color:var(--cr-ink);text-shadow:0 1px 0 var(--cr-glow)}
+.tour-bar b{font:400 10px/1 var(--sans);letter-spacing:.1em;color:var(--cr-ink-2);
+  font-variant-numeric:tabular-nums;flex:none}
+.tour p{margin:0;padding:11px 12px;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.tour p kbd{font:600 11px/1 var(--sans);letter-spacing:.04em;color:var(--ink);
+  padding:2px 5px;background:var(--pn-2);box-shadow:0 0 0 1px var(--pn-line)}
+.tour-foot{display:flex;justify-content:flex-end;gap:6px;padding:0 8px 9px}
+.tour-foot button{padding:6px 12px;font:600 11px/1 var(--sans);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cr-ink-2);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);text-shadow:0 1px 0 var(--cr-glow);
+  transition:color .18s var(--e),filter .18s var(--e)}
+.tour-foot button:hover{color:var(--cr-ink)}
+.tour-foot button:active{filter:brightness(.94)}
+.tour-foot #tourNext{color:var(--pn);text-shadow:0 1px 1px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4))}
+/* Ce que l'étape désigne se cerne, plutôt que d'être décrit de loin. */
+.tour-hi{outline:2px solid var(--bl);outline-offset:3px}
+@media(max-width:720px){.tour{bottom:calc(var(--pad)*3);max-width:calc(100vw - var(--pad)*2)}
+  .tour-m{width:50px;height:62px}}
+
 /* ─── à propos ───
    Même panneau à filets que la fiche : c'est un document, pas une commande. */
 .about{position:fixed;inset:0;z-index:75;display:grid;place-content:center;

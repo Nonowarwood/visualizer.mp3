@@ -94,6 +94,7 @@
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
           <p class="ah">Le site</p>
+          <button id="mTour" type="button"><span class="lbl">visite guidée</span><b>↻</b></button>
           <button id="mAbout" type="button"><span class="lbl">à propos</span><b>↗</b></button>
         </div>
       </div>
@@ -123,6 +124,45 @@
 </div>
 
 <figure class="loupe" id="loupe" hidden aria-label="Pochette en grand"></figure>
+
+<!-- La mascotte est **dessinée ici**, pas empruntée : aucune figure existante
+     n'est reproduite. Elle reprend la construction du verni de l'époque — dégradé
+     vertical, cassure nette à mi-hauteur, brillance haute, filet sombre — dans le
+     graphite du site plutôt qu'en bleu, puisque c'est la structure qui fait
+     l'effet et non la teinte. -->
+<div class="tour" id="tour" hidden role="dialog" aria-label="Visite guidée">
+  <svg class="tour-m" viewBox="0 0 100 124" aria-hidden="true">
+    <defs>
+      <!-- Les teintes sont posées par la feuille de style et non en attribut :
+           `var()` dans un attribut de présentation SVG n'est pas résolu partout,
+           et la mascotte serait sortie noire. Elle suit ainsi le thème. -->
+      <linearGradient id="gel" x1="0" y1="0" x2="0" y2="1">
+        <stop class="g1" offset="0"/><stop class="g2" offset="0.48"/>
+        <stop class="g3" offset="0.52"/><stop class="g4" offset="1"/>
+      </linearGradient>
+      <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+        <stop class="s1" offset="0" stop-opacity=".72"/>
+        <stop class="s2" offset="1" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gel)"
+          stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+    <path d="M30 78C33 70 40 66 50 66s17 4 20 12c-6-4-13-6-20-6s-14 2-20 6Z"
+          fill="url(#sheen)"/>
+    <circle cx="50" cy="34" r="26" fill="url(#gel)"
+            stroke="rgba(0,0,0,.45)" stroke-width="2"/>
+    <ellipse cx="50" cy="23" rx="16" ry="10" fill="url(#sheen)"/>
+  </svg>
+  <div class="tour-pan">
+    <header class="tour-bar"><span id="tourT"></span>
+      <b id="tourN"></b></header>
+    <p id="tourX"></p>
+    <footer class="tour-foot">
+      <button id="tourSkip" type="button">passer</button>
+      <button id="tourNext" type="button">suivant</button>
+    </footer>
+  </div>
+</div>
 
 <div class="about" id="about" hidden role="dialog" aria-modal="true" aria-label="À propos">
   <div class="ab-pan">

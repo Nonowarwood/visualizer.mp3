@@ -646,6 +646,63 @@ function aboutOpen(on){
   if(on){el.hidden=false;requestAnimationFrame(function(){el.classList.add('on');});}
   else{el.classList.remove('on');setTimeout(function(){el.hidden=true;},reduce?0:220);}
 }
+/* ─────────── la visite guidée ───────────
+   Le site a beaucoup de choses qui ne se devinent pas : les touches, le tiroir,
+   les titres qui se jouent d'un clic. Six étapes, chacune désignant une commande
+   réelle plutôt que de la décrire de loin.
+
+   Les étapes ne changent jamais l'état du site — elles montrent, elles ne font
+   pas à la place. Une étape qui ouvrirait la planche pour l'expliquer laisserait
+   le visiteur ailleurs qu'il ne croyait. */
+var TOUR=[
+ {sel:'#field',t:'Le parcours',
+  x:'Les pochettes défilent à la molette, au glisser, ou aux flèches <kbd>←</kbd> <kbd>→</kbd>. '
+   +'<kbd>↵</kbd> ouvre celle du milieu.'},
+ {sel:'#brandBtn',t:'Changer d\'artiste',
+  x:'Le nom est un bouton : il ouvre la liste des artistes. Tout se reconstruit sans recharger.'},
+ {sel:null,t:'La fiche',
+  x:'Une fois un disque ouvert, <b>cliquer un titre le joue dans la page</b>, sur un petit '
+   +'lecteur qui reste là même si l\'on referme la fiche. La pochette s\'ouvre en grand.'},
+ {sel:'#mSurvey',t:'La planche',
+  x:'Toutes les parutions d\'un coup d\'œil, en grille. La touche <kbd>G</kbd> y va aussi.'},
+ {sel:'#mPhotos',t:'Les images',
+  x:'Les photos sur une hélice qui tourne. Quand un artiste en a plusieurs séries, '
+   +'un sélecteur apparaît en bas.'},
+ {sel:'#mOpt',t:'Les options',
+  x:'La liste appariée (<kbd>L</kbd>), les pochettes en pixels (<kbd>P</kbd>), le thème, '
+   +'le son — et les crédits.'}
+];
+var tourI=0,tourCible=null;
+
+function tourHi(sel){
+  if(tourCible)tourCible.classList.remove('tour-hi');
+  tourCible=sel?document.querySelector(sel):null;
+  if(tourCible)tourCible.classList.add('tour-hi');
+}
+function tourShow(i){
+  if(i>=TOUR.length){tourEnd();return;}
+  tourI=i;
+  var e=TOUR[i];
+  $('#tourT').textContent=e.t;
+  $('#tourN').textContent=(i+1)+' / '+TOUR.length;
+  $('#tourX').innerHTML=e.x;
+  $('#tourNext').textContent=(i===TOUR.length-1)?'terminer':'suivant';
+  tourHi(e.sel);
+  var el=$('#tour');
+  el.hidden=false;
+  requestAnimationFrame(function(){el.classList.add('on');});
+}
+function tourEnd(){
+  tourHi(null);
+  var el=$('#tour');
+  el.classList.remove('on');
+  setTimeout(function(){el.hidden=true;},reduce?0:300);
+  try{localStorage.setItem('wte-tour','1');}catch(e){}
+}
+$('#tourNext').addEventListener('click',function(){tourShow(tourI+1);});
+$('#tourSkip').addEventListener('click',tourEnd);
+$('#mTour').addEventListener('click',function(){optOpen(false);tourShow(0);});
+
 $('#mAbout').addEventListener('click',function(){optOpen(false);aboutOpen(true);});
 $('#aboutX').addEventListener('click',function(){aboutOpen(false);});
 $('#about').addEventListener('click',function(e){if(e.target===this)aboutOpen(false);});
@@ -1448,7 +1505,8 @@ document.addEventListener('keydown',function(e){
     if(STATE==='photos')pStep(-1); else if(STATE==='focus')open(CUR-1); else goTo(CUR-1);}
   else if(k==='Enter'&&STATE==='parcours'){e.preventDefault();open(CUR);}
   else if(k==='Escape'){e.preventDefault();
-    if(!$('#about').hidden)aboutOpen(false);
+    if(!$('#tour').hidden)tourEnd();
+    else if(!$('#about').hidden)aboutOpen(false);
     else if(!$('#loupe').hidden)loupeOff();
     else if(amenu.classList.contains('on'))amenuOpen(false); else close();}
   else if(k==='g'||k==='G'){e.preventDefault();setState(STATE==='survey'?'parcours':'survey');}
@@ -1596,6 +1654,11 @@ function enter(){
   hud.classList.add('lit');
   goTo(0,false);requestAnimationFrame(render);
   if(pendingHash){var w=pendingHash;pendingHash=null;applyHash(w[0],w[1]);}
+  /* À la première venue seulement, et après l'entrée : la visite désigne des
+     commandes que le splash recouvrait encore. */
+  var vu=true;
+  try{vu=localStorage.getItem('wte-tour')==='1';}catch(e){}
+  if(!vu)setTimeout(function(){if(STATE==='parcours')tourShow(0);},1100);
   if(window.requestIdleCallback)requestIdleCallback(prefetchOthers,{timeout:2500});
   else setTimeout(prefetchOthers,1200);
   var h=$('#hint');
