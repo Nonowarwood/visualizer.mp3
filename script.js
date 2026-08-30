@@ -667,6 +667,28 @@ var DV_BAND=62;
 var DEV=false;
 try{DEV=localStorage.getItem('wte-dev')==='1';}catch(e){}
 
+/* La barre de commandes, le guide et le lecteur **sortent de l'écran** plutôt que
+   d'y être dupliqués : on déplace les mêmes nœuds, donc tous les gestionnaires
+   suivent sans être recâblés et l'état des boutons reste celui qu'il était. On
+   retient d'où ils viennent pour les y remettre à l'identique. */
+var outMoved=[];
+function deviceMove(on){
+  if(on){
+    if(outMoved.length)return;
+    ['.ctlbar','#tour','#player'].forEach(function(sel){
+      var el=document.querySelector(sel);
+      if(!el)return;
+      outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
+      $('#outside').appendChild(el);
+    });
+  }else{
+    while(outMoved.length){
+      var m=outMoved.pop();
+      m.par.insertBefore(m.el,m.next);
+    }
+  }
+}
+
 var dvZ=1,dvT=0;
 function deviceLayout(){
   var app=$('#app'),dv=$('#device');
