@@ -1045,7 +1045,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    imposée, une iframe se replie sur 150px et coupe l'image. */
 .pl-screen{position:relative;aspect-ratio:16/9;background:#000}
 .pl-screen iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
-.pl-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;
+.pl-foot{display:flex;align-items:center;gap:6px;
   padding:5px 8px;border-top:1px solid var(--pn-line);background:var(--pn-2)}
 .pl-foot button{width:34px;height:20px;font:400 11px/1 var(--sans);color:var(--cr-ink-2);
   background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
@@ -1053,7 +1053,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .pl-foot button:hover{color:var(--cr-ink);filter:brightness(1.03)}
 .pl-foot button:active{filter:brightness(.94)}
 .pl-foot button[disabled]{opacity:.4;pointer-events:none}
-.pl-n{font:400 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+.pl-n{flex:1 1 auto;text-align:right;
+  font:400 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink-3);font-variant-numeric:tabular-nums;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:600px){.player{left:var(--pad);width:auto}}

@@ -467,6 +467,29 @@ script tiers exécuté dans la page, ce que le site s'interdit partout ailleurs.
 
 **Une piste à la fois**, et les boutons ◂◂ ▸▸ pour passer à la suivante.
 
+### Pause et reprise
+
+Le lecteur ne savait pas s'arrêter : aucun bouton, nulle part, ne mettait en
+pause. Le défaut se voyait surtout sur la molette du boîtier, dont le repère
+▸❚❚ ouvrait une fiche quoi qu'il arrive — il ne faisait jamais ce que son dessin
+annonce.
+
+On parle donc à l'iframe par **`postMessage`**. Le paramètre `enablejsapi` n'est
+pas l'API JavaScript de YouTube : c'est l'ouverture d'un canal de messages vers
+l'iframe. Aucun script tiers n'entre dans la page, la règle tient, et le lecteur
+sait s'arrêter.
+
+Une commande envoyée ne dit pas ce qui se passe ensuite. On ouvre donc **l'écoute
+en retour** — un message `listening` posté à l'iframe une fois chargée — et elle
+prévient de chaque changement d'état. Le bouton reste ainsi juste même quand la
+pause vient des commandes de YouTube plutôt que des nôtres, ce qu'un simple
+bascule interne aurait manqué. Les messages reçus sont filtrés sur leur origine :
+seuls `youtube.com` et `youtube-nocookie.com` sont écoutés, sous-domaines compris
+et `youtube.com.autrechose` exclu.
+
+Sur la molette, ▸❚❚ met donc en pause ou reprend **dès qu'une piste joue**.
+Ouvrir une fiche ne vient qu'ensuite, quand il n'y a rien à arrêter.
+
 L'enchaînement automatique a été tenté, par le paramètre `playlist` de
 l'intégration. Il est censé ne porter que la **suite** du disque, la piste
 demandée restant dans le chemin de l'adresse — c'est ce que dit la documentation,

@@ -902,6 +902,10 @@ function dvAction(z){
     return;
   }
   if(z==='play'){
+    /* **Une piste joue : le bouton fait ce que son dessin annonce**, pause ou
+       reprise, et rien d'autre. C'est sa fonction première ; ouvrir une fiche ne
+       vient qu'ensuite, quand il n'y a rien à mettre en pause. */
+    if(plToggle())return;
     /* Depuis une fiche, la première piste jouable part. Ailleurs, on ouvre. */
     var b=document.querySelector('#trk .tp');
     if(STATE==='focus'&&b)b.click(); else if(STATE==='parcours')open(CUR);
@@ -1089,8 +1093,15 @@ function plPlay(k){
      s'appliquera, on ne s'y fie plus. Jouer la piste demandée n'est pas
      négociable ; l'enchaînement automatique n'était qu'un agrément, et les
      boutons ◂◂ ▸▸ le remplacent. */
+  /* `enablejsapi` n'est **pas** l'API JavaScript de YouTube : c'est l'ouverture
+     d'un canal `postMessage` vers l'iframe. Aucun script tiers n'entre dans la
+     page — la règle du site tient — et l'on gagne de quoi mettre en pause et
+     reprendre, ce que le lecteur ne savait pas faire. */
   $('#plFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(t.yt)
-    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+    +'?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1'
+    +(/^https?:$/.test(location.protocol)
+      ?'&origin='+encodeURIComponent(location.origin):'');
+  PLAY=true;plBtn();
   $('#plTitle').textContent=t.t;
   $('#plNum').textContent=pad(k+1)+' / '+pad(PL.list.length)+' · '+PL.rel;
   $('#plPrev').disabled=k<=0;
@@ -1102,8 +1113,56 @@ function plStop(){
   /* Vider la source coupe le son : masquer l'iframe ne l'aurait pas fait. */
   $('#plFrame').src='';
   $('#player').hidden=true;
-  PL.i=-1;PL.key='';plMark();
+  PL.i=-1;PL.key='';PLAY=false;plMark();
 }
+
+/* ─── pause et reprise ───
+   Le bouton ▸❚❚ de la molette ouvrait une fiche quoi qu'il arrive : il ne faisait
+   jamais ce que son dessin annonce. Il fallait d'abord que le lecteur sache
+   s'arrêter, ce qu'il ne savait pas — aucun bouton nulle part ne le permettait.
+
+   On parle à l'iframe par `postMessage`, sans charger la moindre ligne de
+   YouTube. Et comme une commande envoyée ne dit pas ce qui se passe ensuite, on
+   ouvre l'écoute en retour : l'iframe prévient alors de chaque changement d'état,
+   si bien que le bouton reste juste même quand la pause vient des commandes de
+   YouTube plutôt que des nôtres. */
+var PLAY=false;
+function plCmd(f){
+  var w=$('#plFrame').contentWindow;
+  if(!w)return false;
+  try{w.postMessage(JSON.stringify({event:'command',func:f,args:[]}),'*');return true;}
+  catch(e){return false;}
+}
+function plBtn(){
+  var b=$('#plPP');if(!b)return;
+  b.textContent=PLAY?'\u275A\u275A':'\u25B8';
+  b.setAttribute('aria-label',PLAY?'Mettre en pause':'Reprendre');
+}
+function plToggle(){
+  if($('#player').hidden||PL.i<0)return false;
+  PLAY=!PLAY;
+  plCmd(PLAY?'playVideo':'pauseVideo');
+  plBtn();
+  return true;
+}
+$('#plPP').addEventListener('click',plToggle);
+/* L'iframe ne parle que si on lui demande de parler, et seulement une fois
+   chargée. */
+$('#plFrame').addEventListener('load',function(){
+  var w=$('#plFrame').contentWindow;
+  if(!w)return;
+  try{w.postMessage(JSON.stringify(
+    {event:'listening',id:1,channel:'widget'}),'*');}catch(e){}
+});
+addEventListener('message',function(e){
+  if(!/^https?:\/\/([\w-]+\.)*youtube(-nocookie)?\.com$/.test(e.origin||''))return;
+  var d=e.data;
+  if(typeof d==='string'){try{d=JSON.parse(d);}catch(err){return;}}
+  if(!d||d.event!=='onStateChange')return;
+  var n=(d.info&&typeof d.info==='object')?d.info.playerState:d.info;
+  if(n===1&&!PLAY){PLAY=true;plBtn();}
+  else if((n===2||n===0)&&PLAY){PLAY=false;plBtn();}
+});
 $('#plClose').addEventListener('click',plStop);
 $('#plPrev').addEventListener('click',function(){plPlay(PL.i-1);});
 $('#plNext').addEventListener('click',function(){plPlay(PL.i+1);});
