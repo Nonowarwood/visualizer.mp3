@@ -822,7 +822,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .stk.sel{outline:2px dashed rgba(59,130,246,.9);outline-offset:3px}
 
 /* ─── le choix des autocollants, dans le tiroir ─── */
-.stkgr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.stkgr{display:flex;flex-wrap:wrap;gap:7px}
+.stkgr .stkb{width:68px}
 .optmenu .stkp button{display:block;width:auto;padding:0;border-bottom:none}
 .optmenu .stkgr .stkb{padding:7px;background:var(--pn-2);
   box-shadow:0 0 0 1px var(--pn-line);

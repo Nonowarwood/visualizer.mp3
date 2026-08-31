@@ -659,8 +659,11 @@ lorsqu'on le choisit — et le choix est retenu d'une visite à l'autre.
 ## Les autocollants
 
 On en pose sur le boîtier, on les glisse où l'on veut, ils restent d'une visite à
-l'autre. Neuf sont fournis — cassette, cœur, disque, éclair, étoile, fleur, note,
-nuage, onde —, dessinés en SVG pour ce site : **7,5 ko à eux tous**.
+l'autre. Le dossier n'en contient qu'un, celui du dépôt : la **mascotte**, la même
+que celle qui guide la visite. Neuf autres avaient été dessinés en SVG pour
+l'occasion — cassette, cœur, disque, éclair, étoile, fleur, note, nuage, onde —
+puis écartés au profit de celui-là. Ils dorment dans l'historique si l'un manque
+un jour.
 
 Il y en avait déjà eu, et ils avaient été retirés à raison : c'étaient des
 ornements que j'avais dessinés *dans* le châssis, qui encombraient une surface
