@@ -449,7 +449,7 @@ La liste des pistes est **relevée d'avance**, dans `assets/tracks.js`, par
 Interrogé à l'ouverture de chaque fiche, il suffisait de parcourir les parutions
 aux flèches pour déclencher des `503` — que le code prenait pour « pas de
 titres », effaçant la section et gardant l'échec en cache pour la session. Un
-relevé des vingt-deux parutions l'a établi : **toutes ont leurs pistes chez
+relevé de toutes les parutions l'a établi : **toutes ont leurs pistes chez
 MusicBrainz**, aucune ne manquait vraiment.
 
 **Retrouver la vidéo d'un titre demande une recherche YouTube.** Sans clé d'API,
@@ -615,9 +615,13 @@ La parution est désignée par son titre mis à plat, pas par son identifiant
 MusicBrainz : une adresse se lit et se dicte. Les accents sont défaits avant
 d'être jetés, les apostrophes typographiques disparaissent au lieu de devenir des
 tirets, la ponctuation tombe — `Mention Me (From The Movie "GOAT")` donne
-`mention-me-from-the-movie-goat`. Un titre entièrement non latin se réduirait à
-rien : il reçoit alors une adresse de repli plutôt qu'une adresse vide. Aucune
-collision sur les vingt-deux parutions actuelles.
+`mention-me-from-the-movie-goat`.
+
+Un titre **entièrement non latin** se réduirait à rien. Il recevait jusqu'ici une
+adresse de repli constante, ce qui allait tant qu'il n'y en avait aucun ; l'arrivée
+de LE SSERAFIM en a apporté deux — un titre coréen et un titre japonais — qui se
+seraient partagé la même adresse, la première fiche répondant pour les deux. Le
+repli est donc devenu un jeton tiré du titre : laid, mais unique et stable.
 
 Au démarrage, l'adresse a le dernier mot — mais **le splash garde la main** :
 la destination est mise de côté et appliquée à l'entrée, sinon l'intro serait
@@ -888,7 +892,8 @@ le navigateur la lisserait et rendrait la réduction invisible.
 
 **Les versions en pixels sont fabriquées d'avance.** Le navigateur faisait ce
 travail à chaque visite et sous les yeux de qui regardait : télécharger le 500 px,
-le peindre sur un canevas, le réduire, le tramer, vingt-deux fois. Elles sont
+le peindre sur un canevas, le réduire, le tramer, autant de fois qu'il y a de
+parutions. Elles sont
 maintenant écrites une fois dans `assets/pix/` et recensées par `assets/pix.js` —
 le site ne charge plus qu'une image prête, une dizaine de kilo-octets.
 
@@ -1528,14 +1533,35 @@ depuis son coin, items décalés en cascade. Changer d'artiste reconstruit le Co
 Flow, la planche, la réglette, les compteurs et les filtres, sans recharger la page
 ni rejouer le splash.
 
-Pour en ajouter un, complétez le tableau `ARTISTS` en haut de `script.js` :
+Pour en ajouter un, un outil relève la discographie et imprime le bloc à coller
+dans le tableau `ARTISTS`, en haut de `script.js` :
 
-```js
-{id:'<mbid de l'artiste>', name:'CORTIS', place:'Séoul', since:2025, rel:[ … ]}
+```sh
+cd site && python3 tools/mb-artiste.py "NewJeans"
+python3 tools/build-tracks.py     # les titres et leurs vidéos, ce qui manque seulement
+python3 tools/build-pix.py        # les pochettes en basse définition
 ```
 
-Les parutions se récupèrent dans MusicBrainz :
-`https://musicbrainz.org/ws/2/release-group?artist=<mbid>&fmt=json&limit=100`
+Le tableau reste **écrit à la main** et le restera : c'est de la donnée éditoriale
+autant que factuelle — les notes, les couleurs de repli, le choix de ce qu'on
+montre. Mais relever vingt parutions à la main est une source d'erreurs, et l'outil
+s'en charge : identifiants, titres, types, dates, labels.
+
+Il écarte deux choses de lui-même. Les **types secondaires** — compilations,
+lives, albums de remix —, sans quoi une discographie de groupe de K-pop se remplit
+de rééditions. Et les **doublons** : une même parution y revient sous trois formes,
+la version anglaise, la version japonaise, et le single qui porte le nom de l'EP
+dont il est le titre-phare. Sur LE SSERAFIM, trente et une entrées, dont onze
+redisaient ce qu'une autre disait déjà. L'album et l'EP passent avant le single du
+même titre ; une mention de version en écarte le porteur.
+
+Les **notes restent vides**. Une note inventée vaut moins que pas de note ; seules
+les parutions inaugurales en portent une, parce que le fait est dans la donnée.
+
+`build-tracks.py` ne refait que ce qui manque. Reprendre tout à chaque ajout serait
+long, et surtout dangereux : les vidéos de CORTIS ont été corrigées une à une
+depuis l'onglet des sorties officielles, et une nouvelle recherche les remettrait à
+côté. `--tout` force la reprise complète, en connaissance de cause.
 
 ## Modifier le contenu
 

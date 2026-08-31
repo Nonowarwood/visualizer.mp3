@@ -184,10 +184,29 @@ def main():
                 b, re.S):
             jobs.append((artist, rg, rid, title.replace('\\"', '"')))
 
-    print('%d parutions à relever' % len(jobs), file=sys.stderr)
-    out, nyt, ntr = {}, 0, 0
+    dst = os.path.join(root, 'assets', 'tracks.js')
+    # ── ne refaire que ce qui manque ──
+    # Reprendre tout à chaque ajout d'artiste serait long, et surtout **dangereux** :
+    # les vidéos de CORTIS ont été corrigées une à une depuis l'onglet des sorties
+    # officielles, et une nouvelle recherche les remplacerait par ses meilleurs
+    # résultats — c'est-à-dire les remettrait à côté. Ce qui est déjà relevé est
+    # donc conservé tel quel ; `--tout` force la reprise complète.
+    tout = '--tout' in sys.argv
+    out = {}
+    if not tout and os.path.exists(dst):
+        m = re.search(r'var TRACKS=(\{.*\});', open(dst, encoding='utf-8').read(), re.S)
+        if m:
+            try:
+                out = json.loads(m.group(1))
+            except Exception:
+                out = {}
+    garde = len(out)
+    reste = [j for j in jobs if (j[2] or j[1]) not in out]
+    print('%d parutions en tout, %d déjà relevées, %d à faire'
+          % (len(jobs), garde, len(reste)), file=sys.stderr)
+    nyt, ntr = 0, 0
 
-    for artist, rg, rid, title in jobs:
+    for artist, rg, rid, title in reste:
         key = rid or rg
         try:
             rel = mb_release(rg, rid)
@@ -225,17 +244,19 @@ def main():
         print('  %-9s %-28s %2d/%2d pistes trouvées' % (artist[:9], title[:28], got, tot),
               file=sys.stderr)
 
+    # On réécrit dans l'ordre du catalogue, non dans celui du relevé : le fichier
+    # se lit alors comme la discographie.
+    ordre = [(j[2] or j[1]) for j in jobs]
     body = ',\n'.join(
-        '"%s":{"s":%s,"g":%s}' % (k, json.dumps(v['s'], ensure_ascii=False),
-                                  json.dumps(v['g'], ensure_ascii=False))
-        for k, v in out.items())
-    dst = os.path.join(root, 'assets', 'tracks.js')
+        '"%s":{"s":%s,"g":%s}' % (k, json.dumps(out[k]['s'], ensure_ascii=False),
+                                  json.dumps(out[k]['g'], ensure_ascii=False))
+        for k in ordre if k in out)
     with open(dst, 'w', encoding='utf-8') as f:
         f.write('/* Fabriqué par tools/build-tracks.py — relancez-le plutôt que\n'
                 '   de tout réécrire, mais une correction à la main est sans danger.\n'
                 '   [rang, titre, durée en ms, identifiant YouTube ou null] */\n')
         f.write('var TRACKS={\n' + body + '\n};\n')
-    print('\n%s\n%d parutions, %d pistes, %d vidéos trouvées'
+    print('\n%s\n%d parutions en tout, %d nouvelles pistes, %d vidéos trouvées'
           % (dst, len(out), ntr, nyt), file=sys.stderr)
 
 
