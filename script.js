@@ -1030,6 +1030,7 @@ function pRacine(){
        On passe donc par les artistes, toujours — c'est un cran de plus et une
        ambiguïté de moins, et c'est le chemin d'un vrai baladeur. */
     mIt('Artistes',ARTISTS[A].name,function(){menuPush(pArtistes);}),
+    mIt('Rechercher','⌕',function(){menuFerme();qOuvre(true);}),
     mIt('Images','›',function(){menuFerme();openPhotos();}),
     mIt('Planche','›',function(){menuFerme();setState('survey');}),
     mIt('Réglages','›',function(){menuPush(pReglages);})
@@ -2352,6 +2353,162 @@ document.addEventListener('click',function(e){
   amenuOpen(false);optOpen(false);
 });
 
+/* ─────────── la recherche ───────────
+   La seule chose du site qui **traverse les artistes**. Partout ailleurs il faut
+   d'abord savoir de qui relève un disque ; ici on tape un titre et on y va.
+
+   L'index se construit **à la première ouverture**, pas au chargement : deux cent
+   quarante-huit entrées à assembler ne valent pas d'être payées par qui ne
+   cherchera jamais. Une fois monté, il tient en mémoire pour la session.
+
+   Le classement n'est pas une simple correspondance : ce qui **commence** par ce
+   qu'on tape passe avant ce qui commence un mot, qui passe avant ce qui le
+   contient quelque part. C'est la seule façon que « wave » donne d'abord *wave*
+   et non *nouvelle vague*. */
+var Q=null,qI=0,qRes=[];
+
+function qNorm(t){
+  t=String(t).toLowerCase();
+  if(t.normalize)t=t.normalize('NFD').replace(/[̀-ͯ]/g,'');
+  return t.replace(/[‘’']/g,'');
+}
+function qIndex(){
+  if(Q)return Q;
+  Q=[];
+  ARTISTS.forEach(function(a,ai){
+    a.rel.forEach(function(r,ri){
+      Q.push({t:'d',a:ai,r:ri,n:r.t,s:a.name,c:qNorm(r.t+' '+a.name)});
+      var d=(typeof TRACKS!=='undefined'&&TRACKS)?TRACKS[r.rid||r.id]:null;
+      if(!d||!d.g)return;
+      d.g.forEach(function(g){
+        g.forEach(function(x){
+          Q.push({t:'p',a:ai,r:ri,n:x[1],s:r.t,ar:a.name,c:qNorm(x[1]+' '+r.t+' '+a.name)});
+        });
+      });
+    });
+  });
+  return Q;
+}
+function qScore(e,q){
+  var i=e.c.indexOf(q);
+  if(i<0)return -1;
+  if(i===0)return 0;                                   /* commence par */
+  if(/[\s\-–—(\/]/.test(e.c.charAt(i-1)))return 1;     /* commence un mot */
+  return 2;                                            /* contenu quelque part */
+}
+function qCherche(txt){
+  var q=qNorm(txt).trim();
+  var box=$('#qRes'),vide=$('#qVide');
+  qRes=[];qI=0;
+  if(!q){
+    box.innerHTML='';
+    vide.textContent='Cinq artistes, '+REL_TOTAL()+' parutions. Tapez un titre, '
+      +'un disque ou un nom.';
+    return;
+  }
+  var L=qIndex(),h=[];
+  for(var i=0;i<L.length;i++){
+    var sc=qScore(L[i],q);
+    if(sc>=0)h.push([sc,i,L[i]]);
+  }
+  /* À égalité de pertinence, l'ordre du catalogue : c'est celui que le reste du
+     site montre, et deux classements différents pour la même chose désorientent. */
+  h.sort(function(x,y){return x[0]-y[0]||x[1]-y[1];});
+  qRes=h.slice(0,40).map(function(x){return x[2];});
+  box.innerHTML=qRes.map(function(e,k){
+    return '<li role="option" aria-selected="'+(k===0?'true':'false')+'">'
+      +'<button type="button" data-k="'+k+'">'
+      +'<span class="q-t">'+(e.t==='p'?'♪':'▦')+'</span>'
+      +'<span class="q-n">'+esc(e.n)+'</span>'
+      +'<span class="q-s">'+esc(e.t==='p'?e.s:e.s)+'</span></button></li>';
+  }).join('');
+  vide.textContent=qRes.length?'':'Rien de ce nom dans le catalogue.';
+  qMarque();
+}
+function REL_TOTAL(){
+  var n=0;ARTISTS.forEach(function(a){n+=a.rel.length;});return n;
+}
+function qMarque(){
+  var r=$('#qRes').children;
+  for(var i=0;i<r.length;i++)r[i].setAttribute('aria-selected',i===qI?'true':'false');
+  var el=r[qI],box=$('#qRes');
+  if(el&&box){
+    var t=el.offsetTop,b=t+el.offsetHeight;
+    if(t<box.scrollTop)box.scrollTop=t-6;
+    else if(b>box.scrollTop+box.clientHeight)box.scrollTop=b-box.clientHeight+6;
+  }
+}
+function qBouge(d){
+  if(!qRes.length)return;
+  qI=Math.max(0,Math.min(qRes.length-1,qI+d));
+  qMarque();
+}
+function qOuvre(on){
+  var el=$('#quete');
+  if(on){
+    qIndex();
+    el.hidden=false;
+    requestAnimationFrame(function(){
+      el.classList.add('on');
+      var i=$('#qIn');if(i){i.value='';i.focus();}
+      qCherche('');
+    });
+  }else{
+    el.classList.remove('on');
+    setTimeout(function(){el.hidden=true;},reduce?0:200);
+  }
+}
+/* Aller au résultat : changer d'artiste s'il le faut, **lever le filtre** — sinon
+   la parution cherchée peut ne pas être dans la vue courante et l'on ouvrirait
+   dans le vide —, puis ouvrir la fiche, et jouer la piste si c'en était une. */
+function qAller(e){
+  if(!e)return;
+  qOuvre(false);
+  if(e.a!==A)buildArtist(e.a,false);
+  if(FILTER!=='tout'){
+    FILTER='tout';
+    [].slice.call(document.querySelectorAll('#filters button')).forEach(function(x){
+      x.setAttribute('aria-pressed',x.getAttribute('data-f')==='tout'?'true':'false');
+    });
+    glisse();rebuild();
+  }
+  var p=view.indexOf(e.r);
+  if(p<0)return;
+  CUR=p;hud();
+  open(p);
+  if(e.t!=='p')return;
+  /* La liste des titres se pose après le vol de la pochette : on attend qu'elle
+     soit là plutôt que de deviner un délai au jugé. */
+  var essais=0;
+  (function attend(){
+    var b=document.querySelectorAll('#trk .tp');
+    for(var i=0;i<b.length;i++){
+      if(b[i].textContent===e.n){b[i].click();return;}
+    }
+    if(++essais<20)setTimeout(attend,80);
+  })();
+}
+if($('#qIn')){
+  $('#qIn').addEventListener('input',function(){qCherche(this.value);});
+  $('#qIn').addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'){e.preventDefault();qBouge(1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();qBouge(-1);}
+    else if(e.key==='Enter'){e.preventDefault();qAller(qRes[qI]);}
+    else if(e.key==='Escape'){e.preventDefault();qOuvre(false);}
+  });
+}
+if($('#qRes'))$('#qRes').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-k]');
+  if(b)qAller(qRes[parseInt(b.getAttribute('data-k'),10)]);
+});
+if($('#qX'))$('#qX').addEventListener('click',function(){qOuvre(false);});
+if($('#quete'))$('#quete').addEventListener('click',function(e){
+  if(e.target===this)qOuvre(false);
+});
+if($('#mQuete'))$('#mQuete').addEventListener('click',function(){
+  optOpen(false);qOuvre(true);
+});
+
 /* ─────────── le tiroir d'options ───────────
    La barre portait sept commandes de front : les trois vues, deux options
    d'affichage, le thème et le son. Les vues restent en vue ; le reste passe
@@ -2950,15 +3107,25 @@ applyGlass();
 applyDevice(false);
 
 document.addEventListener('keydown',function(e){
+  /* **Ne jamais interpréter une frappe destinée à un champ.** Le site n'en avait
+     aucun ; il en a maintenant trois — la gravure et la recherche —, et taper
+     « pixels » dans l'un d'eux basculait les pochettes en pixels à la lettre p,
+     ouvrait la planche au g et la liste au l. */
+  var c=e.target&&e.target.tagName;
+  if(c==='INPUT'||c==='TEXTAREA'||(e.target&&e.target.isContentEditable))return;
   if(STATE==='intro'){enter();return;}
   var k=e.key;
+  /* La barre oblique ouvre la recherche : c'est la convention, et elle ne sert à
+     rien d'autre ici. */
+  if(k==='/'){e.preventDefault();qOuvre(true);return;}
   if(k==='ArrowRight'){e.preventDefault();
     if(STATE==='photos')pStep(1); else if(STATE==='focus')open(CUR+1); else goTo(CUR+1);}
   else if(k==='ArrowLeft'){e.preventDefault();
     if(STATE==='photos')pStep(-1); else if(STATE==='focus')open(CUR-1); else goTo(CUR-1);}
   else if(k==='Enter'&&STATE==='parcours'){e.preventDefault();open(CUR);}
   else if(k==='Escape'){e.preventDefault();
-    if(!$('#tour').hidden)tourEnd();
+    if(!$('#quete').hidden)qOuvre(false);
+    else if(!$('#tour').hidden)tourEnd();
     else if(!$('#about').hidden)aboutOpen(false);
     else if(!$('#loupe').hidden)loupeOff();
     else if(amenu.classList.contains('on'))amenuOpen(false); else close();}

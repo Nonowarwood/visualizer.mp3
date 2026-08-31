@@ -131,6 +131,7 @@
           <button id="stkH" type="button" aria-expanded="false" aria-controls="stkW"><span class="lbl">autocollants</span><b id="stkL">aucun</b><span class="car" aria-hidden="true">▾</span></button>
           <div class="plie" id="stkW"><div class="fonds stkp" id="stkP" role="group" aria-label="Poser un autocollant"></div></div>
           <p class="ah">Le site</p>
+          <button id="mQuete" type="button"><span class="lbl">rechercher</span><b>⌕</b></button>
           <button id="mLien" type="button"><span class="lbl">copier mon réglage</span><b id="mLienL">⧉</b></button>
           <button id="mTour" type="button"><span class="lbl">visite guidée</span><b>↻</b></button>
           <button id="mAbout" type="button"><span class="lbl">à propos</span><b>↗</b></button>
@@ -271,6 +272,22 @@
 <div class="spot" id="spot" hidden aria-hidden="true">
   <i class="sp-h"></i><i class="sp-b"></i><i class="sp-g"></i><i class="sp-d"></i>
   <u class="sp-o"></u>
+</div>
+
+<!-- La recherche. Hors de `#app`, comme le projecteur : dans l'appareil elle
+     doit couvrir la page, pas se réduire à l'écran. -->
+<div class="quete" id="quete" hidden role="dialog" aria-modal="true" aria-label="Rechercher">
+  <div class="q-pan">
+    <div class="q-bar">
+      <span class="q-ic" aria-hidden="true">⌕</span>
+      <input id="qIn" type="text" spellcheck="false" autocomplete="off"
+             placeholder="un titre, un disque, un artiste…" aria-label="Rechercher"
+             role="combobox" aria-expanded="true" aria-controls="qRes" aria-autocomplete="list">
+      <button class="q-x" id="qX" type="button" aria-label="Fermer la recherche">✕</button>
+    </div>
+    <ol class="q-res" id="qRes" role="listbox" aria-label="Résultats"></ol>
+    <p class="q-vide" id="qVide"></p>
+  </div>
 </div>
 
 <div class="tour" id="tour" hidden role="dialog" aria-label="Visite guidée">

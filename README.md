@@ -536,6 +536,42 @@ dans `tools/build-tracks.py`.
 Certaines parutions rendent **plusieurs supports** — `0.1 flaws and all.` en a
 deux, de huit et six pistes. Ils sont alors affichés séparément.
 
+## La recherche
+
+Cinquante-huit parutions, cent quatre-vingt-dix pistes, cinq artistes, et aucun
+moyen de trouver un titre : il fallait savoir de quel artiste il relevait, choisir
+cet artiste, puis parcourir. La touche `/` ouvre un champ, et l'on cherche
+**parutions et titres confondus, à travers les cinq artistes à la fois**. C'est la
+seule chose du site qui les traverse — c'est ce qui la rend utile, plus que le
+temps qu'elle fait gagner.
+
+L'index — 248 entrées — se monte **à la première ouverture**, pas au chargement :
+qui ne cherchera jamais n'a pas à le payer.
+
+### Le classement n'est pas une correspondance
+
+Ce qui **commence** par ce qu'on tape passe avant ce qui commence un mot, qui
+passe avant ce qui le contient quelque part. C'est la seule façon que « wave »
+donne d'abord *wave* et non *nouvelle vague*, et que « vague » donne d'abord
+*nouvelle vague* et non la piste du même nom sur un autre disque. À pertinence
+égale, c'est l'ordre du catalogue qui départage : celui que le reste du site
+montre, car deux classements différents pour la même chose désorientent.
+
+### Aller au résultat
+
+Trois choses à faire dans le bon ordre : changer d'artiste s'il le faut, **lever
+le filtre** — la parution cherchée peut ne pas être dans la vue courante, et l'on
+ouvrirait alors dans le vide —, puis ouvrir la fiche. Si c'était une piste, elle
+se joue : on attend que la liste des titres soit posée plutôt que de deviner un
+délai, en la cherchant jusqu'à vingt fois à quatre-vingts millisecondes.
+
+### Le clavier avait pris l'habitude de tout intercepter
+
+Le site n'avait aucun champ de saisie ; il en a maintenant trois — la gravure et
+la recherche. Taper « pixels » dans l'un d'eux basculait les pochettes en pixels à
+la lettre `p`, ouvrait la planche au `g`, la liste au `l`. Le gestionnaire de
+clavier rend donc la main dès que la frappe vise un champ.
+
 ## Le lecteur
 
 Cliquer un titre le joue **dans la page**, sur un petit lecteur posé en bas à
