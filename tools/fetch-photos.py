@@ -40,6 +40,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.parse
 import urllib.request
 
 UA = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
@@ -49,12 +50,35 @@ QUALITY = 72
 
 
 def get(url, binary=False, tries=4):
+    """Une requête, et la patience qui va avec.
+
+    Deux réponses demandent un traitement plutôt qu'une nouvelle tentative :
+
+      - **308**, redirection permanente. Python ne la suit pas de lui-même avant
+        la 3.11, et la galerie s'en sert pour ses adresses canoniques : l'outil
+        s'arrêtait sur une page qui existait pourtant. On la suit à la main ;
+      - **403**, quand on a trop demandé d'un coup. Ce n'est pas un refus mais un
+        essoufflement : on attend plus longtemps qu'après une erreur ordinaire,
+        et l'on repart.
+    """
     for k in range(tries):
         try:
             req = urllib.request.Request(url, headers={
                 'User-Agent': UA, 'Accept-Language': 'en-US,en;q=0.9'})
             data = urllib.request.urlopen(req, timeout=60).read()
             return data if binary else data.decode('utf-8', 'replace')
+        except urllib.error.HTTPError as e:
+            if e.code in (301, 302, 303, 307, 308):
+                suite = e.headers.get('Location')
+                if suite:
+                    url = urllib.parse.urljoin(url, suite)
+                    continue
+            if e.code in (403, 429) and k < tries - 1:
+                time.sleep(20.0 * (k + 1))
+                continue
+            if k == tries - 1:
+                raise
+            time.sleep(2.0 * (k + 1))
         except Exception:
             if k == tries - 1:
                 raise
