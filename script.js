@@ -83,7 +83,10 @@ var ARTISTS=[
 ]},
 
  {id:'49204a7a-ed85-407a-828f-6fd46f1d8126', name:'NewJeans', place:'Corée du Sud', since:2022,
-  slug:'newjeans', photos:[],
+  slug:'newjeans',
+  photos:[
+   {t:'GET UP', d:'deuxième EP · juillet 2023', p:['assets/photos/newjeans/get-up/01.jpg','assets/photos/newjeans/get-up/02.jpg','assets/photos/newjeans/get-up/03.jpg','assets/photos/newjeans/get-up/04.jpg','assets/photos/newjeans/get-up/05.jpg','assets/photos/newjeans/get-up/06.jpg','assets/photos/newjeans/get-up/07.jpg','assets/photos/newjeans/get-up/08.jpg','assets/photos/newjeans/get-up/09.jpg','assets/photos/newjeans/get-up/10.jpg','assets/photos/newjeans/get-up/11.jpg','assets/photos/newjeans/get-up/12.jpg','assets/photos/newjeans/get-up/13.jpg','assets/photos/newjeans/get-up/14.jpg','assets/photos/newjeans/get-up/15.jpg','assets/photos/newjeans/get-up/16.jpg','assets/photos/newjeans/get-up/17.jpg','assets/photos/newjeans/get-up/18.jpg','assets/photos/newjeans/get-up/19.jpg','assets/photos/newjeans/get-up/20.jpg','assets/photos/newjeans/get-up/21.jpg']}
+  ],
   rel:[
   {id:'cad0949d-e2cc-4794-b4f0-1439907c1cbe', t:"New Jeans", kind:'EP', date:'1er août 2022', y:2022, v:'', label:'ADOR',
    k:'#5B7FA6', art:'wave', tone:'l', cover:'',
@@ -114,7 +117,11 @@ var ARTISTS=[
    note:""},
   ]},
  {id:'066080a4-84c7-46c6-91d3-dc10d572749b', name:'Hearts2Hearts', place:'Corée du Sud', since:2025,
-  slug:'hearts2hearts', photos:[],
+  slug:'hearts2hearts',
+  photos:[
+   {t:'ICONIC HEART', d:'teasers · août 2026', p:['assets/photos/hearts2hearts/iconic-heart/01.jpg','assets/photos/hearts2hearts/iconic-heart/02.jpg','assets/photos/hearts2hearts/iconic-heart/03.jpg','assets/photos/hearts2hearts/iconic-heart/04.jpg','assets/photos/hearts2hearts/iconic-heart/05.jpg','assets/photos/hearts2hearts/iconic-heart/06.jpg','assets/photos/hearts2hearts/iconic-heart/07.jpg','assets/photos/hearts2hearts/iconic-heart/08.jpg','assets/photos/hearts2hearts/iconic-heart/09.jpg','assets/photos/hearts2hearts/iconic-heart/10.jpg','assets/photos/hearts2hearts/iconic-heart/11.jpg','assets/photos/hearts2hearts/iconic-heart/12.jpg','assets/photos/hearts2hearts/iconic-heart/13.jpg','assets/photos/hearts2hearts/iconic-heart/14.jpg','assets/photos/hearts2hearts/iconic-heart/15.jpg','assets/photos/hearts2hearts/iconic-heart/16.jpg','assets/photos/hearts2hearts/iconic-heart/17.jpg','assets/photos/hearts2hearts/iconic-heart/18.jpg','assets/photos/hearts2hearts/iconic-heart/19.jpg','assets/photos/hearts2hearts/iconic-heart/20.jpg','assets/photos/hearts2hearts/iconic-heart/21.jpg','assets/photos/hearts2hearts/iconic-heart/22.jpg','assets/photos/hearts2hearts/iconic-heart/23.jpg','assets/photos/hearts2hearts/iconic-heart/24.jpg','assets/photos/hearts2hearts/iconic-heart/25.jpg','assets/photos/hearts2hearts/iconic-heart/26.jpg','assets/photos/hearts2hearts/iconic-heart/27.jpg','assets/photos/hearts2hearts/iconic-heart/28.jpg','assets/photos/hearts2hearts/iconic-heart/29.jpg','assets/photos/hearts2hearts/iconic-heart/30.jpg','assets/photos/hearts2hearts/iconic-heart/31.jpg','assets/photos/hearts2hearts/iconic-heart/32.jpg']},
+   {t:'LEMON TANG', d:'concept · juin 2026', p:['assets/photos/hearts2hearts/lemon-tang/01.jpg','assets/photos/hearts2hearts/lemon-tang/02.jpg','assets/photos/hearts2hearts/lemon-tang/03.jpg','assets/photos/hearts2hearts/lemon-tang/04.jpg','assets/photos/hearts2hearts/lemon-tang/05.jpg','assets/photos/hearts2hearts/lemon-tang/06.jpg','assets/photos/hearts2hearts/lemon-tang/07.jpg','assets/photos/hearts2hearts/lemon-tang/08.jpg','assets/photos/hearts2hearts/lemon-tang/09.jpg','assets/photos/hearts2hearts/lemon-tang/10.jpg','assets/photos/hearts2hearts/lemon-tang/11.jpg','assets/photos/hearts2hearts/lemon-tang/12.jpg','assets/photos/hearts2hearts/lemon-tang/13.jpg','assets/photos/hearts2hearts/lemon-tang/14.jpg','assets/photos/hearts2hearts/lemon-tang/15.jpg','assets/photos/hearts2hearts/lemon-tang/16.jpg','assets/photos/hearts2hearts/lemon-tang/17.jpg','assets/photos/hearts2hearts/lemon-tang/18.jpg','assets/photos/hearts2hearts/lemon-tang/19.jpg','assets/photos/hearts2hearts/lemon-tang/20.jpg','assets/photos/hearts2hearts/lemon-tang/21.jpg','assets/photos/hearts2hearts/lemon-tang/22.jpg','assets/photos/hearts2hearts/lemon-tang/23.jpg','assets/photos/hearts2hearts/lemon-tang/24.jpg']}
+  ],
   rel:[
   {id:'4447961b-bea2-441b-b52a-c2fdc9460a36', t:"The Chase", kind:'Single', date:'24 février 2025', y:2025, v:'', label:'SM Entertainment',
    k:'#5B7FA6', art:'wave', tone:'l', cover:'',
@@ -139,7 +146,10 @@ var ARTISTS=[
    note:""},
   ]},
  {id:'1ee37742-1e3d-4e61-84d2-bc85f4c1459a', name:'LE SSERAFIM', place:'Corée du Sud', since:2022,
-  slug:'le-sserafim', photos:[],
+  slug:'le-sserafim',
+  photos:[
+   {t:'PUREFLOW pt.1', d:'concept · mai 2026', p:['assets/photos/le-sserafim/pureflow-pt1/01.jpg','assets/photos/le-sserafim/pureflow-pt1/02.jpg','assets/photos/le-sserafim/pureflow-pt1/03.jpg','assets/photos/le-sserafim/pureflow-pt1/04.jpg','assets/photos/le-sserafim/pureflow-pt1/05.jpg','assets/photos/le-sserafim/pureflow-pt1/06.jpg','assets/photos/le-sserafim/pureflow-pt1/07.jpg','assets/photos/le-sserafim/pureflow-pt1/08.jpg','assets/photos/le-sserafim/pureflow-pt1/09.jpg','assets/photos/le-sserafim/pureflow-pt1/10.jpg','assets/photos/le-sserafim/pureflow-pt1/11.jpg','assets/photos/le-sserafim/pureflow-pt1/12.jpg','assets/photos/le-sserafim/pureflow-pt1/13.jpg','assets/photos/le-sserafim/pureflow-pt1/14.jpg','assets/photos/le-sserafim/pureflow-pt1/15.jpg','assets/photos/le-sserafim/pureflow-pt1/16.jpg','assets/photos/le-sserafim/pureflow-pt1/17.jpg','assets/photos/le-sserafim/pureflow-pt1/18.jpg','assets/photos/le-sserafim/pureflow-pt1/19.jpg','assets/photos/le-sserafim/pureflow-pt1/20.jpg','assets/photos/le-sserafim/pureflow-pt1/21.jpg','assets/photos/le-sserafim/pureflow-pt1/22.jpg','assets/photos/le-sserafim/pureflow-pt1/23.jpg','assets/photos/le-sserafim/pureflow-pt1/24.jpg','assets/photos/le-sserafim/pureflow-pt1/25.jpg','assets/photos/le-sserafim/pureflow-pt1/26.jpg','assets/photos/le-sserafim/pureflow-pt1/27.jpg','assets/photos/le-sserafim/pureflow-pt1/28.jpg']}
+  ],
   rel:[
   {id:'fb426d76-525d-4b25-90d1-fa4d1b3140c9', t:"FEARLESS", kind:'EP', date:'2 mai 2022', y:2022, v:'', label:'SOURCE MUSIC',
    k:'#5B7FA6', art:'wave', tone:'l', cover:'',

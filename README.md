@@ -292,6 +292,32 @@ l'adresse pour la même raison :
 #/cortis/images/color-outside-the-lines    plusieurs
 ```
 
+### La galerie a changé de forme
+
+L'outil ne trouvait plus qu'**une image sur cent vingt-cinq** en revenant y
+chercher les séries des nouveaux artistes. Deux choses avaient bougé.
+
+Les adresses y sont désormais **échappées** — `https:\/\/…` dans du JSON
+embarqué —, et l'expression s'arrêtait à la barre inverse en ramenant des
+`tps://…` inutilisables. On défait l'échappement avant de chercher.
+
+Surtout, **le nom de la série ne figure plus dans celui des fichiers**. Le
+filtrage par motif, qui faisait tout le travail, ne repérait donc plus rien. Deux
+formes cohabitent selon l'âge de la série :
+
+```
+récente    /kpics/2026/05/1778511834990-icxuqe-3.jpg
+ancienne   /documents/48/3/NewJeans-Get-Up-2nd-EP-Photos-documents-4.jpeg
+```
+
+Dans les deux cas, ce qui rassemble une série est un **préfixe commun** —
+l'horodatage ou le nom — et ce qui l'ordonne est le **nombre final**. L'outil
+regroupe donc par préfixe, garde la grappe la plus fournie (une page en porte
+jusqu'à douze, avec les séries voisines) et trie par ce rang, ce qui est plus sûr
+que l'ordre du document où les vignettes se mêlent aux grandes images.
+
+Le motif reste disponible en quatrième argument, pour les galeries d'autrefois.
+
 ### Récupérer une série
 
 ```bash

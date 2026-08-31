@@ -62,17 +62,63 @@ def get(url, binary=False, tries=4):
 
 
 def collect(html, pattern):
-    """Dans l'ordre du document, sans doublon."""
-    seen, out = set(), []
+    """Les images de la série, dans l'ordre où la page les donne.
+
+    La galerie a changé de forme depuis le premier usage de cet outil, et deux
+    choses ont cassé :
+
+    1. **les adresses y sont échappées** — `https:\\/\\/…` dans du JSON embarqué.
+       L'expression s'arrêtait à la barre inverse et ramenait des `tps://…`
+       inutilisables. On défait donc l'échappement avant de chercher ;
+
+    2. **les noms de fichiers ne portent plus le nom de la série.** Ils sont
+       maintenant de la forme `<horodatage>-<jeton>-<rang>.jpg`, et le filtrage par
+       motif ne retenait plus qu'une image sur cent vingt-cinq.
+
+    Ce qui distingue une série est désormais son **horodatage commun** : toutes ses
+    images le partagent, et leur rang est le nombre final. On garde donc le groupe
+    le plus nombreux sous `/kpics/`, et on l'ordonne par ce rang — ce qui est plus
+    sûr que l'ordre du document, où les vignettes voisines se mêlent aux grandes.
+
+    Un motif explicite passé en argument court-circuite tout cela.
+    """
+    html = html.replace('\\/', '/')
+    seen, urls = set(), []
     for m in re.finditer(r'https://[^"\'\s\\]+?\.(?:jpe?g|png|webp)', html):
         u = m.group(0)
-        if u in seen:
+        # La même image est servie par deux hôtes : on ne la prend qu'une fois,
+        # sur son nom de fichier, avant de la télécharger deux fois pour rien.
+        nom = u.rsplit('/', 1)[-1]
+        if nom in seen:
             continue
-        seen.add(u)
-        if pattern and pattern not in u.upper().replace('_', '-'):
-            continue
-        out.append(u)
-    return out
+        seen.add(nom)
+        urls.append(u)
+
+    if pattern:
+        return [u for u in urls if pattern in u.upper().replace('_', '-')]
+
+    # Deux formes cohabitent sur la galerie selon l'âge de la série, et il faut
+    # savoir lire les deux :
+    #   récente  /kpics/2026/05/1778511834990-icxuqe-3.jpg   → l'horodatage groupe
+    #   ancienne /documents/48/3/Nom-De-La-Serie-documents-4.jpeg → le nom groupe
+    # Dans les deux cas le nombre final donne le rang, qui est l'ordre voulu — plus
+    # sûr que celui du document, où les vignettes voisines se mêlent aux grandes.
+    FORMES = (r'/kpics/.*?/(\d{10,})-\w+-(\d+)\.(?:jpe?g|png|webp)$',
+              r'/documents/.*/(.+?)-documents-(\d+)\.(?:jpe?g|png|webp)$')
+    grappes = {}
+    for u in urls:
+        for f in FORMES:
+            m = re.search(f, u)
+            if m:
+                grappes.setdefault(m.group(1), []).append((int(m.group(2)), u))
+                break
+    if not grappes:
+        return []
+    cle = max(grappes, key=lambda k: len(grappes[k]))
+    if len(grappes) > 1:
+        print('  %d séries sur la page, on prend la plus fournie (%d images)'
+              % (len(grappes), len(grappes[cle])), file=sys.stderr)
+    return [u for _, u in sorted(grappes[cle])]
 
 
 def main():
@@ -80,8 +126,11 @@ def main():
         print(__doc__)
         raise SystemExit(2)
     page, artist, series = sys.argv[1], sys.argv[2], sys.argv[3]
-    pattern = (sys.argv[4] if len(sys.argv) > 4
-               else series.upper().replace('_', '-'))
+    # Plus de motif par défaut : le nom de la série ne figure plus dans celui des
+    # fichiers, et le déduire ne retenait qu'une image sur cent vingt-cinq. On
+    # laisse le regroupement par horodatage faire son travail ; le motif reste
+    # disponible en quatrième argument pour les galeries d'autrefois.
+    pattern = sys.argv[4] if len(sys.argv) > 4 else ''
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     pub = os.path.join(root, 'assets', 'photos', artist, series)
@@ -91,7 +140,8 @@ def main():
 
     print('page : %s' % page, file=sys.stderr)
     urls = collect(get(page), pattern)
-    print('%d images retenues (motif « %s »)' % (len(urls), pattern), file=sys.stderr)
+    print('%d images retenues%s' % (len(urls),
+          (' (motif « %s »)' % pattern) if pattern else ''), file=sys.stderr)
     if not urls:
         print('Rien ne correspond. Passez un motif en quatrième argument.', file=sys.stderr)
         raise SystemExit(1)
