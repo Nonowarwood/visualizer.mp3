@@ -1676,27 +1676,61 @@ button,a,input,[role="option"]{touch-action:manipulation}
    Elle passe sur deux rangs, chaque groupe prenant sa part de la largeur, et les
    intitulés se resserrent. Rien n'est retiré : ce qui existe sur grand écran
    existe ici. */
+/* Entre les deux : la barre tient encore à côté du nom, mais serrée. C'est le
+   téléphone couché, où l'on a la largeur sans avoir la place. */
+@media(max-width:1120px) and (min-width:721px){
+  .ctlbar button{padding:7px 9px;font-size:10px;letter-spacing:.05em}
+  .brand{padding:6px 10px}
+  .brand b{font-size:12px}
+}
 @media(max-width:720px){
   .hud .top{gap:8px}
-  .ctlbar{flex-wrap:wrap}
-  /* Les quatre types de parution prennent un rang à eux : « singles⁴ » ne tient
-     pas dans le septième d'une largeur de téléphone. Les trois vues et les
-     options partagent le suivant. */
-  .ctlbar #filters{flex:1 1 100%}
-  .ctlbar .seg{flex:1 1 auto}
-  .ctlbar .seg button{flex:1 1 auto;padding:9px 6px;font-size:10px;letter-spacing:.04em}
-  .ctlbar .optwrap{flex:1 1 auto}
-  .ctlbar .optb{width:100%;justify-content:center;padding:9px 12px;font-size:10px}
+  /* **Une grille, non un enroulement.** Les rangs se remplissaient chacun à sa
+     façon : quatre boutons dimensionnés sur leur texte au premier, trois plus le
+     bouton d'options au second. Rien ne tombait en face de rien. Quatre colonnes
+     égales, et les deux rangs s'alignent — le second groupe en occupe trois, les
+     options la quatrième. */
+  .ctlbar{flex:1 1 100%;display:grid;grid-template-columns:repeat(4,1fr)}
+  .ctlbar #filters{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr)}
+  .ctlbar .seg:not(#filters){grid-column:1/4;display:grid;
+    grid-template-columns:repeat(3,1fr)}
+  .ctlbar .optwrap{grid-column:4/-1}
+  .ctlbar .seg button{padding:9px 4px;font-size:10px;letter-spacing:.03em}
+  .ctlbar .optb{width:100%;justify-content:center;padding:9px 6px;font-size:10px}
   /* Les filets qui séparaient les groupes n'ont plus de sens quand les groupes
      passent à la ligne : ils dessineraient un trait au bout d'un rang. */
   .ctlbar .div{display:none}
   .brandwrap{flex:1 1 100%}
   .brand{width:100%;justify-content:space-between}
+
+  /* ─── la fiche, sur un téléphone ───
+     Elle se centrait dans la page : sur un écran haut, le contenu déborde par le
+     haut **et** par le bas, et le centrage rend le début inatteignable. Elle part
+     donc du haut, sous la barre — qui prend trois rangs ici —, et s'arrête avant
+     le bord.
+
+     Le bas du HUD s'efface pendant ce temps : son compteur et sa ligne de
+     métadonnées redisaient ce que la fiche dit mieux, et venaient se superposer
+     à ses lignes. */
+  .focus{align-content:start;padding:150px var(--pad) 28px}
+  [data-state="focus"] .hud .bot{display:none}
 }
 /* Le doigt ne survole pas : ce qui ne s'obtenait qu'au survol doit s'obtenir
    autrement, ou disparaître. */
+/* Le doigt ne survole pas : ce qui ne s'obtenait qu'au survol doit s'obtenir
+   autrement, ou disparaître. Et ce qui coûte cher au dessin doit s'alléger : un
+   téléphone n'a pas le processeur graphique d'un ordinateur, et le mode appareil
+   lui demande déjà de mettre toute la page à l'échelle. */
 @media (pointer:coarse){
   .hint{display:none}
+  /* Un fondu de mélange sur toute la page se recalcule à chaque image. C'est le
+     genre de détail qu'on ne voit pas et qui se paie en saccades. */
+  .grain{display:none}
+  /* Les flous de transition passent de huit pixels à trois : au-delà, le coût
+     monte vite et la différence ne se voit plus à cette taille. */
+  [data-state="menu"] .field,[data-state="photos"] .field,
+  [data-state="survey"] .field{filter:blur(3px)}
+  .pbig{filter:blur(4px)}
 }
 
 .tail{text-align:right;flex:1 1 0;min-width:0}

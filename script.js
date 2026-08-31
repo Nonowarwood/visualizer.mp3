@@ -338,6 +338,14 @@ function pad(n){return (n<10?'0':'')+n;}
 function srcOf(r){return r.cover||(r.rid?CAAR(r.rid):CAA(r.id));}
 
 var STATE='intro',CUR=0,FILTER='tout',view=[];
+/* Le dessin allégé : sur un appareil tactile, ou dans une fenêtre étroite. Ce
+   n'est pas une question de goût mais de budget — un téléphone tient rarement
+   seize images par seconde de plus sous un flou par pochette. */
+var LEGER=false;
+try{
+  LEGER=(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)
+    ||innerWidth<760;
+}catch(e){}
 
 /* ─────────── pochette ─────────── */
 function sleeveHTML(r,i,withImg){
@@ -1843,8 +1851,14 @@ function render(){
       +'deg) scale('+sc.toFixed(3)+')';
     /* Le fond de la pile s'assombrit, comme une rangée de disques dans un bac :
        c'est ce qui donne sa profondeur au tas, plus que l'échelle. */
+    /* Le flou du fond de pile est **le poste le plus cher de la boucle** : un
+       flou gaussien par pochette, recalculé à chaque image, sur une quinzaine de
+       pochettes. Un ordinateur ne le sent pas ; un téléphone ne fait que ça, et
+       le défilement devient une suite de saccades. On le retire là où il coûte —
+       l'assombrissement suffit à creuser la pile, c'est même lui qui la creuse le
+       plus, le flou n'ajoutait qu'une profondeur de champ. */
     faces[i].style.filter='brightness('+(1-Math.min(ao*0.13,0.42)).toFixed(3)+')'
-      +(ao>0.7?' blur('+Math.min((ao-0.7)*1.6,3.2).toFixed(2)+'px)':'');
+      +((!LEGER&&ao>0.7)?' blur('+Math.min((ao-0.7)*1.6,3.2).toFixed(2)+'px)':'');
     s.style.zIndex=String(200-Math.round(ao*10));
     /* La pile tenant dans une largeur et demie, tout le catalogue peut y figurer :
        on ne masque que la queue lointaine, où plus rien ne se distingue. */
