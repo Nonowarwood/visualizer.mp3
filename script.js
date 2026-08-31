@@ -989,67 +989,233 @@ function mascotte(){
   im.src=MASCOTTE;
 }
 
-var TOUR=[
- {sel:'#field',t:'Le parcours',
-  x:'Les pochettes défilent à la molette, au glisser, ou aux flèches <kbd>←</kbd> <kbd>→</kbd>. '
-   +'<kbd>↵</kbd> ouvre celle du milieu.'},
- {sel:'#brandBtn',t:'Changer d\'artiste',
-  x:'Le nom est un bouton : il ouvre la liste des artistes. Tout se reconstruit sans recharger.'},
- {sel:null,t:'La fiche',
-  x:'Une fois un disque ouvert, <b>cliquer un titre le joue dans la page</b>, sur un petit '
-   +'lecteur qui reste là même si l\'on referme la fiche. La pochette s\'ouvre en grand.'},
- {sel:'#mSurvey',t:'La planche',
-  x:'Toutes les parutions d\'un coup d\'œil, en grille. La touche <kbd>G</kbd> y va aussi.'},
- {sel:'#mPhotos',t:'Les images',
-  x:'Les photos sur une hélice qui tourne. Quand un artiste en a plusieurs séries, '
-   +'un sélecteur apparaît en bas.'},
- {sel:'#mOpt',t:'Les options',
-  x:'La liste appariée (<kbd>L</kbd>), les pochettes en pixels (<kbd>P</kbd>), le thème, '
-   +'le son — et les crédits.'},
- /* Le tiroir s'ouvre pour cette étape : montrer une commande que l'on ne peut
-    pas voir ne montre rien. Il se referme aux autres, et à la sortie. */
- {sel:'#mDevice',ouvre:true,t:'Dans l\'appareil',
-  x:'Le site se loge dans un baladeur dessiné, molette comprise : les commandes '
-   +'sortent de l\'écran et la roue commande vraiment.'},
- {sel:'#fondsH',ouvre:true,t:'Le fond d\'écran',
-  x:'Quatorze fonds rangés par couleur, et des autocollants à poser sur le '
-   +'boîtier — glissez-les où vous voulez. L\'un comme l\'autre ne se voient '
-   +'que dans l\'appareil.'}
-];
-var tourI=0,tourCible=null;
+/* ─────────── la visite guidée ───────────
+   Elle ne décrit plus, elle **montre en faisant**. Chaque étape peut ouvrir une
+   fiche, lancer une piste, entrer dans le boîtier, poser un autocollant : on voit
+   la fonction marcher plutôt qu'on n'en lit la promesse.
 
-function tourHi(sel){
-  if(tourCible)tourCible.classList.remove('tour-hi');
-  tourCible=sel?document.querySelector(sel):null;
-  if(tourCible)tourCible.classList.add('tour-hi');
+   C'est un renversement du parti d'avant, qui interdisait à la visite de toucher
+   à l'état du site — de peur de laisser le visiteur ailleurs qu'il ne croyait. La
+   crainte était juste, la réponse était mauvaise : on ne montre pas un lecteur en
+   parlant d'un lecteur. Ce qu'il fallait, c'est **rendre l'état** à la sortie, ce
+   que fait `tourRendre` — artiste, parution, vue, thème d'affichage, appareil,
+   fond, autocollants et lecteur sont relevés au départ et remis à la fin, qu'on
+   aille au bout ou qu'on passe.
+
+   Trois moyens visuels, empruntés à ce qui marche ailleurs :
+
+     - le **projecteur** : tout s'éteint et se floute sauf la commande dont on
+       parle. Rien à souligner, il n'y a plus que ça à voir ;
+     - la **bulle voyage** avec sa mascotte et vient se poser contre la commande,
+       du côté où il y a de la place, une flèche pointée ;
+     - le trou du projecteur **glisse** d'une étape à l'autre au lieu de sauter :
+       on voit d'où l'on vient.
+
+   Seize étapes, et un bouton *passer* à chacune. La longueur n'est pas un défaut
+   quand elle est facultative : qui reste veut savoir. */
+var TOUR=[
+ {t:'Le parcours',sel:'#field',
+  avant:function(){tourNet();setState('parcours');goTo(0);},
+  x:'Les pochettes défilent à la molette, au glisser, ou aux flèches '
+   +'<kbd>←</kbd> <kbd>→</kbd>. Celle du milieu est la parution courante ; '
+   +'<kbd>↵</kbd> l\'ouvre.'},
+ {t:'La réglette',sel:'#scrub',
+  x:'Un trait par parution, dans l\'ordre du temps. Elle dit où l\'on en est, et '
+   +'un clic y va directement — c\'est le raccourci quand la discographie '
+   +'s\'allonge.'},
+ {t:'Trier',sel:'#filters',
+  x:'Albums, EP, singles, avec leur nombre en exposant. Le tri se fait sur place, '
+   +'sans rien recharger — et depuis une fiche, il en fait sortir.'},
+ {t:'Changer d\'artiste',sel:'#brandBtn',
+  x:'Le nom en haut à gauche est un bouton : il ouvre la liste des artistes. '
+   +'Tout se reconstruit sans quitter la page.'},
+ {t:'La liste appariée',sel:'#rlist',delai:520,
+  avant:function(){LIST=true;applyList();},
+  x:'La voici ouverte pour de bon. Le Cover Flow montre, elle nomme : les deux '
+   +'se répondent, et la pochette centrale reste alignée sur la ligne courante. '
+   +'La touche <kbd>L</kbd> la rappelle.'},
+ {t:'La fiche',sel:'#focus .card',delai:640,
+  avant:function(){LIST=false;applyList();open(CUR);},
+  x:'On vient d\'en ouvrir une. La pochette vole jusqu\'à sa place, et le disque '
+   +'donne son type, sa date, son label, son rang — et ses titres.'},
+ {t:'Écouter',sel:'#player',delai:900,
+  avant:function(){var b=document.querySelector('#trk .tp');if(b)b.click();},
+  x:'Le premier titre vient de partir. <b>Cliquer un titre le joue dans la '
+   +'page</b> : le lecteur se pose en bas à droite et y reste, même si l\'on '
+   +'referme la fiche. On referme un disque, on continue de l\'écouter.'},
+ {t:'Les commandes',sel:'#player .pl-foot',
+  x:'<kbd>◂◂</kbd> et <kbd>▸▸</kbd> passent d\'une piste à l\'autre, <kbd>❚❚</kbd> '
+   +'met en pause et reprend. Le titre en cours reste marqué dans la liste.'},
+ {t:'La pochette en grand',sel:'#focus .plate',
+  x:'Un clic dessus l\'ouvre en grand, dans sa définition d\'archive. '
+   +'<kbd>esc</kbd> referme, comme partout.'},
+ {t:'La planche',sel:'#survey .grid',delai:520,
+  avant:function(){close();setState('survey');},
+  x:'Toutes les parutions d\'un coup d\'œil. C\'est la vue qu\'on prend pour '
+   +'chercher, quand le parcours est celui qu\'on prend pour flâner. La touche '
+   +'<kbd>G</kbd> y va aussi.'},
+ {t:'Les images',sel:'#pstage',delai:640,
+  avant:function(){openPhotos();},
+  x:'Les photos sur une hélice qui tourne, une série à la fois. Quand un artiste '
+   +'en a plusieurs, un sélecteur apparaît en bas.'},
+ {t:'Les pochettes en pixels',sel:'#field',delai:420,
+  avant:function(){setState('parcours');PIX=true;applyPix();},
+  x:'Voilà ce que ça donne : chaque pochette réduite à 96 px et tramée, comme un '
+   +'baladeur de l\'époque l\'aurait affichée. Elles sont fabriquées d\'avance, '
+   +'donc l\'affichage est immédiat. Touche <kbd>P</kbd>.'},
+ {t:'Le tiroir',sel:'#optmenu',delai:340,
+  avant:function(){PIX=false;applyPix();optOpen(true);},
+  x:'Tout le reste est là : le thème clair ou sombre, le son, la liste, les '
+   +'pixels, le boîtier, les fonds, les autocollants — et les crédits.'},
+ {t:'Dans l\'appareil',sel:'#device',delai:900,
+  avant:function(){optOpen(false);if(!DEV){DEV=true;applyDevice(true);}},
+  x:'Le site vient d\'entrer dans un baladeur dessiné. La barre et le lecteur '
+   +'sortent de l\'écran, et <b>la molette commande vraiment</b> : on la tourne '
+   +'pour parcourir, <kbd>menu</kbd> remonte, <kbd>▸❚❚</kbd> met en pause.'},
+ {t:'Le fond d\'écran',sel:'#app',delai:640,
+  avant:function(){
+    var L=fondsListe();
+    if(L&&L.length){FOND=L[Math.min(8,L.length-1)].f;applyFond();}
+  },
+  x:'Quatorze fonds rangés par couleur, un voile posé dessus pour que le texte '
+   +'reste lisible quelle que soit l\'image. Ils ne se voient que dans '
+   +'l\'appareil, où leur définition suffit.'},
+ {t:'Les autocollants',sel:function(){return document.querySelector('.stk');},
+  delai:520,
+  avant:function(){
+    var L=stkListe();
+    if(L&&L.length&&!POSE.length)stkAdd(L[0].f);
+  },
+  x:'On vient d\'en poser un. Glissez-le où vous voulez — il refuse l\'écran et '
+   +'contourne la molette. Un clic le prend en main : une poignée l\'agrandit, '
+   +'le tourne, le retire. Déposez les vôtres dans <code>assets/stickers/</code>.'},
+ {t:'C\'est à vous',sel:null,
+  avant:function(){tourRendre();},
+  x:'Tout est remis comme vous l\'aviez laissé. L\'adresse suit ce que vous '
+   +'regardez, donc un disque se partage tel quel. Cette visite se relance quand '
+   +'vous voulez, depuis le tiroir.'}
+];
+var tourI=0,tourEl=null,tourT=0,tourEtat=null;
+
+/* ─── relever l'état, et le rendre ───
+   La visite se permet de tout toucher ; elle se doit donc de tout remettre. */
+function tourGarder(){
+  tourEtat={a:A,cur:CUR,st:STATE,dev:DEV,fond:FOND,pix:PIX,list:LIST,
+            pose:JSON.stringify(POSE)};
 }
+function tourRendre(){
+  var e=tourEtat;if(!e)return;
+  tourEtat=null;
+  plStop();
+  POSE=JSON.parse(e.pose);stkSel=-1;stkSave();stkPaint();
+  if(FOND!==e.fond){FOND=e.fond;applyFond();}
+  if(PIX!==e.pix){PIX=e.pix;applyPix();}
+  if(LIST!==e.list){LIST=e.list;applyList();}
+  if(DEV!==e.dev){DEV=e.dev;applyDevice(true);}
+  if(A!==e.a)buildArtist(e.a,false);
+  if(STATE==='focus')close();
+  setState(e.st==='focus'?'parcours':e.st);
+  goTo(Math.min(e.cur,view.length-1),false);
+}
+/* Ce qu'il faut éteindre avant de commencer, pour partir d'une page nette. */
+function tourNet(){
+  optOpen(false);
+  loupeOff();
+  if(STATE==='focus')close();
+}
+
+function tourPose(el,vide){
+  var sp=$('#spot'),b=$('#tour'),W=innerWidth,H=innerHeight,m=14;
+  var r=null;
+  if(el&&el.getBoundingClientRect){
+    var q=el.getBoundingClientRect();
+    if(q.width>2&&q.height>2)
+      r={l:q.left-8,t:q.top-8,w:q.width+16,h:q.height+16};
+  }
+  if(!r||vide)r={l:W/2,t:H/2,w:0,h:0};
+  /* On borne dans la fenêtre : une cible qui dépasse laisserait un volet de
+     largeur négative, et le pavage se déferait. */
+  var l=Math.max(0,Math.min(r.l,W)),t=Math.max(0,Math.min(r.t,H));
+  var w=Math.max(0,Math.min(r.w,W-l)),h=Math.max(0,Math.min(r.h,H-t));
+  /* Les volets sont pris par leur classe et non par leur rang : un jour où le
+     balisage gagnera un nœud, le pavage ne se décalera pas d'un cran. */
+  var vh=sp.querySelector('.sp-h'),vb=sp.querySelector('.sp-b'),
+      vg=sp.querySelector('.sp-g'),vd=sp.querySelector('.sp-d'),
+      vo=sp.querySelector('.sp-o');
+  if(!vh||!vb||!vg||!vd||!vo)return;
+  function met(e,a,b2,c,d){
+    e.style.cssText='left:'+a.toFixed(0)+'px;top:'+b2.toFixed(0)+'px;width:'
+      +Math.max(0,c).toFixed(0)+'px;height:'+Math.max(0,d).toFixed(0)+'px';
+  }
+  met(vh,0,0,W,t);                         /* volet du haut   */
+  met(vb,0,t+h,W,H-t-h);                   /* volet du bas    */
+  met(vg,0,t,l,h);                         /* volet de gauche */
+  met(vd,l+w,t,W-l-w,h);                   /* volet de droite */
+  met(vo,l,t,w,h);                         /* l'anneau        */
+  sp.classList.toggle('plein',!w||!h);
+  sp.hidden=false;
+
+  /* La bulle se pose du côté où il reste de la place. */
+  var bw=b.offsetWidth||360,bh=b.offsetHeight||170;
+  var msc=b.querySelector('.tour-m');
+  var dec=msc?(msc.offsetWidth+12)/2:39;    /* la mascotte décale le panneau */
+  var fl='rien',x,y;
+  if(!w&&!h){x=(W-bw)/2;y=H-bh-m*3;}
+  else if(H-(t+h)>bh+m*2){fl='haut';y=t+h+m;x=l+w/2-bw/2+dec;}
+  else if(t>bh+m*2){fl='bas';y=t-bh-m;x=l+w/2-bw/2+dec;}
+  else if(W-(l+w)>bw+m*2){fl='gauche';x=l+w+m;y=t+h/2-bh/2;}
+  else if(l>bw+m*2){fl='droite';x=l-bw-m;y=t+h/2-bh/2;}
+  else{x=(W-bw)/2;y=H-bh-m*3;}
+  b.setAttribute('data-fl',fl);
+  b.style.left=Math.max(m,Math.min(x,W-bw-m)).toFixed(0)+'px';
+  b.style.top=Math.max(m,Math.min(y,H-bh-m)).toFixed(0)+'px';
+}
+
 function tourShow(i){
   if(i>=TOUR.length){tourEnd();return;}
+  if(i<0)i=0;
+  if(!tourEtat)tourGarder();
   mascotte();
   tourI=i;
   var e=TOUR[i];
+  clearTimeout(tourT);
+  if(e.avant){try{e.avant();}catch(err){}}
   $('#tourT').textContent=e.t;
   $('#tourN').textContent=(i+1)+' / '+TOUR.length;
   $('#tourX').innerHTML=e.x;
+  $('#tourJ').style.width=Math.round((i+1)/TOUR.length*100)+'%';
   $('#tourNext').textContent=(i===TOUR.length-1)?'terminer':'suivant';
-  optOpen(!!e.ouvre);
-  if(e.ouvre&&e.sel==='#fondsH')fondsPli(true);
-  tourHi(e.sel);
+  $('#tourPrev').disabled=i===0;
   var el=$('#tour');
   el.hidden=false;
   requestAnimationFrame(function(){el.classList.add('on');});
+  /* La cible n'existe parfois qu'après l'animation que l'étape vient de lancer :
+     on la cherche au moment de viser, pas avant. */
+  tourT=setTimeout(function(){
+    tourEl=(typeof e.sel==='function')?e.sel()
+      :(e.sel?document.querySelector(e.sel):null);
+    tourPose(tourEl,!e.sel);
+  },reduce?0:(e.delai||120));
 }
 function tourEnd(){
-  tourHi(null);
-  optOpen(false);
-  var el=$('#tour');
+  clearTimeout(tourT);
+  tourRendre();
+  tourEl=null;
+  var el=$('#tour'),sp=$('#spot');
   el.classList.remove('on');
-  setTimeout(function(){el.hidden=true;},reduce?0:300);
+  sp.classList.add('plein');
+  setTimeout(function(){el.hidden=true;sp.hidden=true;},reduce?0:320);
   try{localStorage.setItem('wte-tour','1');}catch(e){}
 }
 $('#tourNext').addEventListener('click',function(){tourShow(tourI+1);});
+$('#tourPrev').addEventListener('click',function(){tourShow(tourI-1);});
 $('#tourSkip').addEventListener('click',tourEnd);
 $('#mTour').addEventListener('click',function(){optOpen(false);tourShow(0);});
+/* La fenêtre change de taille : le trou et la bulle sont ailleurs. */
+addEventListener('resize',function(){
+  if($('#tour').hidden)return;
+  tourPose(tourEl,!TOUR[tourI].sel);
+});
 
 $('#mAbout').addEventListener('click',function(){optOpen(false);aboutOpen(true);});
 $('#aboutX').addEventListener('click',function(){aboutOpen(false);});

@@ -1268,19 +1268,62 @@ ce que l'écran montre. Le centre choisit et redescend.
 
 ## La visite guidée
 
-Le site a beaucoup de choses qui ne se devinent pas : les touches `L`, `P`, `G`, le
-tiroir d'options, les titres qui se jouent d'un clic. Huit étapes, chacune
-**désignant** une commande réelle — cerclée à l'écran — plutôt que de la décrire de
-loin. Elle s'ouvre d'elle-même à la première venue et se retrouve dans le tiroir.
+Elle ne décrit plus, elle **montre en faisant**. Chaque étape peut ouvrir une
+fiche, lancer une piste, entrer dans le boîtier, poser un autocollant : on voit la
+fonction marcher plutôt qu'on n'en lit la promesse. Dix-sept étapes, un bouton
+*passer* à chacune, et *retour* pour revenir sur ses pas.
 
-Les étapes ne changent jamais l'état du site : elles montrent, elles ne font pas à
-la place. Une étape qui ouvrirait la planche pour l'expliquer laisserait le
-visiteur ailleurs qu'il ne croyait.
+C'est le renversement d'un parti pris que ce fichier défendait : la visite avait
+interdiction de toucher à l'état du site, de peur de laisser le visiteur ailleurs
+qu'il ne croyait. **La crainte était juste, la réponse était mauvaise** — on ne
+montre pas un lecteur en parlant d'un lecteur. Ce qu'il fallait n'était pas de
+s'interdire d'agir, c'était de **rendre l'état** à la sortie.
 
-**Une exception, et une seule :** les deux dernières étapes ouvrent le tiroir
-d'options, et celle du fond d'écran déplie son onglet. Montrer du doigt une
-commande que rien ne rend visible ne montre rien. Le tiroir se referme aux autres
-étapes et à la sortie ; l'état du site, lui, n'est toujours pas touché.
+### Rendre l'état
+
+Au premier pas, la visite relève l'artiste, la parution, la vue, la liste
+appariée, les pixels, l'appareil, le fond d'écran et les autocollants posés. À la
+fin — qu'on aille au bout ou qu'on passe —, tout est remis, le lecteur arrêté.
+Une seule fonction le fait, appelée aux deux sorties, et un jeton nul l'empêche de
+s'exécuter deux fois.
+
+### Le projecteur
+
+Tout s'éteint et se floute, sauf la commande dont on parle. Il n'y a plus rien à
+souligner : il n'y a plus que ça à voir.
+
+C'est **quatre volets, non un voile percé**. On ne peut pas trouer un
+`backdrop-filter` : il s'applique à tout ce qui est derrière l'élément, sans
+exception. Quatre rectangles — haut, bas, gauche, droite — **pavent exactement**
+l'écran autour de la cible, et le flou comme l'assombrissement s'arrêtent net au
+bord du trou. Ils sont pris par leur classe et non par leur rang, pour qu'un nœud
+ajouté un jour au balisage ne décale pas le pavage d'un cran.
+
+Les quatre bougent ensemble d'une étape à l'autre : **le trou glisse** d'une
+commande à la suivante au lieu de sauter, ce qui dit d'où l'on vient. Un anneau se
+pose sur la cible et respire lentement.
+
+Les mesures sont bornées à la fenêtre avant d'être posées : une cible qui dépasse
+donnerait un volet de largeur négative, et le pavage se déferait.
+
+### La bulle voyage
+
+Elle ne reste plus dans un coin. Elle **vient se poser contre** ce dont elle
+parle, du côté où il reste de la place — dessous, dessus, à droite, à gauche, et
+en bas de l'écran si rien ne convient — avec une flèche pointée vers la cible. La
+mascotte voyage avec elle : c'est elle qui fait le tour du site, plutôt que le
+visiteur qui lit une notice dans un coin.
+
+Le panneau est décalé de la demi-largeur de la mascotte, sinon c'est la bulle
+entière qui se centre sur la cible et la flèche tombe à côté.
+
+### La cible n'existe pas encore
+
+Une étape qui ouvre une fiche ne peut pas viser sa carte : elle n'est pas là au
+moment où l'étape commence. Chaque étape porte donc un **délai** — le temps de son
+animation —, et la cible est cherchée au moment de viser, pas avant. Une étape
+peut même désigner sa cible par une fonction, quand elle ne sait qu'à
+l'exécution ce qu'elle vient de créer.
 
 ### La mascotte
 

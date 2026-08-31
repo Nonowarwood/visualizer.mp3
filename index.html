@@ -150,6 +150,15 @@
      vertical, cassure nette à mi-hauteur, brillance haute, filet sombre — dans le
      graphite du site plutôt qu'en bleu, puisque c'est la structure qui fait
      l'effet et non la teinte. -->
+<!-- Le projecteur de la visite. Quatre volets, non un voile percé : on ne peut
+     pas trouer un `backdrop-filter`, alors qu'avec quatre rectangles qui
+     pavent exactement l'écran autour de la cible, le flou et l'assombrissement
+     s'arrêtent au bord du trou. L'anneau, lui, se pose sur la cible. -->
+<div class="spot" id="spot" hidden aria-hidden="true">
+  <i class="sp-h"></i><i class="sp-b"></i><i class="sp-g"></i><i class="sp-d"></i>
+  <u class="sp-o"></u>
+</div>
+
 <div class="tour" id="tour" hidden role="dialog" aria-label="Visite guidée">
   <svg class="tour-m" viewBox="0 0 100 124" aria-hidden="true">
     <defs>
@@ -197,11 +206,14 @@
     </g>
   </svg>
   <div class="tour-pan">
+    <span class="tour-fl" aria-hidden="true"></span>
     <header class="tour-bar"><span id="tourT"></span>
       <b id="tourN"></b></header>
     <p id="tourX"></p>
+    <div class="tour-jauge" aria-hidden="true"><i id="tourJ"></i></div>
     <footer class="tour-foot">
       <button id="tourSkip" type="button">passer</button>
+      <button id="tourPrev" type="button">retour</button>
       <button id="tourNext" type="button">suivant</button>
     </footer>
   </div>

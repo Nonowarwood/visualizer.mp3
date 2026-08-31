@@ -12,6 +12,7 @@
   --sv-bg:#C3C8D0; --sv-ph:#6E7684; --refl:.22; --vig:.09;
   /* le voile posé sur le fond d'écran, quand il y en a un */
   --voile:rgba(250,251,252,.76);
+  --tour-dim:rgba(232,236,242,.72);
   /* Les bleus du curseur, relevés dans l'image de la mascotte : le guide et le
      curseur sont de la même couleur. Ils ne changent pas avec le thème — c'est
      un objet, pas une surface. */
@@ -85,6 +86,7 @@
   --on-1:#F2F4F7; --on-2:#98A0AC; --on-3:#5C636E; --on-line:rgba(255,255,255,.16);
   --sv-bg:#1E2228; --sv-ph:#7C838F; --refl:.32; --vig:.34;
   --voile:rgba(9,10,13,.74);
+  --tour-dim:rgba(4,6,9,.74);
   --bl-1:#E4E7EC; --bl-2:#B6BCC6; --bl-3:#8B929E; --bl-4:#666D79; --bl:#C7CCD4;
   --cr-1:#3E434B; --cr-2:#2E333A; --cr-3:#22262C; --cr-line:#14171B;
   --cr-ink:#F2F4F7; --cr-ink-2:#A8B0BC; --cr-glow:rgba(0,0,0,.5);
@@ -972,11 +974,43 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    La mascotte est posée en bas à gauche, au-dessus du compteur, là où elle ne
    recouvre ni la barre ni la pochette centrale. Elle respire lentement — le bloc
    « mouvement réduit » l'immobilise. */
-.tour{position:fixed;left:var(--pad);bottom:calc(var(--pad)*5.6);z-index:66;
-  display:flex;align-items:flex-end;gap:12px;max-width:min(430px,86vw);
-  opacity:0;transform:translateY(10px);
-  transition:opacity .3s var(--e),transform .38s var(--e-out)}
-.tour.on{opacity:1;transform:none}
+/* ─── le projecteur ───
+   On ne peut pas percer un trou dans un `backdrop-filter` : il s'applique à tout
+   ce qui est derrière l'élément, sans exception. Quatre volets — au-dessus, en
+   dessous, à gauche, à droite — **pavent exactement** l'écran autour de la cible,
+   et le flou comme l'assombrissement s'arrêtent donc net au bord du trou. Ils se
+   déplacent en même temps d'une étape à l'autre : le trou glisse d'une commande à
+   la suivante au lieu de sauter, ce qui dit d'où l'on vient.
+
+   L'anneau se pose sur la cible et respire, pour que l'œil y aille sans qu'on ait
+   à écrire « ici ». */
+.spot{position:fixed;inset:0;z-index:63;pointer-events:none}
+.spot[hidden]{display:none}
+.spot i{position:fixed;background:var(--tour-dim);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  transition:left .46s var(--e-out),top .46s var(--e-out),
+    width .46s var(--e-out),height .46s var(--e-out)}
+.spot u{position:fixed;border-radius:9px;box-shadow:0 0 0 2px var(--cu-3),
+  0 0 26px 5px rgba(72,168,252,.42);
+  transition:left .46s var(--e-out),top .46s var(--e-out),
+    width .46s var(--e-out),height .46s var(--e-out),opacity .3s var(--e);
+  animation:spotBat 2.4s ease-in-out infinite}
+.spot.plein u{opacity:0}
+@keyframes spotBat{0%,100%{box-shadow:0 0 0 2px var(--cu-3),0 0 26px 5px rgba(72,168,252,.42)}
+  50%{box-shadow:0 0 0 2px var(--cu-3),0 0 34px 9px rgba(72,168,252,.62)}}
+
+/* ─── la bulle ───
+   Elle ne reste plus dans un coin : elle **vient se poser** contre ce dont elle
+   parle, du côté où il y a de la place, avec une flèche qui pointe. La mascotte
+   voyage avec elle — c'est elle qui fait le tour du site, pas le visiteur qui
+   lit une notice dans un coin. */
+.tour{position:fixed;left:0;top:0;z-index:66;
+  display:flex;align-items:flex-end;gap:12px;width:min(400px,86vw);
+  opacity:0;
+  transition:opacity .3s var(--e),
+    left .5s var(--e-out),top .5s var(--e-out)}
+.tour.on{opacity:1}
+
 .tour[hidden]{display:none}
 /* La même boîte pour la figure dessinée et pour une illustration déposée :
    `object-fit:contain` l'y ajuste sans la déformer, quel que soit son format. */
@@ -994,8 +1028,23 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .tour-m .tour-face{fill:var(--bl-4);stroke:var(--bl-4)}
 :root[data-theme="dark"] .tour-m .tour-face{fill:#14171B;stroke:#14171B}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.tour-pan{flex:1 1 auto;min-width:0;background:var(--pn);
+.tour-pan{position:relative;flex:1 1 auto;min-width:0;background:var(--pn);
   box-shadow:0 0 0 1px rgba(0,0,0,.34),0 18px 38px -20px rgba(0,0,0,.55)}
+/* La flèche : un carré tourné, moitié dans le panneau moitié dehors, qui reprend
+   son filet. Elle change de bord selon le côté où la bulle s'est posée. */
+.tour-fl{position:absolute;width:13px;height:13px;background:var(--pn);
+  box-shadow:0 0 0 1px rgba(0,0,0,.34);transform:rotate(45deg);z-index:-1}
+.tour[data-fl="bas"] .tour-fl{left:50%;bottom:-7px;margin-left:-6.5px}
+.tour[data-fl="haut"] .tour-fl{left:50%;top:-7px;margin-left:-6.5px}
+.tour[data-fl="gauche"] .tour-fl{top:50%;left:-7px;margin-top:-6.5px}
+.tour[data-fl="droite"] .tour-fl{top:50%;right:-7px;margin-top:-6.5px}
+.tour[data-fl="rien"] .tour-fl{display:none}
+/* Où en est-on : une jauge plutôt qu'un simple compte, parce que la visite est
+   longue et qu'on a le droit de savoir combien il reste. */
+.tour-jauge{height:3px;margin:0 12px 9px;background:var(--pn-line)}
+.tour-jauge i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--cu-3),var(--cu-4));
+  transition:width .4s var(--e-out)}
 .tour-bar{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   padding:6px 11px;border-bottom:1px solid var(--cr-line);
   background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
@@ -1013,11 +1062,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   transition:color .18s var(--e),filter .18s var(--e)}
 .tour-foot button:hover{color:var(--cr-ink)}
 .tour-foot button:active{filter:brightness(.94)}
+.tour-foot button[disabled]{opacity:.38;pointer-events:none}
 .tour-foot #tourNext{color:var(--pn);text-shadow:0 1px 1px rgba(0,0,0,.45);
   background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4))}
-/* Ce que l'étape désigne se cerne, plutôt que d'être décrit de loin. */
-.tour-hi{outline:2px solid var(--bl);outline-offset:3px}
-@media(max-width:720px){.tour{bottom:calc(var(--pad)*3);max-width:calc(100vw - var(--pad)*2)}
+/* Le cerne d'avant a disparu : le projecteur fait mieux, en éteignant tout le
+   reste plutôt qu'en soulignant un seul bord. */
+@media(max-width:720px){.tour{width:calc(100vw - var(--pad)*2)}
   .tour-m{width:50px;height:62px}}
 
 /* ─── à propos ───
