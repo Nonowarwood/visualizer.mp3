@@ -1319,19 +1319,30 @@ Sous mouvement réduit, le passage reste instantané.
 
 **Rien ne flotte au-dessus d'un baladeur.** La barre de commandes le faisait
 pourtant : on pilotait l'appareil de l'extérieur, à la souris, sur des boutons qui
-n'étaient pas les siens. Elle disparaît donc en mode appareil, et tout ce qu'elle
-portait est descendu dans une **pile de menus** :
+n'étaient pas les siens. Elle se réduit donc à un seul bouton en mode appareil, et
+tout ce qu'elle portait est descendu dans une **pile de menus** :
 
 ```
 menu
-├─ Musique ▸        tout · albums · EP · singles, avec leur compte
-├─ Artistes ▸       chaque artiste, puis ses types de parution
+├─ Artistes ▸       chaque artiste, puis ses types de parution :
+│                   tout · albums · EP · singles, avec leur compte
 ├─ Images           les séries de photos
 ├─ Planche          la grille
 └─ Réglages ▸       thème · pixels · liste · trame · fond d'écran ▸
                     autocollants ▸ · son · visite · à propos
                     · sortir de l'appareil
 ```
+
+Il y eut un temps une entrée « Musique » à la racine, qui ouvrait directement les
+types de parution de l'artiste courant. Elle **mentait par omission** : on y
+arrivait sur un artiste sans jamais pouvoir en changer, comme si le site n'en
+connaissait qu'un. On passe donc par les artistes, toujours — un cran de plus, une
+ambiguïté de moins, et c'est le chemin d'un vrai baladeur.
+
+**Un seul bouton reste dehors : les options.** C'est la commande qui ne parle pas
+du contenu mais du site — le thème, le son, le boîtier lui-même —, et l'unique
+endroit d'où l'on peut sortir de l'appareil sans le savoir déjà. Un baladeur n'a
+pas de bouton pour se refermer ; celui-là doit rester à l'extérieur.
 
 Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de remplacer ce
 qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus qu'une liste, la
@@ -1349,8 +1360,8 @@ un tableau figé mais la fonction qui la produit, rejouée. Et **chaque niveau
 retient son rang** : revenir en arrière, c'est retrouver la ligne qu'on avait
 laissée, pas repartir de la première.
 
-Une entrée compte plus que les autres : *sortir de l'appareil*. Sans elle, la
-barre cachée enfermerait dans le boîtier qui n'aurait pas trouvé la molette.
+Une entrée du menu double le bouton resté dehors : *sortir de l'appareil*. Deux
+portes valent mieux qu'une pour qui n'aurait trouvé ni la molette ni la barre.
 
 La planche et les images n'existent sur aucun baladeur — elles restent, mais à
 leur place : deux entrées du menu racine, comme le reste.

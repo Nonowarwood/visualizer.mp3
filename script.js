@@ -698,10 +698,10 @@ var outMoved=[];
 function deviceMove(on){
   if(on){
     if(outMoved.length)return;
-    /* Seul le lecteur sort désormais. La visite vit hors de `#app`, donc elle est
-       déjà dehors ; et la barre de commandes ne sort plus du tout — elle
-       disparaît, son contenu ayant rejoint la pile de menus. */
-    ['#player'].forEach(function(sel){
+    /* La barre sort, réduite à son seul bouton d'options — le reste de son
+       contenu a rejoint la pile de menus. Le lecteur sort aussi. La visite, elle,
+       vit hors de `#app` : elle est déjà dehors. */
+    ['.ctlbar','#player'].forEach(function(sel){
       var el=document.querySelector(sel);
       if(!el)return;
       outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
@@ -895,7 +895,11 @@ function mNiveau(){return MPILE[MPILE.length-1];}
 /* ─── les pages ─── */
 function pRacine(){
   return {t:'menu',l:[
-    mIt('Musique','›',function(){menuPush(pMusique);}),
+    /* Il y avait ici une entrée « Musique » qui ouvrait les types de parution de
+       l'artiste courant. Elle mentait par omission : on y arrivait sur CORTIS
+       sans jamais pouvoir en changer, comme si le site n'en connaissait qu'un.
+       On passe donc par les artistes, toujours — c'est un cran de plus et une
+       ambiguïté de moins, et c'est le chemin d'un vrai baladeur. */
     mIt('Artistes',ARTISTS[A].name,function(){menuPush(pArtistes);}),
     mIt('Images','›',function(){menuFerme();openPhotos();}),
     mIt('Planche','›',function(){menuFerme();setState('survey');}),
@@ -1183,7 +1187,7 @@ function mascotte(){
    Seize étapes, et un bouton *passer* à chacune. La longueur n'est pas un défaut
    quand elle est facultative : qui reste veut savoir. */
 var TOUR=[
- {t:'Le parcours',sel:'#field',
+ {t:'Le parcours',sel:'#field',delai:780,
   avant:function(){tourNet();setState('parcours');goTo(0);},
   x:'Les pochettes défilent à la molette, au glisser, ou aux flèches '
    +'<kbd>←</kbd> <kbd>→</kbd>. Celle du milieu est la parution courante ; '
@@ -1232,14 +1236,8 @@ var TOUR=[
   x:'Voilà ce que ça donne : chaque pochette réduite à 96 px et tramée, comme un '
    +'baladeur de l\'époque l\'aurait affichée. Elles sont fabriquées d\'avance, '
    +'donc l\'affichage est immédiat. Touche <kbd>P</kbd>.'},
- {t:'Le tiroir',sel:'#optmenu',delai:820,
-  /* Hors de l'appareil : dans le boîtier, la barre n'existe pas — ses commandes
-     sont descendues dans la pile de menus, que l'étape suivante montre. */
-  avant:function(){
-    PIX=false;applyPix();
-    if(DEV){DEV=false;applyDevice(true);}
-    setTimeout(function(){optOpen(true);},reduce?0:420);
-  },
+ {t:'Le tiroir',sel:'#optmenu',delai:360,
+  avant:function(){PIX=false;applyPix();optOpen(true);},
   x:'Tout le reste est là : le thème clair ou sombre, le son, la liste, les '
    +'pixels, le boîtier, les fonds, les autocollants — et les crédits.'},
  {t:'Dans l\'appareil',sel:'#device',delai:900,
@@ -1303,6 +1301,11 @@ function tourNet(){
   optOpen(false);
   loupeOff();
   if(STATE==='focus')close();
+  /* On commence toujours hors du boîtier. Les premières étapes désignent la
+     barre, la réglette, les filtres — qui n'existent pas dedans : la visite s'y
+     serait ouverte en montrant du vide. Elle y entrera au bon moment, et l'état
+     de départ sera rendu à la sortie. */
+  if(DEV){DEV=false;applyDevice(true);}
 }
 
 function tourPose(el,vide,marge){

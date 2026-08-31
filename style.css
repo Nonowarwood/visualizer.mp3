@@ -690,12 +690,17 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    La barre de commandes et le guide sont sortis dans le châssis, le compteur et
    les flèches n'ont plus lieu d'être — et le sélecteur d'artiste non plus, depuis
    qu'un menu lui est consacré. */
-/* **La barre disparaît.** Elle flottait au-dessus du boîtier, et rien ne flotte
-   au-dessus d'un baladeur : tout ce qu'elle portait — les artistes, les types de
-   parution, les vues, les réglages — est descendu dans la pile de menus, où l'on
-   y va à la molette. On ne pilote plus l'appareil de l'extérieur. */
+/* **La barre se réduit à un bouton.** Elle flottait entière au-dessus du boîtier,
+   et rien ne flotte au-dessus d'un baladeur : les artistes, les types de parution
+   et les vues sont descendus dans la pile de menus, où l'on y va à la molette. On
+   ne pilote plus l'appareil de l'extérieur.
+
+   Reste **les options**, et elles seules. C'est la commande qui ne parle pas du
+   contenu mais du site — le thème, le son, le boîtier lui-même —, et l'unique
+   endroit d'où l'on peut sortir de l'appareil sans le savoir déjà. Un baladeur
+   n'a pas de bouton pour se refermer : celui-là doit rester dehors. */
 [data-device="on"] .meter,[data-device="on"] .tail,
-[data-device="on"] .ctlbar,
+[data-device="on"] .ctlbar .seg,[data-device="on"] .ctlbar .div,
 [data-device="on"] .brandwrap{display:none}
 
 /* ─── remettre les mesures à l'échelle de l'écran ───
