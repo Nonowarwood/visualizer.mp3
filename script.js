@@ -666,7 +666,7 @@ var DV_BAND=62;
 var DEV=false;
 try{DEV=localStorage.getItem('wte-dev')==='1';}catch(e){}
 
-/* La barre de commandes, le guide et le lecteur **sortent de l'écran** plutôt que
+/* La barre de commandes et le lecteur **sortent de l'écran** plutôt que
    d'y être dupliqués : on déplace les mêmes nœuds, donc tous les gestionnaires
    suivent sans être recâblés et l'état des boutons reste celui qu'il était. On
    retient d'où ils viennent pour les y remettre à l'identique. */
@@ -674,7 +674,9 @@ var outMoved=[];
 function deviceMove(on){
   if(on){
     if(outMoved.length)return;
-    ['.ctlbar','#tour','#player'].forEach(function(sel){
+    /* La visite ne fait plus partie du voyage : elle vit désormais hors de
+       `#app`, donc elle est déjà dehors. Restent la barre et le lecteur. */
+    ['.ctlbar','#player'].forEach(function(sel){
       var el=document.querySelector(sel);
       if(!el)return;
       outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
@@ -1081,7 +1083,7 @@ var TOUR=[
    +'reste lisible quelle que soit l\'image. Ils ne se voient que dans '
    +'l\'appareil, où leur définition suffit.'},
  {t:'Les autocollants',sel:function(){return document.querySelector('.stk');},
-  delai:520,
+  delai:520,marge:66,
   avant:function(){
     var L=stkListe();
     if(L&&L.length&&!POSE.length)stkAdd(L[0].f);
@@ -1124,13 +1126,17 @@ function tourNet(){
   if(STATE==='focus')close();
 }
 
-function tourPose(el,vide){
+function tourPose(el,vide,marge){
   var sp=$('#spot'),b=$('#tour'),W=innerWidth,H=innerHeight,m=14;
+  /* La marge du trou : huit pixels d'ordinaire, davantage quand l'étape désigne
+     une chose qui en traîne une autre — l'autocollant et sa poignée ne se
+     comprennent qu'ensemble. */
+  var g=marge||8;
   var r=null;
   if(el&&el.getBoundingClientRect){
     var q=el.getBoundingClientRect();
     if(q.width>2&&q.height>2)
-      r={l:q.left-8,t:q.top-8,w:q.width+16,h:q.height+16};
+      r={l:q.left-g,t:q.top-g,w:q.width+g*2,h:q.height+g*2};
   }
   if(!r||vide)r={l:W/2,t:H/2,w:0,h:0};
   /* On borne dans la fenêtre : une cible qui dépasse laisserait un volet de
@@ -1194,7 +1200,7 @@ function tourShow(i){
   tourT=setTimeout(function(){
     tourEl=(typeof e.sel==='function')?e.sel()
       :(e.sel?document.querySelector(e.sel):null);
-    tourPose(tourEl,!e.sel);
+    tourPose(tourEl,!e.sel,e.marge);
   },reduce?0:(e.delai||120));
 }
 function tourEnd(){
@@ -1214,7 +1220,7 @@ $('#mTour').addEventListener('click',function(){optOpen(false);tourShow(0);});
 /* La fenêtre change de taille : le trou et la bulle sont ailleurs. */
 addEventListener('resize',function(){
   if($('#tour').hidden)return;
-  tourPose(tourEl,!TOUR[tourI].sel);
+  tourPose(tourEl,!TOUR[tourI].sel,TOUR[tourI].marge);
 });
 
 $('#mAbout').addEventListener('click',function(){optOpen(false);aboutOpen(true);});
@@ -1951,7 +1957,14 @@ amenu.addEventListener('click',function(e){
   amenuOpen(false);
   if(i!==A){setState('parcours');buildArtist(i,false);}
 });
-document.addEventListener('click',function(){amenuOpen(false);optOpen(false);});
+document.addEventListener('click',function(e){
+  /* Un clic ailleurs referme les tiroirs — sauf s'il vient de la visite. L'étape
+     du tiroir l'ouvrait dans son `avant`, puis le clic sur « suivant » remontait
+     jusqu'ici et le refermait aussitôt : la commande désignée restait close, et le
+     projecteur cernait une boîte repliée, trop petite pour qu'on y voie rien. */
+  if(e.target&&e.target.closest&&e.target.closest('#tour'))return;
+  amenuOpen(false);optOpen(false);
+});
 
 /* ─────────── le tiroir d'options ───────────
    La barre portait sept commandes de front : les trois vues, deux options

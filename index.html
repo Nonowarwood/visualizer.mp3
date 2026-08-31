@@ -150,75 +150,6 @@
      vertical, cassure nette à mi-hauteur, brillance haute, filet sombre — dans le
      graphite du site plutôt qu'en bleu, puisque c'est la structure qui fait
      l'effet et non la teinte. -->
-<!-- Le projecteur de la visite. Quatre volets, non un voile percé : on ne peut
-     pas trouer un `backdrop-filter`, alors qu'avec quatre rectangles qui
-     pavent exactement l'écran autour de la cible, le flou et l'assombrissement
-     s'arrêtent au bord du trou. L'anneau, lui, se pose sur la cible. -->
-<div class="spot" id="spot" hidden aria-hidden="true">
-  <i class="sp-h"></i><i class="sp-b"></i><i class="sp-g"></i><i class="sp-d"></i>
-  <u class="sp-o"></u>
-</div>
-
-<div class="tour" id="tour" hidden role="dialog" aria-label="Visite guidée">
-  <svg class="tour-m" viewBox="0 0 100 124" aria-hidden="true">
-    <defs>
-      <!-- Les teintes sont posées par la feuille de style et non en attribut :
-           `var()` dans un attribut de présentation SVG n'est pas résolu partout,
-           et la mascotte serait sortie noire. Elle suit ainsi le thème. -->
-      <linearGradient id="gelL" x1="0" y1="0" x2="0" y2="1">
-        <stop class="l1" offset="0"/><stop class="l2" offset="1"/>
-      </linearGradient>
-      <linearGradient id="gelD" x1="0" y1="0" x2="0" y2="1">
-        <stop class="d1" offset="0"/><stop class="d2" offset="1"/>
-      </linearGradient>
-      <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
-        <stop class="s1" offset="0" stop-opacity=".66"/>
-        <stop class="s2" offset="1" stop-opacity="0"/>
-      </linearGradient>
-      <!-- Le partage en deux tons : une diagonale, le visage restant du côté
-           clair pour que les yeux s'y lisent. -->
-      <clipPath id="ombre"><path d="M66 0 48 124H100V0Z"/></clipPath>
-      <clipPath id="corps">
-        <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z"/>
-        <circle cx="50" cy="34" r="26"/>
-      </clipPath>
-    </defs>
-    <g>
-      <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gelL)"/>
-      <circle cx="50" cy="34" r="26" fill="url(#gelL)"/>
-      <g clip-path="url(#ombre)">
-        <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gelD)"/>
-        <circle cx="50" cy="34" r="26" fill="url(#gelD)"/>
-      </g>
-      <g clip-path="url(#corps)">
-        <ellipse cx="50" cy="21" rx="17" ry="11" fill="url(#sheen)"/>
-        <ellipse cx="50" cy="74" rx="20" ry="10" fill="url(#sheen)"/>
-      </g>
-      <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="none"
-            stroke="rgba(0,0,0,.42)" stroke-width="2"/>
-      <circle cx="50" cy="34" r="26" fill="none"
-              stroke="rgba(0,0,0,.42)" stroke-width="2"/>
-      <g class="tour-face">
-        <circle cx="39" cy="33" r="3.4"/><circle cx="55" cy="33" r="3.4"/>
-        <path d="M42 42q5.5 5 11 0" fill="none" stroke-width="2.6"
-              stroke-linecap="round"/>
-      </g>
-    </g>
-  </svg>
-  <div class="tour-pan">
-    <span class="tour-fl" aria-hidden="true"></span>
-    <header class="tour-bar"><span id="tourT"></span>
-      <b id="tourN"></b></header>
-    <p id="tourX"></p>
-    <div class="tour-jauge" aria-hidden="true"><i id="tourJ"></i></div>
-    <footer class="tour-foot">
-      <button id="tourSkip" type="button">passer</button>
-      <button id="tourPrev" type="button">retour</button>
-      <button id="tourNext" type="button">suivant</button>
-    </footer>
-  </div>
-</div>
-
 <div class="about" id="about" hidden role="dialog" aria-modal="true" aria-label="À propos">
   <div class="ab-pan">
     <header class="ab-bar"><span>À propos</span>
@@ -302,6 +233,82 @@
       <button type="button" data-act="non" class="stkno" aria-label="Retirer">✕</button>
       <button type="button" data-act="ok" class="stkok" aria-label="Valider la place">✓</button>
     </div>
+  </div>
+</div>
+
+<!-- Le projecteur et la bulle vivent **hors de `#app`**, au niveau du corps.
+     Dans `#app` ils étaient enfermés dans son plan, ce qui allait tant que le
+     site occupait la page — mais en mode appareil `#app` **devient l'écran** :
+     réduit, transformé, et coupé à ses bords. Le projecteur s'y retrouvait
+     enfermé, à éteindre l'intérieur de l'écran au lieu de la page, et ses
+     mesures en coordonnées de fenêtre ne voulaient plus rien dire. Ici, ils
+     couvrent la page quoi qu'il arrive. -->
+<!-- Le projecteur de la visite. Quatre volets, non un voile percé : on ne peut
+     pas trouer un `backdrop-filter`, alors qu'avec quatre rectangles qui
+     pavent exactement l'écran autour de la cible, le flou et l'assombrissement
+     s'arrêtent au bord du trou. L'anneau, lui, se pose sur la cible. -->
+<div class="spot" id="spot" hidden aria-hidden="true">
+  <i class="sp-h"></i><i class="sp-b"></i><i class="sp-g"></i><i class="sp-d"></i>
+  <u class="sp-o"></u>
+</div>
+
+<div class="tour" id="tour" hidden role="dialog" aria-label="Visite guidée">
+  <svg class="tour-m" viewBox="0 0 100 124" aria-hidden="true">
+    <defs>
+      <!-- Les teintes sont posées par la feuille de style et non en attribut :
+           `var()` dans un attribut de présentation SVG n'est pas résolu partout,
+           et la mascotte serait sortie noire. Elle suit ainsi le thème. -->
+      <linearGradient id="gelL" x1="0" y1="0" x2="0" y2="1">
+        <stop class="l1" offset="0"/><stop class="l2" offset="1"/>
+      </linearGradient>
+      <linearGradient id="gelD" x1="0" y1="0" x2="0" y2="1">
+        <stop class="d1" offset="0"/><stop class="d2" offset="1"/>
+      </linearGradient>
+      <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+        <stop class="s1" offset="0" stop-opacity=".66"/>
+        <stop class="s2" offset="1" stop-opacity="0"/>
+      </linearGradient>
+      <!-- Le partage en deux tons : une diagonale, le visage restant du côté
+           clair pour que les yeux s'y lisent. -->
+      <clipPath id="ombre"><path d="M66 0 48 124H100V0Z"/></clipPath>
+      <clipPath id="corps">
+        <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z"/>
+        <circle cx="50" cy="34" r="26"/>
+      </clipPath>
+    </defs>
+    <g>
+      <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gelL)"/>
+      <circle cx="50" cy="34" r="26" fill="url(#gelL)"/>
+      <g clip-path="url(#ombre)">
+        <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="url(#gelD)"/>
+        <circle cx="50" cy="34" r="26" fill="url(#gelD)"/>
+      </g>
+      <g clip-path="url(#corps)">
+        <ellipse cx="50" cy="21" rx="17" ry="11" fill="url(#sheen)"/>
+        <ellipse cx="50" cy="74" rx="20" ry="10" fill="url(#sheen)"/>
+      </g>
+      <path d="M18 118C18 82 30 62 50 62s32 20 32 56Z" fill="none"
+            stroke="rgba(0,0,0,.42)" stroke-width="2"/>
+      <circle cx="50" cy="34" r="26" fill="none"
+              stroke="rgba(0,0,0,.42)" stroke-width="2"/>
+      <g class="tour-face">
+        <circle cx="39" cy="33" r="3.4"/><circle cx="55" cy="33" r="3.4"/>
+        <path d="M42 42q5.5 5 11 0" fill="none" stroke-width="2.6"
+              stroke-linecap="round"/>
+      </g>
+    </g>
+  </svg>
+  <div class="tour-pan">
+    <span class="tour-fl" aria-hidden="true"></span>
+    <header class="tour-bar"><span id="tourT"></span>
+      <b id="tourN"></b></header>
+    <p id="tourX"></p>
+    <div class="tour-jauge" aria-hidden="true"><i id="tourJ"></i></div>
+    <footer class="tour-foot">
+      <button id="tourSkip" type="button">passer</button>
+      <button id="tourPrev" type="button">retour</button>
+      <button id="tourNext" type="button">suivant</button>
+    </footer>
   </div>
 </div>
 

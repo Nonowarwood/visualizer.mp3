@@ -1306,6 +1306,26 @@ pose sur la cible et respire lentement.
 Les mesures sont bornées à la fenêtre avant d'être posées : une cible qui dépasse
 donnerait un volet de largeur négative, et le pavage se déferait.
 
+**Le projecteur et la bulle vivent hors de `#app`.** C'est la correction d'un
+défaut qui rendait la visite incompréhensible à partir de la treizième étape. Dans
+`#app`, ils étaient enfermés dans son plan — ce qui allait tant que le site occupe
+la page. Mais en mode appareil, `#app` **devient l'écran** : réduit, transformé,
+coupé à ses bords. Le projecteur s'y retrouvait enfermé, à éteindre l'intérieur de
+l'écran au lieu de la page, et ses mesures en coordonnées de fenêtre ne voulaient
+plus rien dire — d'où un rectangle éclairé au milieu de nulle part. Au niveau du
+corps du document, ils couvrent la page quoi qu'il arrive.
+
+Cela a simplifié le passage en mode appareil du même coup : la visite n'a plus à
+être déménagée hors de l'écran, elle n'y a jamais été.
+
+### Un clic qui refermait ce que l'étape venait d'ouvrir
+
+L'étape du tiroir l'ouvrait dans son `avant`. Puis le clic sur « suivant »
+remontait jusqu'au gestionnaire de la page — celui qui referme les tiroirs quand
+on clique ailleurs — et le refermait aussitôt. Le projecteur cernait alors une
+boîte repliée, trop petite pour qu'on y voie quoi que ce soit. Ce gestionnaire
+ignore désormais ce qui vient de la visite.
+
 ### La bulle voyage
 
 Elle ne reste plus dans un coin. Elle **vient se poser contre** ce dont elle
