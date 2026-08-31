@@ -1344,6 +1344,12 @@ du contenu mais du site — le thème, le son, le boîtier lui-même —, et l'u
 endroit d'où l'on peut sortir de l'appareil sans le savoir déjà. Un baladeur n'a
 pas de bouton pour se refermer ; celui-là doit rester à l'extérieur.
 
+Il se range **dans le coin** de la fenêtre, non au-dessus du boîtier. Centré, il
+avait l'air posé dessus — une commande de plus au sommet de l'objet, ce que
+justement on venait d'enlever. Dans l'angle, il redevient ce qu'il est : la
+commande du site, à côté de l'objet et non sur lui. Le milieu du bandeau reste
+libre pour le lecteur.
+
 Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de remplacer ce
 qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus qu'une liste, la
 ligne courante vernie, sa valeur à droite : le nom de l'artiste courant, le nombre

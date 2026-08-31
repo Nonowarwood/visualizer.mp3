@@ -783,7 +783,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   pointer-events:none;display:flex;justify-content:center;align-items:center;
   gap:var(--pad);padding:0 var(--pad)}
 #outside>*{pointer-events:auto}
-#outside .ctlbar{pointer-events:auto}
+/* Le bouton des options se range **dans le coin**, et non au-dessus du boîtier.
+   Centré, il avait l'air posé sur l'appareil — une commande de plus au sommet de
+   l'objet. Dans l'angle de la fenêtre, il redevient ce qu'il est : la commande du
+   site, à côté de l'objet et non dessus. Il sort du flux du bandeau, qui reste
+   ainsi libre pour le lecteur — lui garde le milieu. */
+[data-device="on"] #outside .ctlbar{position:absolute;right:var(--pad);
+  top:50%;transform:translateY(-50%);pointer-events:auto}
 /* Le sol : presque blanc, à peine dégradé. C'est la coque qui porte le gris —
    assombrir le sol était traiter le symptôme. Il ne touche pas au fond de
    l'écran, qui reste celui du site. */
