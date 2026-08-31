@@ -793,6 +793,44 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     0 0 20px 3px var(--dv-ao),
     inset 0 2px 7px rgba(0,0,0,.6)}
 
+/* ─── les autocollants ───
+   Posés sur la coque, sous l'écran et sous la molette dans l'ordre de peinture.
+   Trois choses les font tenir du collant plutôt que de l'imprimé : une
+   **inclinaison** légère, une **ombre courte** qui dit le millimètre d'épaisseur,
+   et le **reflet du boîtier** qui passe dessus — un autocollant prend la même
+   lumière que ce qu'il couvre, sans quoi il a l'air posé en surimpression. */
+.dv-stick{position:absolute;inset:0;pointer-events:none}
+.stk{position:absolute;width:96px;padding:0;background:none;box-shadow:none;
+  pointer-events:auto;cursor:grab;touch-action:none;
+  transform:translate(-50%,-50%) rotate(var(--r,0deg));
+  transition:filter .16s var(--e)}
+.stk:active{cursor:grabbing}
+.stk img{display:block;width:100%;height:auto;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.28))}
+/* Pas de reflet ajouté par-dessus : un dégradé en pseudo-élément couvre la
+   **boîte** du bouton, pas la silhouette découpée, et laissait donc un voile
+   blanc carré sur la coque. Chaque autocollant porte déjà sa brillance, dessinée
+   dans sa propre forme — c'est le seul endroit où elle peut l'être juste. */
+.stk:hover{filter:brightness(1.04)}
+/* Sélectionné : un cerne et la croix. On ne montre la croix qu'alors — un
+   autocollant n'a pas à porter en permanence de quoi l'effacer. */
+.stk .stkx{position:absolute;top:-9px;right:-9px;width:20px;height:20px;
+  display:none;place-content:center;border-radius:50%;
+  font:400 10px/20px var(--sans);font-style:normal;text-align:center;
+  color:#fff;background:#D93B4E;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.stk.sel .stkx{display:block}
+.stk.sel{outline:2px dashed rgba(59,130,246,.9);outline-offset:3px}
+
+/* ─── le choix des autocollants, dans le tiroir ─── */
+.stkgr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.optmenu .stkp button{display:block;width:auto;padding:0;border-bottom:none}
+.optmenu .stkgr .stkb{padding:7px;background:var(--pn-2);
+  box-shadow:0 0 0 1px var(--pn-line);
+  transition:box-shadow .16s var(--e),background .16s var(--e)}
+.optmenu .stkgr .stkb:hover{background:var(--pn);box-shadow:0 0 0 1px var(--ink-3)}
+.stkgr .stkb img{display:block;width:100%;height:34px;object-fit:contain}
+.optmenu .stkp .fnul{margin-top:9px}
+
 /* ─── la vitre ───
    Deux choses par-dessus l'écran, et rien qui l'obscurcisse : une **trame de
    points**, qui dit que c'est une dalle et non une fenêtre, et un **reflet** en
@@ -1151,18 +1189,19 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    rangée à `0fr` met bien la hauteur de contenu à zéro, mais les 21 px de
    marge intérieure de l'enfant restent, et son texte s'y voyait — replié,
    l'onglet débordait quand même sur la section suivante. */
-.fondsw{display:grid;grid-template-rows:0fr;overflow:hidden;
+.plie{display:grid;grid-template-rows:0fr;overflow:hidden;
   transition:grid-template-rows .34s var(--e-out)}
-[data-fonds="on"] .fondsw{grid-template-rows:1fr}
-.fondsw>.fonds{overflow:hidden;min-height:0}
+.plie.on{grid-template-rows:1fr}
+.plie>*{overflow:hidden;min-height:0}
 /* Le dépliant est une **ligne du menu**, pas une catégorie. En bandeau de
    catégorie il gardait sa hauteur de bandeau et son filet quoi qu'il arrive : une
    catégorie ne se replie pas, elle annonce. En ligne ordinaire — même hauteur que
    « thème » ou « son », et le nom du fond choisi à droite comme eux — il se
    replie jusqu'à ne plus rien laisser paraître. */
-.optmenu #fondsH .car{font-size:9px;color:var(--ink-3);flex:none;
-  transition:transform .3s var(--e-out)}
-.optmenu #fondsH[aria-expanded="true"] .car{transform:rotate(180deg)}
+.optmenu #fondsH .car,.optmenu #stkH .car{font-size:9px;color:var(--ink-3);
+  flex:none;transition:transform .3s var(--e-out)}
+.optmenu #fondsH[aria-expanded="true"] .car,
+.optmenu #stkH[aria-expanded="true"] .car{transform:rotate(180deg)}
 .fonds{padding:9px 12px 12px;border-bottom:1px solid var(--pn-line)}
 /* Le fond n'existe que dans l'appareil : autant le dire là où on le choisit,
    plutôt que de laisser croire à une panne. */

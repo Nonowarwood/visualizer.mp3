@@ -656,6 +656,69 @@ pour un écran à forte densité —, 169 ko pour les quatorze, et ne se chargen
 l'ouverture du tiroir. Le fond en pleine taille n'est demandé que
 lorsqu'on le choisit — et le choix est retenu d'une visite à l'autre.
 
+## Les autocollants
+
+On en pose sur le boîtier, on les glisse où l'on veut, ils restent d'une visite à
+l'autre. Neuf sont fournis — cassette, cœur, disque, éclair, étoile, fleur, note,
+nuage, onde —, dessinés en SVG pour ce site : **7,5 ko à eux tous**.
+
+Il y en avait déjà eu, et ils avaient été retirés à raison : c'étaient des
+ornements que j'avais dessinés *dans* le châssis, qui encombraient une surface
+sans que personne les ait demandés. La différence tient en un mot : ici c'est
+l'utilisateur qui pose, déplace et retire. Un autocollant qu'on choisit de coller
+n'est pas la même chose qu'une décoration qu'on subit.
+
+### Où ils peuvent aller
+
+Le boîtier a peu de place libre : l'écran occupe le haut, la molette le milieu.
+Restent la bande entre les deux, les côtés de la molette, et le bas.
+
+Plutôt que d'interdire le reste, le glisser **repousse** — vers le bas pour
+l'écran, **radialement** pour la molette, ce qui donne au geste l'impression de la
+contourner. On ne peut donc pas mal poser un autocollant, et rien n'est jamais
+à moitié caché derrière la molette.
+
+Le pointeur se déplace en pixels d'écran quand le châssis se mesure en pixels
+virtuels : le déplacement est divisé par le facteur d'échelle, sans quoi
+l'autocollant fuirait sous le doigt d'autant que le boîtier est réduit.
+
+### Ce qui en fait du collant et non de l'imprimé
+
+Une **inclinaison** légère — quelques degrés, pris dans une liste et retenus avec
+la place. Un angle tiré au sort changerait à chaque chargement, et l'objet ne
+serait plus le même d'une visite à l'autre. C'est la seule rotation du site, et
+elle est justifiée : la règle des angles nets vise les commandes de l'interface,
+pas un morceau de papier collé de travers.
+
+Une **ombre courte**, qui dit le millimètre d'épaisseur.
+
+Et *pas* de reflet ajouté par-dessus. J'en avais mis un — un dégradé en
+pseudo-élément — avant de voir qu'il couvre la **boîte** du bouton et non la
+silhouette découpée : il laissait un voile blanc carré sur la coque. Chaque
+autocollant porte sa brillance dessinée dans sa propre forme, seul endroit où
+elle peut être juste.
+
+### Poser, déplacer, retirer
+
+Le tiroir d'options en propose la planche sous **autocollants**. Un clic en pose
+un ; il arrive à une place libre, les places tournant en boucle pour que trois
+posés d'affilée ne se recouvrent pas. On le glisse ensuite où l'on veut.
+
+Un clic le sélectionne, un second le retire — une seule action destructrice au
+premier clic serait un piège à la souris. Un bouton *tout retirer* vide la coque.
+
+### Les vôtres
+
+Déposez un fichier dans `assets/stickers/` et relancez :
+
+```sh
+cd site && python3 tools/build-stickers.py
+```
+
+SVG de préférence, ou PNG **à fond transparent** : un PNG à fond blanc se collera
+avec son carré blanc, et l'outil ne peut pas le deviner. Le dossier porte un
+`LISEZMOI.md` qui redit tout cela.
+
 ## L'écran de l'appareil
 
 Emprunt à une direction artistique de jeu en pixels : de la 3D rendue en **basse

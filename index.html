@@ -108,7 +108,9 @@
           <button id="mTheme" class="hold" type="button" data-t="light" aria-pressed="false"><span class="lbl">thème</span><span class="sw" aria-hidden="true"><i></i></span><b id="mThemeL">clair</b></button>
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
           <button id="fondsH" type="button" aria-expanded="false" aria-controls="fondsW"><span class="lbl">fonds d'écran</span><b id="fondsL">aucun</b><span class="car" aria-hidden="true">▾</span></button>
-          <div class="fondsw" id="fondsW"><div class="fonds" id="fonds" role="group" aria-label="Choisir un fond d'écran"></div></div>
+          <div class="plie" id="fondsW"><div class="fonds" id="fonds" role="group" aria-label="Choisir un fond d'écran"></div></div>
+          <button id="stkH" type="button" aria-expanded="false" aria-controls="stkW"><span class="lbl">autocollants</span><b id="stkL">aucun</b><span class="car" aria-hidden="true">▾</span></button>
+          <div class="plie" id="stkW"><div class="fonds stkp" id="stkP" role="group" aria-label="Poser un autocollant"></div></div>
           <p class="ah">Le site</p>
           <button id="mTour" type="button"><span class="lbl">visite guidée</span><b>↻</b></button>
           <button id="mAbout" type="button"><span class="lbl">à propos</span><b>↗</b></button>
@@ -255,6 +257,10 @@
      cerclé, molette à quatre zones et bouton central. -->
 <div class="device" id="device" hidden aria-hidden="true">
   <div class="dv-body">
+    <!-- Les autocollants sont posés **avant** l'écran et la molette : ils se
+         peignent donc sous eux. Ils ne peuvent de toute façon pas s'y trouver —
+         le glisser les repousse hors des deux — mais l'ordre le garantit. -->
+    <div class="dv-stick" id="dvStick"></div>
     <div class="dv-screen"></div>
     <div class="dv-wheel" id="dvWheel">
       <button class="dv-z dv-menu" type="button" data-z="menu">menu</button>
@@ -279,6 +285,7 @@
 
 <script src="assets/pix.js"></script>
 <script src="assets/fonds.js"></script>
+<script src="assets/stickers.js"></script>
 <script src="assets/tracks.js"></script>
 <script src="script.js"></script>
 </body>

@@ -1008,8 +1008,9 @@ var TOUR=[
   x:'Le site se loge dans un baladeur dessiné, molette comprise : les commandes '
    +'sortent de l\'écran et la roue commande vraiment.'},
  {sel:'#fondsH',ouvre:true,t:'Le fond d\'écran',
-  x:'Quatorze fonds, rangés par couleur, à déplier juste en dessous. Ils ne se '
-   +'voient que dans l\'appareil, où leur définition suffit.'}
+  x:'Quatorze fonds rangés par couleur, et des autocollants à poser sur le '
+   +'boîtier — glissez-les où vous voulez. L\'un comme l\'autre ne se voient '
+   +'que dans l\'appareil.'}
 ];
 var tourI=0,tourCible=null;
 
@@ -1825,12 +1826,12 @@ function applyFond(){
    chose à la fois, et quatorze vignettes dépliées mettraient la visite guidée
    hors de portée sans défiler. */
 var fondsOuvert=false;
-function fondsPli(on){
-  fondsOuvert=on;
-  document.documentElement.setAttribute('data-fonds',on?'on':'off');
-  var h=$('#fondsH');
-  if(h)h.setAttribute('aria-expanded',on?'true':'false');
+function pli(bouton,tiroir,on){
+  var b=$(bouton),t=$(tiroir);
+  if(t)t.classList.toggle('on',on);
+  if(b)b.setAttribute('aria-expanded',on?'true':'false');
 }
+function fondsPli(on){fondsOuvert=on;pli('#fondsH','#fondsW',on);}
 if($('#fondsH'))$('#fondsH').addEventListener('click',function(){
   fondsPli(!fondsOuvert);
 });
@@ -1841,6 +1842,159 @@ if($('#fonds'))$('#fonds').addEventListener('click',function(e){
   applyFond();
 });
 paintFonds();applyFond();
+
+/* ─────────── les autocollants ───────────
+   On en pose sur le boîtier, on les glisse où l'on veut, ils restent d'une visite
+   à l'autre. Ce ne sont pas des ornements dessinés dans le châssis — ceux-là
+   avaient été retirés, et à raison : ils encombraient une surface sans que
+   personne les ait demandés. Ici c'est l'utilisateur qui pose, déplace et retire.
+
+   Le boîtier a peu de place libre : l'écran en occupe le haut, la molette le
+   milieu. Restent la bande entre les deux, les côtés de la molette et le bas.
+   Plutôt que d'interdire le reste, le glisser **repousse** — vers le bas pour
+   l'écran, radialement pour la molette, ce qui donne l'impression de la
+   contourner. On ne peut pas mal poser un autocollant. */
+var STK_SIZE=96,STK_MARGE=8;
+/* La molette, dans les coordonnées du châssis : les mêmes chiffres que la
+   feuille de style, qui la pose à 610 avec 439 de diamètre. */
+var STK_WX=DV_W/2,STK_WY=610+219.5,STK_WR=219.5;
+/* Les places d'arrivée, à la main comme celles du collage : une composition se
+   compose. On y revient en boucle, si bien que trois autocollants posés d'affilée
+   ne se recouvrent pas. */
+var STK_POSES=[[368,1130],[150,615],[586,615],[200,1132],[536,1132],[368,1163]];
+/* Une inclinaison légère, sans quoi un autocollant a l'air imprimé plutôt que
+   collé. Elle est prise dans une liste et retenue avec la place — un angle tiré
+   au sort changerait à chaque chargement, et l'objet ne serait plus le même. */
+var STK_TILT=[-7,5,-3,8,-5,4];
+var POSE=[];
+try{
+  var brut=JSON.parse(localStorage.getItem('wte-stick')||'[]');
+  if(Array.isArray(brut))POSE=brut;
+}catch(e){}
+var stkDrag=null,stkSel=-1;
+
+function stkListe(){
+  return (typeof STICKERS!=='undefined'&&STICKERS&&STICKERS.length)?STICKERS:null;
+}
+function stkNom(f){
+  var L=stkListe()||[];
+  for(var i=0;i<L.length;i++)if(L[i].f===f)return L[i].n;
+  return 'autocollant';
+}
+function stkClamp(p){
+  var h=STK_SIZE/2,m=h+STK_MARGE;
+  p.x=Math.min(Math.max(p.x,m),DV_W-m);
+  p.y=Math.min(Math.max(p.y,m),DV_H-m);
+  var bas=DV_SY+DV_SH+16+h;             /* sous l'écran, rive noire comprise */
+  if(p.y<bas)p.y=bas;
+  var dx=p.x-STK_WX,dy=p.y-STK_WY,R=STK_WR+h,d=Math.sqrt(dx*dx+dy*dy);
+  if(d<R){
+    if(d<0.5)p.y=STK_WY+R;              /* pile au centre : on sort par le bas */
+    else{p.x=STK_WX+dx/d*R;p.y=STK_WY+dy/d*R;}
+  }
+  p.x=Math.min(Math.max(p.x,m),DV_W-m);
+  p.y=Math.min(Math.max(p.y,m),DV_H-m);
+}
+function stkCompte(){
+  var lab=$('#stkL');
+  if(lab)lab.textContent=POSE.length?(POSE.length+' posé'+(POSE.length>1?'s':'')):'aucun';
+}
+function stkSave(){
+  try{localStorage.setItem('wte-stick',JSON.stringify(POSE));}catch(e){}
+  stkCompte();
+}
+function stkMark(){
+  var box=$('#dvStick');if(!box)return;
+  var b=box.children;
+  for(var i=0;i<b.length;i++)b[i].classList.toggle('sel',i===stkSel);
+}
+function stkPaint(){
+  var box=$('#dvStick');if(!box)return;
+  box.innerHTML=POSE.map(function(p,i){
+    return '<button class="stk" type="button" data-i="'+i+'"'
+      +' style="left:'+p.x+'px;top:'+p.y+'px;--r:'+(p.r||0)+'deg"'
+      +' aria-label="Autocollant '+esc(stkNom(p.f))
+      +' — glisser pour déplacer, cliquer deux fois pour retirer">'
+      +'<img src="'+esc(p.f)+'" alt="" draggable="false">'
+      +'<i class="stkx" aria-hidden="true">\u2715</i></button>';
+  }).join('');
+  stkMark();stkCompte();
+}
+function stkAdd(f){
+  var n=POSE.length,q=STK_POSES[n%STK_POSES.length];
+  var p={f:f,x:q[0],y:q[1],r:STK_TILT[n%STK_TILT.length]};
+  stkClamp(p);
+  POSE.push(p);stkSel=POSE.length-1;
+  stkSave();stkPaint();
+}
+function stkPickPaint(){
+  var box=$('#stkP');if(!box)return;
+  var L=stkListe();
+  if(!L){
+    var h=$('#stkH'),w=$('#stkW');
+    if(h)h.remove();
+    if(w)w.remove(); else box.remove();
+    return;
+  }
+  box.innerHTML=
+    '<p class="fhint">Ils se posent sur le boîtier : on ne les voit que dans '
+    +'l\'appareil. Glissez pour déplacer, cliquez deux fois pour retirer.</p>'
+    +'<div class="stkgr">'+L.map(function(x){
+      return '<button class="stkb" type="button" data-f="'+esc(x.f)+'"'
+        +' title="'+esc(x.n)+'" aria-label="Poser l\'autocollant '+esc(x.n)+'">'
+        +'<img src="'+esc(x.f)+'" alt="" loading="lazy"></button>';
+    }).join('')+'</div>'
+    +'<button class="fnul" type="button" data-clear="1">tout retirer</button>';
+}
+
+if($('#stkH'))$('#stkH').addEventListener('click',function(){
+  pli('#stkH','#stkW',!$('#stkW').classList.contains('on'));
+});
+if($('#stkP'))$('#stkP').addEventListener('click',function(e){
+  var c=e.target.closest('button[data-clear]');
+  if(c){POSE=[];stkSel=-1;stkSave();stkPaint();return;}
+  var b=e.target.closest('button[data-f]');
+  if(b)stkAdd(b.getAttribute('data-f'));
+});
+
+var stkBox=$('#dvStick');
+if(stkBox){
+  stkBox.addEventListener('pointerdown',function(e){
+    var b=e.target.closest('.stk');if(!b)return;
+    /* Le même défaut que la molette : un glisser non réclamé devient un glisser
+       de sélection. Et il ne doit pas non plus faire tourner la molette. */
+    e.preventDefault();e.stopPropagation();
+    var i=parseInt(b.getAttribute('data-i'),10);
+    stkDrag={i:i,b:b,x0:e.clientX,y0:e.clientY,
+             px:POSE[i].x,py:POSE[i].y,bouge:false};
+    try{b.setPointerCapture(e.pointerId);}catch(err){}
+  });
+  stkBox.addEventListener('pointermove',function(e){
+    if(!stkDrag)return;
+    var ex=e.clientX-stkDrag.x0,ey=e.clientY-stkDrag.y0;
+    /* Le pointeur se déplace en pixels d'écran, le châssis se mesure en pixels
+       virtuels : on divise par le facteur d'échelle, sinon l'autocollant fuit
+       sous le doigt d'autant que le boîtier est réduit. */
+    if(!stkDrag.bouge&&Math.abs(ex)+Math.abs(ey)>4)stkDrag.bouge=true;
+    if(!stkDrag.bouge)return;
+    var p=POSE[stkDrag.i];
+    p.x=stkDrag.px+ex/(dvZ||1);p.y=stkDrag.py+ey/(dvZ||1);
+    stkClamp(p);
+    stkDrag.b.style.left=p.x+'px';stkDrag.b.style.top=p.y+'px';
+  });
+  ['pointerup','pointercancel'].forEach(function(ev){
+    stkBox.addEventListener(ev,function(){
+      if(!stkDrag)return;
+      var d=stkDrag;stkDrag=null;
+      if(d.bouge){stkSave();return;}
+      /* Un clic sélectionne, un second sur le même retire : une seule action
+         destructrice au premier clic serait un piège à la souris. */
+      if(stkSel===d.i){POSE.splice(d.i,1);stkSel=-1;stkSave();stkPaint();}
+      else{stkSel=d.i;stkMark();}
+    });
+  });
+}
+stkPickPaint();stkPaint();
 
 /* ─────────── commandes ─────────── */
 $('#grid').addEventListener('click',function(e){

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 68">
+  <!-- Trois bosses decroissantes et une base plate. Le degrade est en unites de
+       l'espace, non de chaque forme : sinon les quatre pieces n'ont pas la meme
+       valeur au meme endroit et les jointures se voient. -->
+  <defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="0" y1="4" x2="0" y2="60">
+    <stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#DDEEFB"/>
+    <stop offset="1" stop-color="#9FCAEE"/>
+  </linearGradient></defs>
+  <g fill="none" stroke="#fff" stroke-width="12">
+    <circle cx="30" cy="40" r="18"/><circle cx="55" cy="29" r="24"/>
+    <circle cx="78" cy="43" r="15"/><rect x="12" y="42" width="76" height="18" rx="9"/>
+  </g>
+  <g fill="url(#g)">
+    <circle cx="30" cy="40" r="18"/><circle cx="55" cy="29" r="24"/>
+    <circle cx="78" cy="43" r="15"/><rect x="12" y="42" width="76" height="18" rx="9"/>
+  </g>
+  <ellipse cx="52" cy="17" rx="15" ry="5" fill="#fff" opacity=".55"/>
+</svg>
