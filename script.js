@@ -438,6 +438,8 @@ function counts(){
   [].slice.call(document.querySelectorAll('#filters button')).forEach(function(b){
     b.innerHTML=esc(b.getAttribute('data-lbl'))+'<sup>'+(c[b.getAttribute('data-f')]||0)+'</sup>';
   });
+  /* Les comptes viennent de changer, donc les largeurs aussi. */
+  glisse();
 }
 function sizeEdges(){
   var first=view.length?slots[view[0]]:null,w=first?first.offsetWidth:0;
@@ -488,6 +490,28 @@ function setCount(n,tot){
   }
   for(var i=0;i<cols.length;i++)cols[i].style.transform='translateY(-'+s[i]+'em)';
 }
+/* ─────────── le curseur des groupes segmentés ───────────
+   Un seul objet qui se déplace, plutôt qu'un fond qui s'allume ici et s'éteint
+   là. Il faut le remesurer chaque fois que la sélection change **ou que les
+   intitulés changent de longueur** — les filtres portent un compte, qui n'est pas
+   le même d'un artiste à l'autre. */
+function glisse(){
+  [].slice.call(document.querySelectorAll('.ctlbar .seg')).forEach(function(g){
+    var i=g.querySelector('.glis');
+    if(!i)return;
+    var b=g.querySelector('button[aria-pressed="true"]');
+    /* Aucune vue sélectionnée — on est dans une fiche : le curseur s'efface au
+       lieu de rester sur la dernière. */
+    if(!b||!b.offsetWidth){i.style.opacity='0';return;}
+    i.style.opacity='1';
+    i.style.width=b.offsetWidth+'px';
+    i.style.transform='translateX('+b.offsetLeft+'px)';
+  });
+}
+/* Les intitulés arrivent avec la fonte : mesurés avant, ils sont faux. */
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(glisse);
+addEventListener('resize',glisse);
+
 function hud(){
   if(!view.length)return;
   var r=REL[view[CUR]];
@@ -1456,6 +1480,7 @@ function setState(s){
   $('#mParcours').setAttribute('aria-pressed',s==='parcours'?'true':'false');
   $('#mSurvey').setAttribute('aria-pressed',s==='survey'?'true':'false');
   $('#mPhotos').setAttribute('aria-pressed',s==='photos'?'true':'false');
+  glisse();
   $('#photos').setAttribute('aria-hidden',s==='photos'?'false':'true');
   $('#survey').setAttribute('aria-hidden',s==='survey'?'false':'true');
   $('#focus').setAttribute('aria-hidden',s==='focus'?'false':'true');
@@ -2343,6 +2368,7 @@ $('#filters').addEventListener('click',function(e){
     x.setAttribute('aria-pressed',x===b?'true':'false');
   });
   CUR=0;rebuild();hud();goTo(0,false);requestAnimationFrame(render);
+  glisse();
 });
 
 /* thème : auto → clair → sombre */

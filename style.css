@@ -70,6 +70,8 @@
   --pad:clamp(14px,2.4vw,32px);
   --e:cubic-bezier(.24,.9,.3,1);
   --e-out:cubic-bezier(.16,1,.3,1);
+  /* le retour d'un appui : il dépasse d'un cheveu avant de se poser */
+  --ressort:cubic-bezier(.34,1.4,.64,1);
   --cw:clamp(168px,24vw,340px);
   --listw:clamp(196px,19vw,282px);
 }
@@ -1201,7 +1203,58 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 /* une seule barre de commandes */
 .ctlbar{display:flex;align-items:stretch;flex-wrap:nowrap;
   box-shadow:0 0 0 1px rgba(0,0,0,.32),0 2px 8px -4px rgba(0,0,0,.5)}
-.ctlbar .seg{display:flex}
+/* ─── le mouvement des commandes ───
+   Une commande qui ne répond pas physiquement n'a pas l'air d'une commande. Trois
+   règles, tirées de ce qui se pratique et vérifiées à l'usage :
+
+     1. **la réponse à l'appui doit être immédiate.** Au-delà de 200 ms de
+        latence, l'interface paraît cassée. L'aller dure donc 90 ms, le retour
+        260 : on appuie sec, on relâche en souplesse ;
+     2. **l'aller et le retour n'ont pas la même courbe.** Le retour passe par un
+        léger dépassement — le bouton remonte un cheveu au-dessus de sa place
+        avant de s'y poser. C'est ce qui donne la sensation de matière ;
+     3. **on n'anime que ce qui ne coûte rien** : transformation, opacité, ombre.
+        Rien qui refasse la mise en page.
+
+   Le geste lui-même est celui d'un bouton verni : il **s'enfonce** — un pixel
+   vers le bas, une ombre interne qui se creuse, la brillance qui se retire.
+   Aucune couleur ne bouge : le monochrome tient. */
+.ctlbar button,.optmenu button,.tour-foot button,.pl-foot button,
+.stkbar button,.fclose,.card .src,.play a,.amenu button{
+  transition:color .18s var(--e),filter .18s var(--e),
+    box-shadow .26s var(--e-out),transform .26s var(--ressort)}
+.ctlbar button:active,.optmenu button:active,.tour-foot button:active,
+.pl-foot button:active,.stkbar button:active,.fclose:active,
+.card .src:active,.play a:active,.amenu button:active{
+  transform:translateY(1px);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.20),0 0 0 1px rgba(0,0,0,.28);
+  transition-duration:.09s,.09s,.09s,.09s}
+
+/* ─── la sélection glisse ───
+   Elle s'allumait ici et s'éteignait là : deux évènements sans rapport, et l'œil
+   ne suivait rien. C'est maintenant **un seul objet qui se déplace** — le
+   procédé de l'élément partagé, le plus lisible qui soit pour dire « c'est passé
+   de là à ici ». Sa largeur suit celle du bouton visé, ce qui compte ici où les
+   intitulés portent un compte et changent de longueur d'un artiste à l'autre.
+
+   Quand aucune vue n'est sélectionnée — dans une fiche —, elle s'efface au lieu
+   de rester bêtement sur la dernière. */
+/* Le chrome passe du bouton au **groupe**. Sans quoi le curseur, qui glisse
+   derrière les boutons, disparaîtrait sous leur fond opaque à chaque fois qu'il
+   passe devant l'un d'eux : on ne verrait que son départ et son arrivée. Les
+   boutons deviennent donc des étiquettes transparentes posées sur une plaque. */
+.ctlbar .seg{display:flex;position:relative;isolation:isolate;
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3))}
+.seg .glis{position:absolute;left:0;top:0;height:100%;width:0;z-index:0;
+  opacity:0;pointer-events:none;
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,
+    var(--bl-3) 52%,var(--bl-4));
+  box-shadow:0 1px 0 rgba(255,255,255,.35) inset;
+  transition:transform .44s var(--e-out),width .44s var(--e-out),
+    opacity .22s var(--e)}
+.ctlbar .seg button{position:relative;z-index:1;background:none;box-shadow:none}
+.ctlbar .seg button:hover{background:rgba(0,0,0,.05)}
+.ctlbar .seg button[aria-pressed="true"]:hover{background:none}
 .ctlbar .div{width:1px;flex:none;background:var(--cr-line);
   box-shadow:1px 0 0 var(--cr-glow)}
 .ctlbar button{padding:7px 13px;white-space:nowrap;
@@ -1213,8 +1266,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .ctlbar button:hover{color:var(--cr-ink)}
 .ctlbar button:active{filter:brightness(.94)}
 .ctlbar button[aria-pressed="true"]:not(.hold){
-  color:var(--pn);text-shadow:0 1px 1px rgba(0,0,0,.45);
-  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,var(--bl-3) 52%,var(--bl-4));
+  color:var(--pn);text-shadow:0 1px 1px rgba(0,0,0,.45)}
+/* Hors d'un groupe segmenté — le bouton des options — il n'y a pas de curseur à
+   faire glisser : celui-là garde son fond. */
+.ctlbar>button[aria-pressed="true"]:not(.hold),
+.optwrap button[aria-pressed="true"]:not(.hold){
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,
+    var(--bl-3) 52%,var(--bl-4));
   box-shadow:0 1px 0 rgba(255,255,255,.35) inset}
 .ctlbar sup{font-size:.78em;opacity:.7;margin-left:3px;vertical-align:super}
 /* ─── le tiroir d'options ───
@@ -1238,6 +1296,34 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   pointer-events:none;visibility:hidden;
   transition:opacity .2s var(--e),transform .34s var(--e-out),visibility .34s}
 .optmenu.on{opacity:1;transform:none;pointer-events:auto;visibility:visible}
+/* ─── les lignes arrivent l'une après l'autre ───
+   Un tiroir dont tout le contenu apparaît d'un bloc se lit d'un bloc. Décalées de
+   18 ms, les lignes se lisent dans l'ordre où elles sont écrites — et le retard
+   cumulé reste sous un quart de seconde, donc l'ouverture ne traîne pas.
+
+   À la fermeture, aucune transition : la sortie doit être plus rapide que
+   l'entrée, et personne ne regarde partir un menu. */
+.optmenu>*{opacity:0;transform:translateY(-7px)}
+.optmenu.on>*{opacity:1;transform:none;
+  transition:opacity .24s var(--e) var(--d,0ms),
+    transform .34s var(--e-out) var(--d,0ms)}
+.optmenu.on>*:nth-child(1){--d:0ms}
+.optmenu.on>*:nth-child(2){--d:18ms}
+.optmenu.on>*:nth-child(3){--d:36ms}
+.optmenu.on>*:nth-child(4){--d:54ms}
+.optmenu.on>*:nth-child(5){--d:72ms}
+.optmenu.on>*:nth-child(6){--d:90ms}
+.optmenu.on>*:nth-child(7){--d:108ms}
+.optmenu.on>*:nth-child(8){--d:126ms}
+.optmenu.on>*:nth-child(9){--d:144ms}
+.optmenu.on>*:nth-child(10){--d:162ms}
+.optmenu.on>*:nth-child(11){--d:180ms}
+.optmenu.on>*:nth-child(12){--d:198ms}
+.optmenu.on>*:nth-child(13){--d:216ms}
+.optmenu.on>*:nth-child(14){--d:234ms}
+.optmenu.on>*:nth-child(15){--d:240ms}
+.optmenu.on>*:nth-child(16){--d:240ms}
+
 .optmenu .ah{padding:6px 12px;border-bottom:1px solid var(--cr-line);
   background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
   font:600 9.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;
@@ -1390,4 +1476,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     transition-duration:.01ms!important}
   .field{scroll-behavior:auto}
   .slot,.survey .cell,.focus .txt>*{opacity:1;transform:none}
+  /* Les retards en cascade doivent tomber aussi : une durée mise à zéro sans le
+     retard laisserait les lignes apparaître l'une après l'autre, par saccades. */
+  *{transition-delay:0ms!important;animation-delay:0ms!important}
+  .optmenu>*{opacity:1;transform:none}
 }

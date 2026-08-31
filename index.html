@@ -85,6 +85,9 @@
 
     <div class="ctlbar">
       <div class="seg" id="filters" role="group" aria-label="Filtrer par type">
+        <!-- Le fond de la sélection est un nœud à part, qui **glisse** d'un
+             bouton à l'autre au lieu de s'allumer ici et de s'éteindre là. -->
+        <i class="glis" aria-hidden="true"></i>
         <button type="button" data-f="tout" data-lbl="tout" aria-pressed="true"></button>
         <button type="button" data-f="Album" data-lbl="albums" aria-pressed="false"></button>
         <button type="button" data-f="EP" data-lbl="ep" aria-pressed="false"></button>
@@ -92,6 +95,7 @@
       </div>
       <span class="div" aria-hidden="true"></span>
       <div class="seg" role="group" aria-label="Vue">
+        <i class="glis" aria-hidden="true"></i>
         <button id="mParcours" type="button" aria-pressed="true">parcours</button>
         <button id="mSurvey" type="button" aria-pressed="false">planche</button>
         <button id="mPhotos" type="button" aria-pressed="false">images</button>

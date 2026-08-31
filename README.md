@@ -338,6 +338,65 @@ Il n'y a **pas de bouton d'entrée** : le splash s'efface de lui-même dès que
 l'animation est jouée et les pochettes chargées, et le site apparaît d'un coup.
 Un clic l'abrège ; un filet de sécurité borne l'attente à quatre secondes.
 
+## Le mouvement
+
+Les commandes marchaient sans répondre : on appuyait, la fonction se faisait, et
+rien dans le bouton ne disait qu'on l'avait touché. Trois règles, prises dans ce
+qui se pratique et vérifiées à l'usage.
+
+### La réponse à l'appui doit être immédiate
+
+Au-delà de 200 ms de latence, une interface **paraît cassée** ; les
+micro-réactions — un appui, une bascule — se jouent en 100 à 200 ms. L'aller dure
+donc **90 ms**, le retour **260**. On appuie sec, on relâche en souplesse.
+
+C'est une seule ligne qui le fait : la transition longue est sur l'état de repos,
+et l'état `:active` la raccourcit. Le sens de lecture est le bon — ce qui doit
+être instantané est déclaré sur l'instant qui doit l'être.
+
+### L'aller et le retour n'ont pas la même courbe
+
+L'entrée sort en `ease-out`, la sortie en `ease-in` ; entre les deux, le retour
+d'un appui passe par un **léger dépassement** — `cubic-bezier(.34,1.4,.64,1)` — le
+bouton remonte d'un cheveu au-dessus de sa place avant de s'y poser. C'est ce qui
+donne la sensation de matière, et c'est le seul endroit du site où quelque chose
+dépasse.
+
+Le geste est celui d'un bouton verni : il **s'enfonce**. Un pixel vers le bas, une
+ombre interne qui se creuse. Aucune couleur ne bouge : le monochrome tient.
+
+### La sélection glisse
+
+Elle s'allumait ici et s'éteignait là — deux évènements sans rapport, et l'œil ne
+suivait rien. C'est maintenant **un seul objet qui se déplace**, le procédé de
+l'élément partagé : le plus lisible qui soit pour dire « c'est passé de là à ici ».
+Sa largeur suit celle du bouton visé, ce qui compte ici où les intitulés portent
+un compte et changent de longueur d'un artiste à l'autre.
+
+Cela a demandé de **déplacer le chrome du bouton vers le groupe**. Le curseur
+glisse derrière les boutons ; tant qu'ils portaient un fond opaque, il disparaissait
+sous chacun de ceux qu'il traversait, et l'on n'aurait vu que son départ et son
+arrivée. Les boutons sont donc devenus des étiquettes transparentes posées sur une
+plaque.
+
+Quand aucune vue n'est sélectionnée — dans une fiche —, le curseur **s'efface**
+plutôt que de rester bêtement sur la dernière.
+
+### Les lignes du tiroir arrivent l'une après l'autre
+
+Décalées de 18 ms, elles se lisent dans l'ordre où elles sont écrites, et le
+retard cumulé reste sous un quart de seconde : l'ouverture ne traîne pas. À la
+fermeture, aucune transition — la sortie doit être plus rapide que l'entrée, et
+personne ne regarde partir un menu.
+
+Sous mouvement réduit, **les retards tombent aussi**. Une durée mise à zéro sans
+son retard laisserait les lignes apparaître l'une après l'autre, par saccades :
+c'est le piège de la règle générale qu'on écrit une fois et qu'on oublie.
+
+Sources : [Web Animation Best Practices](https://gist.github.com/uxderrick/07b81ca63932865ef1a7dc94fbe07838) ·
+[5 Rules for Motion in UI Transitions](https://www.equal.design/blog/5-rules-for-motion-in-ui-transitions) ·
+[Motion Design Principles](https://www.toptal.com/designers/ux/motion-design-principles)
+
 ## Curseur et sons
 
 Le curseur est remplacé par une **bille de verre** et son **halo**.
