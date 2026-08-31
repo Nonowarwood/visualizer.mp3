@@ -340,16 +340,31 @@ Un clic l'abrège ; un filet de sécurité borne l'attente à quatre secondes.
 
 ## Curseur et sons
 
-Le curseur est remplacé par **quatre équerres formant un cadre**, avec un point de
-visée au centre. Leur écartement porte l'information : resserré au repos, ouvert sur
-un élément actionnable, largement ouvert sur une pochette — le curseur annonce le
-cadrage avant même le clic, et le point de visée s'efface quand il cadre. Il se
-contracte à l'appui.
+Le curseur est remplacé par une **bille de verre** et son **halo**.
 
-Le tout est en `mix-blend-mode: difference` : il s'inverse de lui-même selon le fond,
-lisible sur le chrome clair comme sur le noir, sans avoir à connaître ce qu'il y a
-dessous. Il ne s'active pas sur écran tactile, et le curseur natif revient si le
-script ne tourne pas.
+Il a d'abord été un réticule : quatre équerres et un point de visée, en fondu par
+différence, qui s'inversait sur ce qu'il survolait. C'était juste pour un site fait
+d'angles vifs. Ça ne l'était plus pour celui-ci — boîtier arrondi, molette, fonds
+d'écran, autocollants : quelque chose de plus doux a pris le dessus, et une mire de
+visée y détonnait. C'était de la précision d'instrument sur un objet qui n'en
+demandait pas.
+
+La bille est montée comme tout le verni du site : dégradé vertical, cassure nette à
+mi-hauteur, brillance haute, filet sombre au pourtour. Ses bleus ne sont pas
+choisis, ils sont **relevés dans l'image de la mascotte** — `#CCE4FC` et `#48A8FC`,
+ses deux teintes dominantes. Le guide du site et le curseur sont donc de la même
+couleur, ce qui n'est pas un ornement mais un lien. Ils ne changent pas avec le
+thème : c'est un objet, pas une surface, et une bille bleue se voit sur les deux.
+
+**Deux nœuds, deux allures.** La bille colle au pointeur, au pixel et sans retard —
+un curseur qui traîne est un curseur qui ment sur l'endroit où l'on clique, et
+l'ancien traînait tout entier. Le halo, lui, la rattrape : c'est lui qui porte la
+douceur et l'état. Il s'ouvre sur ce qui se clique, s'ouvre en grand sur une
+pochette — l'ancien cadrait, celui-ci enveloppe —, et se referme sur la bille quand
+on appuie.
+
+Il ne s'active pas sur écran tactile, et le curseur natif revient si le script ne
+tourne pas.
 
 Les **sons sont entièrement synthétisés** par l'API Web Audio : quatre timbres courts
 — survol, clic, changement de pochette, changement de vue — construits à la volée à

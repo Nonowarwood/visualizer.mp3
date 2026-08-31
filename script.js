@@ -2298,20 +2298,30 @@ var sfx=(function(){
 (function(){
   if(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)return;
   var cur=$('#cur'),root=document.documentElement;
+  var bille=cur.querySelector('b'),halo=cur.querySelector('i');
   var tx=0,ty=0,x=0,y=0,raf=0,shown=false;
   var HOT='button,a,input,[role="option"]';
   var FRAME='.slot,.cell,.pstage';
+  /* La bille est posée **dans l'événement**, pas dans la boucle : elle doit
+     tomber au pixel où l'on clique, sans une image de retard. Seul le halo est
+     interpolé, et c'est lui qui donne la douceur — l'ancien curseur traînait tout
+     entier, ce qui était joli et un peu menteur. */
+  function pose(){
+    if(bille)bille.style.transform='translate3d('+tx+'px,'+ty+'px,0)';
+  }
   function loop(){
     raf=0;
-    var k=reduce?1:0.30;
+    var k=reduce?1:0.22;
     x+=(tx-x)*k;y+=(ty-y)*k;
-    cur.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,0)';
+    if(halo)halo.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,0)';
     if(Math.abs(tx-x)>0.3||Math.abs(ty-y)>0.3)raf=requestAnimationFrame(loop);
   }
   addEventListener('pointermove',function(e){
     if(e.pointerType==='touch')return;
     tx=e.clientX;ty=e.clientY;
-    if(!shown){shown=true;x=tx;y=ty;root.classList.add('has-cur');}
+    if(!shown){shown=true;x=tx;y=ty;root.classList.add('has-cur');
+      if(halo)halo.style.transform='translate3d('+x+'px,'+y+'px,0)';}
+    pose();
     if(!raf)raf=requestAnimationFrame(loop);
   },{passive:true});
   addEventListener('pointerover',function(e){

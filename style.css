@@ -12,6 +12,10 @@
   --sv-bg:#C3C8D0; --sv-ph:#6E7684; --refl:.22; --vig:.09;
   /* le voile posé sur le fond d'écran, quand il y en a un */
   --voile:rgba(250,251,252,.76);
+  /* Les bleus du curseur, relevés dans l'image de la mascotte : le guide et le
+     curseur sont de la même couleur. Ils ne changent pas avec le thème — c'est
+     un objet, pas une surface. */
+  --cu-1:#D8ECFE; --cu-2:#8CCBFE; --cu-3:#48A8FC; --cu-4:#2E8BE0;
   /* chrome */
   --cr-1:#FBFCFD; --cr-2:#E7EAEF; --cr-3:#CBD1D9; --cr-line:#9098A4;
   --cr-ink:#2B3037; --cr-ink-2:#69717D; --cr-glow:rgba(255,255,255,.7);
@@ -182,26 +186,54 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    resserré au repos, ouvert sur un élément actionnable, largement ouvert sur une
    pochette — le curseur annonce le cadrage avant le clic. En `difference`, donc
    lisible sur le chrome clair comme sur le noir, sans connaître le fond. */
+/* ─── le curseur ───
+   L'ancien était un **réticule** : quatre équerres et un point, en fondu par
+   différence, qui s'inversait sur ce qu'il survolait. Il allait avec un site fait
+   d'angles vifs. Il ne va plus avec celui-ci — boîtier arrondi, molette, fonds
+   d'écran, autocollants : quelque chose de plus doux a pris le dessus, et une
+   mire de visée y détonnait.
+
+   Le voici en **bille de verre**, montée comme tout le verni du site : dégradé
+   vertical, cassure nette à mi-hauteur, brillance haute, filet sombre au
+   pourtour. Ses bleus sont ceux de la mascotte, relevés dans son image même —
+   `#CCE4FC` et `#48A8FC`. Le guide du site et le curseur sont donc de la même
+   couleur, ce qui n'est pas un ornement mais un lien.
+
+   Deux nœuds, deux allures : la **bille** colle au pointeur, au pixel et sans
+   retard — un curseur qui traîne est un curseur qui ment sur l'endroit où l'on
+   clique. Le **halo** la rattrape, et c'est lui qui porte la douceur et l'état :
+   il s'ouvre sur ce qui se clique, s'ouvre en grand sur une pochette, se resserre
+   quand on appuie. */
 .cur{position:fixed;left:0;top:0;width:0;height:0;z-index:100;pointer-events:none;
-  mix-blend-mode:difference;opacity:0;--r:8px;will-change:transform;
-  transition:opacity .2s var(--e)}
+  opacity:0;--d:14px;--h:30px;--o:.30;--e2:1.5px;
+  transition:opacity .22s var(--e)}
 .has-cur .cur{opacity:1}
-.cur i{position:absolute;width:10px;height:10px;border:1px solid #fff;
-  transition:transform .28s var(--e-out),opacity .28s var(--e)}
-.cur i:nth-child(1){border-right:0;border-bottom:0;
-  transform:translate(calc(var(--r)*-1),calc(var(--r)*-1))}
-.cur i:nth-child(2){border-left:0;border-bottom:0;
-  transform:translate(calc(var(--r) - 10px),calc(var(--r)*-1))}
-.cur i:nth-child(3){border-left:0;border-top:0;
-  transform:translate(calc(var(--r) - 10px),calc(var(--r) - 10px))}
-.cur i:nth-child(4){border-right:0;border-top:0;
-  transform:translate(calc(var(--r)*-1),calc(var(--r) - 10px))}
-.cur b{position:absolute;width:3px;height:3px;background:#fff;
-  transform:translate(-1.5px,-1.5px);transition:opacity .28s var(--e)}
-.cur.hot{--r:15px}
-.cur.frame{--r:30px}
-.cur.frame b{opacity:0}
-.cur.press{--r:6px}
+.cur b,.cur i{position:absolute;left:0;top:0;border-radius:50%;
+  will-change:transform}
+/* la bille */
+.cur b{width:var(--d);height:var(--d);margin:calc(var(--d)/-2) 0 0 calc(var(--d)/-2);
+  background:linear-gradient(180deg,var(--cu-1) 0,var(--cu-2) 48%,
+    var(--cu-3) 52%,var(--cu-4) 100%);
+  box-shadow:0 0 0 1px rgba(10,42,74,.45),0 1px 3px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.55);
+  transition:width .2s var(--e-out),height .2s var(--e-out),
+    margin .2s var(--e-out)}
+/* la brillance, dans la bille : c'est elle qui en fait du verre */
+.cur b::after{content:"";position:absolute;left:23%;top:13%;width:42%;height:26%;
+  border-radius:50%;background:rgba(255,255,255,.72)}
+/* le halo */
+.cur i{width:var(--h);height:var(--h);margin:calc(var(--h)/-2) 0 0 calc(var(--h)/-2);
+  border:var(--e2) solid var(--cu-3);opacity:var(--o);
+  transition:width .28s var(--e-out),height .28s var(--e-out),
+    margin .28s var(--e-out),opacity .28s var(--e),border-width .28s var(--e)}
+/* Sur ce qui se clique, le halo s'ouvre et la bille se retire un peu : c'est le
+   halo qui désigne, elle n'a plus qu'à pointer. */
+.cur.hot{--d:10px;--h:46px;--o:.5}
+/* Sur une pochette, il s'ouvre franchement — l'ancien réticule cadrait, celui-ci
+   enveloppe. */
+.cur.frame{--d:8px;--h:74px;--o:.42;--e2:2px}
+/* Appuyer resserre les deux : la bille s'enfonce, le halo se referme dessus. */
+.cur.press{--d:9px;--h:20px;--o:.72;--e2:2.5px}
 .has-cur,.has-cur *{cursor:none!important}
 @media (pointer:coarse){.cur{display:none}}
 
