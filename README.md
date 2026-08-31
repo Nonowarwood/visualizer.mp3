@@ -351,10 +351,16 @@ demandait pas.
 
 La bille est montée comme tout le verni du site : dégradé vertical, cassure nette à
 mi-hauteur, brillance haute, filet sombre au pourtour. Ses bleus ne sont pas
-choisis, ils sont **relevés dans l'image de la mascotte** — `#CCE4FC` et `#48A8FC`,
-ses deux teintes dominantes. Le guide du site et le curseur sont donc de la même
-couleur, ce qui n'est pas un ornement mais un lien. Ils ne changent pas avec le
-thème : c'est un objet, pas une surface, et une bille bleue se voit sur les deux.
+choisis au jugé — la **teinte est relevée dans l'image de la mascotte**, dont
+`#CCE4FC` et `#48A8FC` sont les deux dominantes. Le guide du site et le curseur
+sont donc de la même famille, ce qui n'est pas un ornement mais un lien.
+
+La saturation, elle, est **rabattue de moitié**. À pleine teinte la bille faisait
+une tache bleue qui tirait l'œil en permanence : un curseur doit se laisser
+oublier. Elle est aussi passée de 14 à 11 px. Ce qui la tient lisible n'est pas sa
+couleur mais son **filet sombre** et sa brillance — c'est pour ça qu'elle peut se
+permettre d'être pâle sur un fond clair. Elle ne change pas avec le thème : c'est
+un objet, pas une surface.
 
 **Deux nœuds, deux allures.** La bille colle au pointeur, au pixel et sans retard —
 un curseur qui traîne est un curseur qui ment sur l'endroit où l'on clique, et

@@ -15,7 +15,7 @@
   /* Les bleus du curseur, relevés dans l'image de la mascotte : le guide et le
      curseur sont de la même couleur. Ils ne changent pas avec le thème — c'est
      un objet, pas une surface. */
-  --cu-1:#D8ECFE; --cu-2:#8CCBFE; --cu-3:#48A8FC; --cu-4:#2E8BE0;
+  --cu-1:#E9F4FE; --cu-2:#BFE2FE; --cu-3:#99CEFC; --cu-4:#7EB1E0;
   /* chrome */
   --cr-1:#FBFCFD; --cr-2:#E7EAEF; --cr-3:#CBD1D9; --cr-line:#9098A4;
   --cr-ink:#2B3037; --cr-ink-2:#69717D; --cr-glow:rgba(255,255,255,.7);
@@ -205,7 +205,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    il s'ouvre sur ce qui se clique, s'ouvre en grand sur une pochette, se resserre
    quand on appuie. */
 .cur{position:fixed;left:0;top:0;width:0;height:0;z-index:100;pointer-events:none;
-  opacity:0;--d:14px;--h:30px;--o:.30;--e2:1.5px;
+  opacity:0;--d:11px;--h:28px;--o:.32;--e2:1.5px;
   transition:opacity .22s var(--e)}
 .has-cur .cur{opacity:1}
 .cur b,.cur i{position:absolute;left:0;top:0;border-radius:50%;
@@ -228,12 +228,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     margin .28s var(--e-out),opacity .28s var(--e),border-width .28s var(--e)}
 /* Sur ce qui se clique, le halo s'ouvre et la bille se retire un peu : c'est le
    halo qui désigne, elle n'a plus qu'à pointer. */
-.cur.hot{--d:10px;--h:46px;--o:.5}
+.cur.hot{--d:8px;--h:44px;--o:.52}
 /* Sur une pochette, il s'ouvre franchement — l'ancien réticule cadrait, celui-ci
    enveloppe. */
-.cur.frame{--d:8px;--h:74px;--o:.42;--e2:2px}
+.cur.frame{--d:6px;--h:72px;--o:.44;--e2:2px}
 /* Appuyer resserre les deux : la bille s'enfonce, le halo se referme dessus. */
-.cur.press{--d:9px;--h:20px;--o:.72;--e2:2.5px}
+.cur.press{--d:7px;--h:19px;--o:.74;--e2:2.5px}
 .has-cur,.has-cur *{cursor:none!important}
 @media (pointer:coarse){.cur{display:none}}
 
