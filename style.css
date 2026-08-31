@@ -890,9 +890,17 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 /* Un bandeau réservé en haut, et non plus une barre posée par-dessus : le
    boîtier se met à l'échelle dans ce qui reste, donc les deux ne se recouvrent
    jamais. Le lecteur y vient aussi — il n'a pas sa place dans l'écran. */
-#outside{position:fixed;left:0;right:0;top:0;height:62px;z-index:40;
+/* **Hauteur nulle hors du mode appareil.** Ce bandeau ne sert qu'à loger ce qui
+   sort de l'écran du boîtier ; le reste du temps il était vide, et pourtant posé
+   sur les 62 premiers pixels de la page, au-dessus de tout le reste — il est hors
+   de `#app`, donc son plan 40 domine le plan 1 de la page entière. Traversant,
+   il ne devrait rien intercepter ; mais une couche invisible qui recouvre la barre
+   de commandes est le genre de chose dont on se passe, surtout sur un téléphone où
+   la barre est déjà à l'étroit. */
+#outside{position:fixed;left:0;right:0;top:0;height:0;z-index:40;
   pointer-events:none;display:flex;justify-content:center;align-items:center;
   gap:var(--pad);padding:0 var(--pad)}
+[data-device="on"] #outside{height:62px}
 #outside>*{pointer-events:auto}
 /* Le bouton des options se range **dans le coin**, et non au-dessus du boîtier.
    Centré, il avait l'air posé sur l'appareil — une commande de plus au sommet de
@@ -1342,7 +1350,24 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .hud{position:fixed;inset:0;z-index:30;pointer-events:none;
   display:grid;grid-template-rows:auto 1fr auto;padding:var(--pad)}
 .hud>*{display:flex;gap:var(--pad);justify-content:space-between}
+/* Le HUD est traversant pour que le Cover Flow reste saisissable au travers. Mais
+   ne rendre sensibles que les `button` laissait tout le reste inerte : le panneau
+   du tiroir, la marge autour d'un bouton, la réglette. Sur un pointeur fin cela
+   ne se remarque pas — on vise juste. Au doigt, on vise à trois millimètres près,
+   et la moitié des touchers tombait à côté. Ce sont donc les **commandes
+   entières** qui reçoivent le toucher.
+
+   `touch-action:manipulation` avec : il retire le délai de double-frappe que les
+   navigateurs mobiles gardent sur tout ce qui n'est pas déclaré, et qui donne
+   l'impression d'une interface qui répond mal. */
 .hud button,.hud a{pointer-events:auto}
+.ctlbar,.brandwrap,.amenu,.optmenu,.arrows,.scrub,.psets,.rlist,.close{
+  pointer-events:auto}
+/* La molette et les autocollants en sont exclus : eux se **glissent**, et doivent
+   garder `touch-action:none`, sans quoi le doigt ferait défiler la page au lieu
+   de les entraîner. */
+button,a,input,[role="option"]{touch-action:manipulation}
+.dv-wheel,.stk{touch-action:none}
 .hud .top{align-items:flex-start;flex-wrap:wrap}
 .hud .top>*,.hud .bot>*{opacity:0;transform:translateY(-8px)}
 .hud .bot>*{transform:translateY(10px)}
@@ -1641,6 +1666,38 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .scrub button:hover{background:var(--on-1);height:16px}
 .scrub button[aria-current="true"]{height:24px;background:var(--bl-3)}
 @media(max-width:720px){.scrub{display:none}}
+
+/* ═══════════════ l'étroit ═══════════════
+   La barre porte neuf commandes de front. Sur un téléphone tenu debout il reste
+   360 px : elle en demandait plus de six cents, et **sortait de l'écran** — que le
+   corps de la page coupe sans laisser défiler. Une partie des boutons se trouvait
+   donc hors de portée, à un endroit où rien ne disait qu'ils étaient.
+
+   Elle passe sur deux rangs, chaque groupe prenant sa part de la largeur, et les
+   intitulés se resserrent. Rien n'est retiré : ce qui existe sur grand écran
+   existe ici. */
+@media(max-width:720px){
+  .hud .top{gap:8px}
+  .ctlbar{flex-wrap:wrap}
+  /* Les quatre types de parution prennent un rang à eux : « singles⁴ » ne tient
+     pas dans le septième d'une largeur de téléphone. Les trois vues et les
+     options partagent le suivant. */
+  .ctlbar #filters{flex:1 1 100%}
+  .ctlbar .seg{flex:1 1 auto}
+  .ctlbar .seg button{flex:1 1 auto;padding:9px 6px;font-size:10px;letter-spacing:.04em}
+  .ctlbar .optwrap{flex:1 1 auto}
+  .ctlbar .optb{width:100%;justify-content:center;padding:9px 12px;font-size:10px}
+  /* Les filets qui séparaient les groupes n'ont plus de sens quand les groupes
+     passent à la ligne : ils dessineraient un trait au bout d'un rang. */
+  .ctlbar .div{display:none}
+  .brandwrap{flex:1 1 100%}
+  .brand{width:100%;justify-content:space-between}
+}
+/* Le doigt ne survole pas : ce qui ne s'obtenait qu'au survol doit s'obtenir
+   autrement, ou disparaître. */
+@media (pointer:coarse){
+  .hint{display:none}
+}
 
 .tail{text-align:right;flex:1 1 0;min-width:0}
 .hint{font:400 10.5px/1.8 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--on-3);

@@ -3060,7 +3060,14 @@ function enter(){
      commandes que le splash recouvrait encore. */
   var vu=true;
   try{vu=localStorage.getItem('wte-tour')==='1';}catch(e){}
-  if(!vu)setTimeout(function(){if(STATE==='parcours')tourShow(0);},1100);
+  /* Pas d'ouverture d'elle-même sur un écran étroit ou tactile. La visite éteint
+     la page pour éclairer une commande, promène une bulle de 400 px et désigne
+     des choses qui n'ont pas la même place au doigt : lancée toute seule sur un
+     téléphone, elle se présente comme une panne — un voile sombre en haut de
+     l'écran et rien qui réponde. Elle reste dans le tiroir, pour qui la demande. */
+  var etroit=innerWidth<760
+    ||(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches);
+  if(!vu&&!etroit)setTimeout(function(){if(STATE==='parcours')tourShow(0);},1100);
   if(window.requestIdleCallback)requestIdleCallback(prefetchOthers,{timeout:2500});
   else setTimeout(prefetchOthers,1200);
   var h=$('#hint');
