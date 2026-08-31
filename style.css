@@ -64,6 +64,7 @@
      gris qui est le sien, l'écart est de quinze points et le sol peut redevenir
      ce qu'il doit être : du blanc, à peine dégradé, sur lequel l'objet se pose. */
   --dv-sol-1:#F6F6F7; --dv-sol-2:#F1F1F2; --dv-sol-3:#E8E9EA;
+  --dv-grav:rgba(0,0,0,.30); --dv-grav-lip:rgba(255,255,255,.60);
   /* vernis monochrome — même structure de dégradé, sans teinte */
   --bl-1:#8A9099; --bl-2:#4B515B; --bl-3:#2E333B; --bl-4:#191D23; --bl:#2B3037;
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -112,6 +113,7 @@
   --dv-spec:.07; --dv-spec2:.03; --dv-bounce:.07; --dv-gloss:.08;
   --dv-ring:.08; --dv-ring2:.05; --dv-ring3:.04;
   --dv-sol-1:#16181C; --dv-sol-2:#0D0F12; --dv-sol-3:#050607;
+  --dv-grav:rgba(0,0,0,.52); --dv-grav-lip:rgba(255,255,255,.085);
 }
 /* Le thème automatique n'existe plus : `applyTheme` pose toujours `data-theme`,
    et une règle sur `prefers-color-scheme` ne ferait qu'un noir bref avant que le
@@ -121,9 +123,16 @@
 html,body{height:100%}
 body{
   margin:0;overflow:hidden;color:var(--on-1);
-  background:radial-gradient(122% 104% at 50% 0%,var(--st-1),var(--st-2) 56%,var(--st-3));
+  /* Deux couches : la **surface**, dessinée et facultative, par-dessus le fond du
+     thème. Elle est déclarée ici et non dans une règle à part, pour que le mode
+     appareil n'ait qu'à changer le fond du dessous. */
+  background-image:var(--surf,none),
+    radial-gradient(122% 104% at 50% 0%,var(--st-1),var(--st-2) 56%,var(--st-3));
+  background-size:var(--surf-t,auto),cover;
+  background-repeat:repeat,no-repeat;
+  background-position:0 0,center;
   font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;
-  transition:background .7s var(--e),color .7s var(--e);
+  transition:background-color .7s var(--e),color .7s var(--e);
 }
 h1,h2,h3,p,dl,dd,ul{margin:0}
 h1,h2,h3{font-weight:600}
@@ -133,6 +142,108 @@ a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--bl);outline-offset:2px}
 [hidden]{display:none!important}
 kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
+
+/* ═══════════════ la couleur d'accent ═══════════════
+   Le site est monochrome par construction, et le reste : un seul réglage, la
+   **couleur du verni de sélection**. Elle irrigue tout ce qui se choisit — la
+   pochette centrale, la ligne courante, la réglette, les menus de l'appareil, la
+   jauge de la visite, la bille du curseur.
+
+   Les cinq teintes ne sont pas choisies à l'œil mais **calculées sur une même
+   rampe** : les clartés du graphite d'origine — 57, 33, 21, 12 en clair ; 91, 74,
+   58, 44 en sombre —, tenues d'une teinte à l'autre, avec la seule saturation qui
+   monte. C'est ce qui garantit que le texte blanc porté par le verni reste lisible
+   sur les cinq, sans avoir à le vérifier cinq fois : le contraste ne dépend que de
+   la clarté, et la clarté ne bouge pas.
+
+   Le graphite reste le défaut : rien ne change pour qui ne demande rien. */
+[data-accent="bleu"]{
+  --bl-1:#658EBD; --bl-2:#2A517E; --bl-3:#183454; --bl-4:#0C1D31; --bl:#183454;
+  --cu-1:#EAF2FA; --cu-2:#C3D7EF; --cu-3:#A2C0E2; --cu-4:#79A0CD}
+[data-accent="ambre"]{
+  --bl-1:#BD9465; --bl-2:#7E572A; --bl-3:#543818; --bl-4:#31200C; --bl:#543818;
+  --cu-1:#FAF3EA; --cu-2:#EFDAC3; --cu-3:#E2C4A2; --cu-4:#CDA679}
+[data-accent="vert"]{
+  --bl-1:#65BD91; --bl-2:#2A7E54; --bl-3:#185436; --bl-4:#0C311F; --bl:#185436;
+  --cu-1:#EAFAF2; --cu-2:#C3EFD9; --cu-3:#A2E2C2; --cu-4:#79CDA3}
+[data-accent="rose"]{
+  --bl-1:#BD6583; --bl-2:#7E2A46; --bl-3:#54182C; --bl-4:#310C18; --bl:#54182C;
+  --cu-1:#FAEAF0; --cu-2:#EFC3D1; --cu-3:#E2A2B7; --cu-4:#CD7995}
+[data-accent="violet"]{
+  --bl-1:#9465BD; --bl-2:#572A7E; --bl-3:#381854; --bl-4:#200C31; --bl:#381854;
+  --cu-1:#F3EAFA; --cu-2:#DAC3EF; --cu-3:#C4A2E2; --cu-4:#A679CD}
+:root[data-theme="dark"][data-accent="bleu"]{
+  --bl-1:#E1E8EF; --bl-2:#A4BBD6; --bl-3:#6791C1; --bl-4:#3F6DA2; --bl:#A4BBD6}
+:root[data-theme="dark"][data-accent="ambre"]{
+  --bl-1:#EFE9E1; --bl-2:#D6BEA4; --bl-3:#C19767; --bl-4:#A2733F; --bl:#D6BEA4}
+:root[data-theme="dark"][data-accent="vert"]{
+  --bl-1:#E1EFE8; --bl-2:#A4D6BD; --bl-3:#67C194; --bl-4:#3FA270; --bl:#A4D6BD}
+:root[data-theme="dark"][data-accent="rose"]{
+  --bl-1:#EFE1E6; --bl-2:#D6A4B4; --bl-3:#C16785; --bl-4:#A23F60; --bl:#D6A4B4}
+:root[data-theme="dark"][data-accent="violet"]{
+  --bl-1:#E9E1EF; --bl-2:#BEA4D6; --bl-3:#9767C1; --bl-4:#733FA2; --bl:#BEA4D6}
+
+/* ═══════════════ les surfaces ═══════════════
+   Le sol autour de l'appareil était d'un blanc vide, et l'on a d'abord pensé à y
+   poser les fonds d'écran. C'était rouvrir le défaut qu'on venait de corriger :
+   une image de 1200 px doit couvrir 1700 px ou plus au sol — elle y est
+   **agrandie**, quand l'écran de l'appareil la réduit à 595 et la rend nette. Le
+   même fichier, deux sorts opposés.
+
+   Le sol n'a pas besoin d'une photo, il a besoin d'une **matière**. Et une matière
+   se dessine : quelques dégradés répétés, ou un bruit en SVG. Net à n'importe
+   quelle taille, quelques centaines d'octets, et l'idiome du site — où tout est
+   redessiné et rien n'est photographié.
+
+   Une seule encre, `--surf-ink`, tenue par le thème : une grille noire sur un fond
+   sombre ne se verrait pas. Les huit surfaces s'en servent toutes, si bien qu'aucune
+   n'a de version claire et de version sombre à maintenir. */
+:root{--surf-ink:rgba(0,0,0,.055); --surf-ink2:rgba(0,0,0,.10)}
+:root[data-theme="dark"]{--surf-ink:rgba(255,255,255,.05); --surf-ink2:rgba(255,255,255,.085)}
+
+/* Les règles ne sont pas ancrées à `:root` : posé sur n'importe quel élément,
+   l'attribut y définit la surface. C'est ce qui permet au tiroir de montrer huit
+   échantillons sans redire une seule ligne. */
+/* Papier millimétré : un carreau fin, et un trait fort tous les cinq. */
+[data-surface="grille"]{
+  --surf:repeating-linear-gradient(0deg,var(--surf-ink) 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(90deg,var(--surf-ink) 0 1px,transparent 1px 24px),
+    repeating-linear-gradient(0deg,var(--surf-ink2) 0 1px,transparent 1px 120px),
+    repeating-linear-gradient(90deg,var(--surf-ink2) 0 1px,transparent 1px 120px);
+  --surf-t:auto}
+/* Trame de points : la surface des cahiers, et des interfaces qui s'y réfèrent. */
+[data-surface="points"]{
+  --surf:radial-gradient(circle at 1px 1px,var(--surf-ink2) 1.1px,transparent 1.2px);
+  --surf-t:22px 22px}
+/* Hachures : des cheveux en diagonale, très serrés. */
+[data-surface="lignes"]{
+  --surf:repeating-linear-gradient(45deg,var(--surf-ink) 0 1px,transparent 1px 9px);
+  --surf-t:auto}
+/* Métal brossé : des stries verticales irrégulières — l'irrégularité est ce qui
+   distingue le brossage de la rayure. */
+[data-surface="brosse"]{
+  --surf:repeating-linear-gradient(90deg,var(--surf-ink) 0 1px,transparent 1px 3px,
+      var(--surf-ink) 3px 4px,transparent 4px 9px,var(--surf-ink) 9px 10px,
+      transparent 10px 17px);
+  --surf-t:auto}
+/* Toile : deux passes croisées, comme un tissage. */
+[data-surface="toile"]{
+  --surf:repeating-linear-gradient(0deg,var(--surf-ink) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(90deg,var(--surf-ink) 0 1px,transparent 1px 4px);
+  --surf-t:auto}
+/* Damier : large et à peine marqué, il donne l'échelle sans faire motif. */
+[data-surface="damier"]{
+  --surf:repeating-conic-gradient(var(--surf-ink) 0% 25%,transparent 0% 50%);
+  --surf-t:72px 72px}
+/* Grain : le même bruit que le grain du site, mais posé au sol et plus large. */
+[data-surface="grain"]{
+  --surf:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'220\' height=\'220\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'.7\' numOctaves=\'3\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'.5\'/%3E%3C/svg%3E");
+  --surf-t:220px 220px}
+/* Chevrons : le point de Hongrie d'un parquet, réduit à sa géométrie. */
+[data-surface="chevrons"]{
+  --surf:repeating-linear-gradient(45deg,var(--surf-ink) 0 1px,transparent 1px 14px),
+    repeating-linear-gradient(-45deg,var(--surf-ink) 0 1px,transparent 1px 14px);
+  --surf-t:auto}
 
 /* ═══════════════ splash — floraison RVB ═══════════════ */
 /* Le fond suit le thème comme le reste : un site clair ne doit pas s'ouvrir sur
@@ -793,7 +904,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 /* Le sol : presque blanc, à peine dégradé. C'est la coque qui porte le gris —
    assombrir le sol était traiter le symptôme. Il ne touche pas au fond de
    l'écran, qui reste celui du site. */
-[data-device="on"] body{background:radial-gradient(122% 104% at 50% 0%,
+[data-device="on"] body{background-image:var(--surf,none),
+  radial-gradient(122% 104% at 50% 0%,
   var(--dv-sol-1),var(--dv-sol-2) 56%,var(--dv-sol-3))}
 .device{position:fixed;z-index:0;transform-origin:0 0}
 .device[hidden]{display:none}
@@ -893,6 +1005,48 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .stkbar .stkok{color:#1B7A3D}
 .stkbar .stkno{color:#B3283C}
 
+/* Le seul endroit du site où l'on écrit. Le champ reprend le panneau creusé des
+   commandes de l'époque : fond enfoncé, filet sombre en haut. */
+.gravp input{display:block;width:100%;margin-top:7px;padding:7px 9px;
+  border:0;border-radius:0;background:var(--pn-2);color:var(--ink);
+  font:400 13px/1.2 var(--sans);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.18),0 0 0 1px var(--pn-line)}
+.gravp input::placeholder{color:var(--ink-3)}
+.gravp input:focus{outline:none;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.18),0 0 0 2px var(--bl-3)}
+
+/* ─── le choix de l'accent ───
+   Six pastilles, chacune peinte du verni qu'elle propose : on choisit la matière
+   qu'on aura, pas un nom de couleur. */
+.accgr{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.optmenu .accp button{display:block;width:auto;padding:0;border-bottom:none}
+.optmenu .accgr .accb{height:34px;box-shadow:0 0 0 1px var(--pn-line);
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,
+    var(--bl-3) 52%,var(--bl-4));
+  transition:box-shadow .16s var(--e),transform .16s var(--ressort)}
+.optmenu .accgr .accb:hover{box-shadow:0 0 0 1px var(--ink-3)}
+.optmenu .accgr .accb[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink),
+  inset 0 1px 0 rgba(255,255,255,.35)}
+
+/* ─── le choix de la surface ───
+   Huit échantillons plutôt que huit noms : une matière se reconnaît, elle ne se
+   lit pas. Chacun porte l'attribut et se peint donc lui-même. */
+.surfgr{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.optmenu .surfp button{display:block;width:auto;padding:0;border-bottom:none}
+.optmenu .surfgr .surfb{position:relative;box-shadow:0 0 0 1px var(--pn-line);
+  transition:box-shadow .16s var(--e)}
+.optmenu .surfgr .surfb:hover{box-shadow:0 0 0 1px var(--ink-3)}
+.optmenu .surfgr .surfb[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bl-3)}
+.surfgr .surfb i{display:block;height:46px;background-color:var(--pn-2);
+  background-image:var(--surf,none);background-size:var(--surf-t,auto);
+  background-repeat:repeat}
+.surfgr .surfb span{display:block;padding:3px 5px 4px;background:var(--pn-2);
+  font:400 10px/1.2 var(--sans);color:var(--ink-2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.surfgr .surfb[aria-pressed="true"] span{color:var(--pn);font-weight:600;
+  background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-2) 48%,
+    var(--bl-3) 52%,var(--bl-4))}
+
 /* ─── le choix des autocollants, dans le tiroir ─── */
 .stkgr{display:flex;flex-wrap:wrap;gap:7px}
 .stkgr .stkb{width:68px}
@@ -980,6 +1134,20 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     0 3px 8px -2px var(--dv-ao),
     0 1px 0 var(--dv-lip)}
 .dv-c:active{box-shadow:inset 0 2px 5px var(--dv-hollow),0 0 0 1px rgba(0,0,0,.07)}
+
+/* ─── la gravure ───
+   Les baladeurs de cette époque se faisaient graver. Celui-ci aussi, dans le
+   creux de coque laissé libre sous la molette.
+
+   Une gravure n'est pas du texte posé : c'est du texte **enlevé**. On l'obtient
+   avec deux tons et rien d'autre — une encre sombre pour le sillon, et un liseré
+   clair d'un pixel **en dessous**, qui est la lumière prise par la lèvre du
+   creux. Inversé, le même réglage donnerait du relief. */
+.dv-grav{position:absolute;left:56px;right:56px;bottom:32px;margin:0;
+  text-align:center;white-space:pre-line;pointer-events:none;
+  font:600 21px/1.4 var(--sans);letter-spacing:.07em;
+  color:var(--dv-grav);text-shadow:0 1px 0 var(--dv-grav-lip)}
+.dv-grav:empty{display:none}
 
 /* ─── un boîtier déposé ───
    Quand une image est présente dans `assets/appareil/`, elle prend la place du

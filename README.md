@@ -660,6 +660,88 @@ Le choix est retenu d'une visite à l'autre : c'est une façon de naviguer, pas 
 coup d'œil. Sous 900 px de large, la liste disparaît — elle mangerait la pochette
 qu'elle est censée servir.
 
+## Personnaliser
+
+Quatre réglages qui n'existaient pas, et un cinquième qui les rend transmissibles.
+
+### La surface
+
+Le sol autour de l'appareil était d'un blanc vide. On a pensé à y poser les fonds
+d'écran : c'était rouvrir le défaut qu'on venait de corriger. Une image de 1200 px
+doit couvrir 1700 px ou plus au sol — elle y est **agrandie**, quand l'écran de
+l'appareil la réduit à 595 et la rend nette. Le même fichier, deux sorts opposés.
+
+Le sol n'a pas besoin d'une photo, il a besoin d'une **matière**. Et une matière se
+dessine : huit surfaces — grille, points, lignes, brosse, toile, damier, grain,
+chevrons — faites de dégradés répétés et d'un bruit en SVG. Nettes à n'importe
+quelle taille, quelques centaines d'octets, et l'idiome du site, où tout est
+redessiné et rien n'est photographié. Elles valent pour la page entière, dans les
+deux modes.
+
+Une seule encre, `--surf-ink`, tenue par le thème : une grille noire sur un fond
+sombre ne se verrait pas. Les huit s'en servent, si bien qu'aucune n'a de version
+claire et de version sombre à maintenir. Et les règles ne sont pas ancrées à
+`:root` : posé sur n'importe quel élément, l'attribut y peint la surface — c'est ce
+qui permet au tiroir de montrer huit échantillons sans redire une ligne.
+
+### La gravure
+
+Les baladeurs de cette époque se faisaient graver. Celui-ci aussi : deux lignes,
+dans le creux de coque laissé libre sous la molette.
+
+Une gravure n'est pas du texte posé, c'est du texte **enlevé**. On l'obtient avec
+deux tons et rien d'autre : une encre sombre pour le sillon, et un liseré clair
+d'un pixel **en dessous**, qui est la lumière prise par la lèvre du creux. Inversé,
+le même réglage donnerait du relief.
+
+C'est le seul endroit du site où l'on écrit, d'où la seule précaution qui va avec :
+ce qu'on tape est posé en `textContent`, jamais en HTML. Un site où l'on peut
+écrire est un site où quelqu'un écrira une balise.
+
+### L'accent
+
+Le site est monochrome par construction et le reste. Un seul réglage change de
+couleur : le **verni de sélection**. Il irrigue tout ce qui se choisit — la pochette
+centrale, la ligne courante, la réglette, les menus de l'appareil, la jauge de la
+visite, la bille du curseur.
+
+Les cinq teintes ne sont pas choisies à l'œil mais **calculées sur une même
+rampe** : les clartés du graphite d'origine — 57, 33, 21, 12 en clair ; 91, 74, 58,
+44 en sombre —, tenues d'une teinte à l'autre, avec la seule saturation qui monte.
+C'est ce qui garantit que le texte blanc porté par le verni reste lisible sur les
+cinq sans avoir à le vérifier cinq fois : le contraste ne dépend que de la clarté,
+et la clarté ne bouge pas. Relevé après coup, le pire des cinq est à **5,0:1**,
+au-dessus du seuil, et le meilleur à 10,3.
+
+Le graphite reste le défaut, et ne pose aucun attribut : rien ne change pour qui
+ne demande rien.
+
+### Le réglage tient dans un lien
+
+Thème, accent, surface, fond, gravure, autocollants : tout cela vivait dans le
+navigateur de qui l'avait réglé, et nulle part ailleurs. **On ne pouvait pas le
+montrer.** Encodé dans l'adresse, un réglage devient transmissible — on envoie son
+lien, l'autre ouvre le site tel qu'on l'a fait. Le tiroir porte un bouton *copier
+mon réglage* ; un jeu complet tient en 242 signes.
+
+Il passe par la **requête** et non par le fragment. Le fragment sert déjà à dire
+quel disque on regarde, et l'y mêler aurait demandé de démonter une analyse qui
+marche. La requête ne gêne personne, et le serveur de pages la sert sans la lire.
+Elle est retirée de la barre d'adresse aussitôt appliquée : un réglage se reçoit,
+il ne se colle pas au front.
+
+Deux points valent d'être dits.
+
+**Tout ce qui arrive par le lien est vérifié contre les manifestes.** Sans quoi un
+lien fabriqué poserait l'adresse de son choix dans un fond d'écran ou un
+autocollant — c'est-à-dire ferait charger au visiteur ce qu'il veut, depuis où il
+veut. Une valeur qu'on ne reconnaît pas est simplement ignorée.
+
+**Il s'applique en dernier**, après que chaque module a lu sa propre mémoire. Posé
+plus haut, il aurait été écrasé par les valeurs retenues du navigateur, qui
+s'assignent au fil du fichier — le genre de bogue qui ne se voit qu'une fois sur
+deux.
+
 ## Le fond d'écran
 
 Le tiroir d'options propose quatorze fonds, **rangés par famille de couleur**.

@@ -1080,10 +1080,29 @@ function pStickers(){
   if(!l.length)l.push(mIt('Aucun autocollant','',function(){}));
   return {t:'autocollants',l:l};
 }
+function pAccents(){
+  return {t:'accent',l:ACCENTS.map(function(n){
+    return mIt(n,ACC===n?'✓':'',function(){ACC=n;applyAcc();menuRefaire();});
+  })};
+}
+function pSurfaces(){
+  var l=[mIt('Aucune',SURF?'':'✓',function(){SURF='';applySurf();menuRefaire();})];
+  SURFACES.forEach(function(n){
+    l.push(mIt(n,SURF===n?'✓':'',function(){SURF=n;applySurf();menuRefaire();}));
+  });
+  return {t:'surface',l:l};
+}
 function pReglages(){
   return {t:'réglages',l:[
     mIt('Thème',tn[tm[ti]],function(){
       ti=(ti+1)%tm.length;applyTheme();menuRefaire();}),
+    mIt('Accent',ACC,function(){menuPush(pAccents);}),
+    mIt('Surface',SURF||'aucune',function(){menuPush(pSurfaces);}),
+    /* On ne tape pas au doigt sur une molette : cette ligne mène au champ, elle
+       ne prétend pas le remplacer. */
+    mIt('Gravure',GRAV[0]||GRAV[1]||'aucune',function(){
+      menuFerme();optOpen(true);pli('#gravH','#gravW',true);
+      var e=$('#grav1');if(e&&e.focus)setTimeout(function(){e.focus();},260);}),
     mIt('Pochettes en pixels',PIX?'oui':'non',function(){
       PIX=!PIX;applyPix();menuRefaire();}),
     mIt('Liste appariée',LIST?'oui':'non',function(){
@@ -2391,6 +2410,202 @@ if($('#fonds'))$('#fonds').addEventListener('click',function(e){
 });
 paintFonds();applyFond();
 
+/* ─────────── le réglage, dans un lien ───────────
+   Thème, accent, surface, fond, gravure, autocollants : tout cela vivait dans le
+   navigateur de qui l'avait réglé, et nulle part ailleurs. On ne pouvait pas le
+   montrer. Encodé dans l'adresse, un réglage devient **transmissible** : on envoie
+   son lien, l'autre ouvre le site tel qu'on l'a fait.
+
+   Il passe par la **requête** et non par le fragment. Le fragment sert déjà à dire
+   quel disque on regarde, et l'y mêler aurait demandé de démonter une analyse qui
+   marche. La requête, elle, ne gêne personne — et le serveur de pages la sert sans
+   la lire. Elle est retirée de la barre d'adresse aussitôt appliquée : un réglage
+   se reçoit, il ne se colle pas au front.
+
+   **Tout ce qui arrive par le lien est vérifié contre les manifestes.** Sans quoi
+   un lien fabriqué poserait l'adresse de son choix dans un fond d'écran ou un
+   autocollant — c'est-à-dire ferait charger au visiteur ce qu'il veut. Une valeur
+   qu'on ne reconnaît pas est simplement ignorée. */
+function reglageCode(){
+  var o={t:tm[ti],a:ACC,s:SURF,f:FOND,
+         p:PIX?1:0,l:LIST?1:0,g:GLASS?1:0,d:DEV?1:0,
+         v:[GRAV[0].slice(0,26),GRAV[1].slice(0,26)],
+         k:POSE.map(function(p){
+           return [p.f,Math.round(p.x),Math.round(p.y),
+                   Math.round(p.r||0),Math.round((p.s||1)*100)/100];
+         })};
+  try{
+    return btoa(unescape(encodeURIComponent(JSON.stringify(o))))
+      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }catch(e){return '';}
+}
+function reglageLire(code){
+  var o;
+  try{
+    var b=code.replace(/-/g,'+').replace(/_/g,'/');
+    while(b.length%4)b+='=';
+    o=JSON.parse(decodeURIComponent(escape(atob(b))));
+  }catch(e){return false;}
+  if(!o||typeof o!=='object')return false;
+
+  if(o.t&&tm.indexOf(o.t)>=0){ti=tm.indexOf(o.t);applyTheme();}
+  if(o.a&&ACCENTS.indexOf(o.a)>=0){ACC=o.a;applyAcc();}
+  if(typeof o.s==='string'&&(o.s===''||SURFACES.indexOf(o.s)>=0)){SURF=o.s;applySurf();}
+  if(Array.isArray(o.v)){
+    GRAV=[String(o.v[0]||'').slice(0,26),String(o.v[1]||'').slice(0,26)];
+    var e1=$('#grav1'),e2=$('#grav2');
+    if(e1)e1.value=GRAV[0];
+    if(e2)e2.value=GRAV[1];
+    applyGrav();
+  }
+  /* Le fond doit exister dans le manifeste : on ne charge pas une adresse reçue. */
+  var LF=fondsListe()||[];
+  if(typeof o.f==='string'){
+    var ok=!o.f;
+    for(var i=0;i<LF.length;i++)if(LF[i].f===o.f)ok=true;
+    if(ok){FOND=o.f;applyFond();}
+  }
+  var LS=stkListe()||[];
+  if(Array.isArray(o.k)){
+    var connu={};
+    LS.forEach(function(x){connu[x.f]=1;});
+    POSE=[];
+    o.k.slice(0,24).forEach(function(x){
+      if(!Array.isArray(x)||!connu[x[0]])return;
+      var p={f:x[0],x:+x[1]||0,y:+x[2]||0,r:+x[3]||0,
+             s:Math.min(STK_MAX,Math.max(STK_MIN,+x[4]||1))};
+      stkClamp(p);POSE.push(p);
+    });
+    stkSel=-1;stkSave();stkPaint();
+  }
+  if(typeof o.p!=='undefined'&&!!o.p!==PIX){PIX=!!o.p;applyPix();}
+  if(typeof o.l!=='undefined'&&!!o.l!==LIST){LIST=!!o.l;applyList();}
+  if(typeof o.g!=='undefined'&&!!o.g!==GLASS){GLASS=!!o.g;applyGlass();}
+  if(typeof o.d!=='undefined'&&!!o.d!==DEV){DEV=!!o.d;applyDevice(false);}
+  return true;
+}
+if($('#mLien'))$('#mLien').addEventListener('click',function(){
+  var url=location.origin+location.pathname+'?r='+reglageCode()+(location.hash||'');
+  var b=$('#mLienL');
+  function dit(t){if(!b)return;b.textContent=t;setTimeout(function(){b.textContent='⧉';},1800);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){dit('copié');},
+      function(){dit('refusé');});
+  }else dit('refusé');
+});
+
+/* ─────────── la couleur d'accent ───────────
+   Un attribut sur la racine, et toute la feuille suit : le verni de sélection est
+   une variable, et tout ce qui se choisit s'en sert. Le graphite est le défaut et
+   ne pose aucun attribut — rien ne change pour qui ne demande rien. */
+var ACCENTS=['graphite','bleu','ambre','vert','rose','violet'];
+var ACC='graphite';
+try{
+  var a=localStorage.getItem('wte-accent');
+  if(a&&ACCENTS.indexOf(a)>=0)ACC=a;
+}catch(e){}
+function applyAcc(){
+  if(ACC&&ACC!=='graphite')document.documentElement.setAttribute('data-accent',ACC);
+  else document.documentElement.removeAttribute('data-accent');
+  var lab=$('#accL');
+  if(lab)lab.textContent=ACC;
+  var box=$('#accP');
+  if(box){
+    var b=box.querySelectorAll('button[data-c]');
+    for(var i=0;i<b.length;i++)
+      b[i].setAttribute('aria-pressed',b[i].getAttribute('data-c')===ACC?'true':'false');
+  }
+  try{localStorage.setItem('wte-accent',ACC);}catch(e){}
+}
+function paintAcc(){
+  var box=$('#accP');if(!box)return;
+  box.innerHTML='<div class="accgr">'+ACCENTS.map(function(n){
+    /* La pastille porte l'attribut : elle se peint donc du verni qu'elle propose,
+       sans qu'aucune couleur soit redite en JavaScript. */
+    return '<button class="accb" type="button" data-c="'+n+'" aria-pressed="false"'
+      +(n==='graphite'?'':' data-accent="'+n+'"')
+      +' title="'+n+'" aria-label="Accent : '+n+'"></button>';
+  }).join('')+'</div>';
+}
+if($('#accH'))$('#accH').addEventListener('click',function(){
+  pli('#accH','#accW',!$('#accW').classList.contains('on'));
+});
+if($('#accP'))$('#accP').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-c]');if(!b)return;
+  ACC=b.getAttribute('data-c');applyAcc();
+});
+paintAcc();applyAcc();
+
+/* ─────────── la gravure ───────────
+   Deux lignes, retenues comme le reste. Le seul endroit du site où l'on écrit —
+   d'où la seule précaution qui va avec : ce qu'on tape n'est jamais posé en HTML,
+   seulement en texte. */
+var GRAV=['',''];
+try{
+  var g=JSON.parse(localStorage.getItem('wte-grav')||'[]');
+  if(Array.isArray(g))GRAV=[String(g[0]||''),String(g[1]||'')];
+}catch(e){}
+function applyGrav(){
+  var el=$('#dvGrav');
+  var l=[GRAV[0].slice(0,26),GRAV[1].slice(0,26)];
+  /* `textContent` et non `innerHTML` : un site où l'on peut écrire est un site où
+     quelqu'un écrira une balise. */
+  if(el)el.textContent=l.filter(Boolean).join('\n');
+  var lab=$('#gravL');
+  if(lab)lab.textContent=l[0]||l[1]||'aucune';
+  try{localStorage.setItem('wte-grav',JSON.stringify(l));}catch(e){}
+}
+['#grav1','#grav2'].forEach(function(sel,i){
+  var el=$(sel);if(!el)return;
+  el.value=GRAV[i];
+  el.addEventListener('input',function(){GRAV[i]=el.value;applyGrav();});
+});
+if($('#gravH'))$('#gravH').addEventListener('click',function(){
+  pli('#gravH','#gravW',!$('#gravW').classList.contains('on'));
+});
+applyGrav();
+
+/* ─────────── la surface ───────────
+   Le sol de la page, dessiné plutôt que photographié. Voir la feuille de style
+   pour le pourquoi ; ici il n'y a qu'un attribut à poser sur la racine, et le nom
+   à retenir d'une visite à l'autre. */
+var SURFACES=['grille','points','lignes','brosse','toile','damier','grain','chevrons'];
+var SURF='';
+try{SURF=localStorage.getItem('wte-surf')||'';}catch(e){}
+if(SURF&&SURFACES.indexOf(SURF)<0)SURF='';
+function applySurf(){
+  if(SURF)document.documentElement.setAttribute('data-surface',SURF);
+  else document.documentElement.removeAttribute('data-surface');
+  var lab=$('#surfL');
+  if(lab)lab.textContent=SURF||'aucune';
+  var box=$('#surfP');
+  if(box){
+    var b=box.querySelectorAll('button[data-s]');
+    for(var i=0;i<b.length;i++)
+      b[i].setAttribute('aria-pressed',b[i].getAttribute('data-s')===SURF?'true':'false');
+  }
+  try{localStorage.setItem('wte-surf',SURF);}catch(e){}
+}
+function paintSurf(){
+  var box=$('#surfP');if(!box)return;
+  box.innerHTML='<div class="surfgr">'
+    +'<button class="surfb" type="button" data-s="" aria-pressed="false"'
+    +' aria-label="Aucune surface"><i></i><span>aucune</span></button>'
+    +SURFACES.map(function(n){
+      return '<button class="surfb" type="button" data-s="'+n+'" aria-pressed="false"'
+        +' aria-label="Surface : '+n+'"><i data-surface="'+n+'"></i>'
+        +'<span>'+n+'</span></button>';
+    }).join('')+'</div>';
+}
+if($('#surfH'))$('#surfH').addEventListener('click',function(){
+  pli('#surfH','#surfW',!$('#surfW').classList.contains('on'));
+});
+if($('#surfP'))$('#surfP').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-s]');if(!b)return;
+  SURF=b.getAttribute('data-s');applySurf();
+});
+paintSurf();applySurf();
+
 /* ─────────── les autocollants ───────────
    On en pose sur le boîtier, on les glisse où l'on veut, ils restent d'une visite
    à l'autre. Ce ne sont pas des ornements dessinés dans le châssis — ceux-là
@@ -2859,6 +3074,18 @@ $('#splash').addEventListener('click',enter);
 document.documentElement.setAttribute('data-state','intro');
 /* L'adresse a le dernier mot au démarrage : ouvrir un lien partagé doit mener
    là où il pointe, pas au parcours du premier artiste. */
+/* Le réglage reçu s'applique **en dernier**, après que chaque module a lu sa
+   propre mémoire : posé plus haut, il aurait été écrasé par les valeurs retenues
+   du navigateur, qui s'assignent au fil du fichier. */
+(function(){
+  var m=/[?&]r=([A-Za-z0-9\-_]+)/.exec(location.search||'');
+  if(!m)return;
+  reglageLire(m[1]);
+  /* Le réglage se reçoit, il ne se colle pas au front : on le retire de la barre
+     d'adresse, en gardant le fragment qui dit ce qu'on regarde. */
+  try{history.replaceState(null,'',location.pathname+(location.hash||''));}catch(e){}
+})();
+
 readHash(true);
 collage();
 

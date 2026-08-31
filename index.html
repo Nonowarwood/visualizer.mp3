@@ -118,9 +118,20 @@
           <button id="mSnd" type="button" aria-pressed="true"><span class="lbl">son</span><b id="mSndL">activé</b></button>
           <button id="fondsH" type="button" aria-expanded="false" aria-controls="fondsW"><span class="lbl">fonds d'écran</span><b id="fondsL">aucun</b><span class="car" aria-hidden="true">▾</span></button>
           <div class="plie" id="fondsW"><div class="fonds" id="fonds" role="group" aria-label="Choisir un fond d'écran"></div></div>
+          <button id="accH" type="button" aria-expanded="false" aria-controls="accW"><span class="lbl">accent</span><b id="accL">graphite</b><span class="car" aria-hidden="true">▾</span></button>
+          <div class="plie" id="accW"><div class="fonds accp" id="accP" role="group" aria-label="Choisir la couleur d'accent"></div></div>
+          <button id="surfH" type="button" aria-expanded="false" aria-controls="surfW"><span class="lbl">surface</span><b id="surfL">aucune</b><span class="car" aria-hidden="true">▾</span></button>
+          <div class="plie" id="surfW"><div class="fonds surfp" id="surfP" role="group" aria-label="Choisir une surface"></div></div>
+          <button id="gravH" type="button" aria-expanded="false" aria-controls="gravW"><span class="lbl">gravure</span><b id="gravL">aucune</b><span class="car" aria-hidden="true">▾</span></button>
+          <div class="plie" id="gravW"><div class="fonds gravp">
+            <p class="fhint">Deux lignes gravées dans la coque, sous la molette. Elles ne se voient que dans l'appareil.</p>
+            <input id="grav1" type="text" maxlength="26" spellcheck="false" placeholder="première ligne" aria-label="Gravure, première ligne">
+            <input id="grav2" type="text" maxlength="26" spellcheck="false" placeholder="seconde ligne" aria-label="Gravure, seconde ligne">
+          </div></div>
           <button id="stkH" type="button" aria-expanded="false" aria-controls="stkW"><span class="lbl">autocollants</span><b id="stkL">aucun</b><span class="car" aria-hidden="true">▾</span></button>
           <div class="plie" id="stkW"><div class="fonds stkp" id="stkP" role="group" aria-label="Poser un autocollant"></div></div>
           <p class="ah">Le site</p>
+          <button id="mLien" type="button"><span class="lbl">copier mon réglage</span><b id="mLienL">⧉</b></button>
           <button id="mTour" type="button"><span class="lbl">visite guidée</span><b>↻</b></button>
           <button id="mAbout" type="button"><span class="lbl">à propos</span><b>↗</b></button>
         </div>
@@ -227,6 +238,9 @@
       <button class="dv-z dv-play" type="button" data-z="play" aria-label="Lecture"><svg viewBox="0 0 42 24" aria-hidden="true" focusable="false"><path d="M0 0v24l20-12zM26 0h6v24h-6zM36 0h6v24h-6z"/></svg></button>
       <button class="dv-c" id="dvCentre" type="button" aria-label="Ouvrir"></button>
     </div>
+    <!-- La gravure. Les baladeurs de cette époque se faisaient graver ; celui-ci
+         aussi, sous la molette, là où la coque est libre. -->
+    <p class="dv-grav" id="dvGrav" aria-hidden="true"></p>
     <!-- La poignée de réglage de l'autocollant choisi. Dernier enfant du corps,
          donc peinte au-dessus de tout ; et **sœur** de la molette, non sa fille,
          sinon un clic dessus ferait tourner la roue. -->
