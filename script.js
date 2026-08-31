@@ -2611,7 +2611,6 @@ function pli(bouton,tiroir,on){
   if(t)t.classList.toggle('on',on);
   if(b)b.setAttribute('aria-expanded',on?'true':'false');
 }
-function fondsPli(on){pli('#fondsH','#fondsW',on);}
 /* Les cinq dépliants du tiroir se câblaient un à un, cinq fois les mêmes trois
    lignes à un nom près. C'est peu de code et beaucoup d'occasions de se tromper :
    le sixième aurait été copié du cinquième. Ils sont désormais nommés en une
