@@ -1743,6 +1743,23 @@ button,a,input,[role="option"]{touch-action:manipulation}
      métadonnées redisaient ce que la fiche dit mieux, et venaient se superposer
      à ses lignes. */
   .focus{align-content:start;padding:150px var(--pad) 28px}
+}
+/* ─── la fiche, sur un écran bas ───
+   Le téléphone couché n'est pas étroit : il fait 930 px de large, donc les règles
+   de l'étroit ne s'y appliquaient pas — et la fiche s'y centrait encore, dans
+   430 px de haut. Elle repassait sous la barre et sous le bas du HUD, dont le
+   compteur et les flèches lui traversaient les lignes.
+
+   C'est la **hauteur** qui décide ici, pas la largeur : une fiche a besoin de
+   place debout, quelle que soit la largeur qu'on lui donne. */
+@media (max-height:620px){
+  .focus{align-content:start;padding:74px var(--pad) 18px}
+  .focus .plate{max-width:min(34vh,220px)}
+}
+/* Le bas du HUD s'efface pendant qu'une fiche est ouverte, dès que la place
+   manque : son compteur et sa ligne de métadonnées redisent ce que la fiche dit
+   mieux, et venaient se poser sur elle. */
+@media (max-height:620px),(max-width:720px){
   [data-state="focus"] .hud .bot{display:none}
 }
 /* Le doigt ne survole pas : ce qui ne s'obtenait qu'au survol doit s'obtenir

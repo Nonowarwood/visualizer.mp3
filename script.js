@@ -1260,9 +1260,44 @@ var wDrag=null,wAcc=0;
        geste à son compte, elle doit donc en refuser l'usage prévu. */
     e.preventDefault();
     var r=w.getBoundingClientRect();
-    wDrag={cx:r.left+r.width/2,cy:r.top+r.height/2,a:null};wAcc=0;
+    wDrag={cx:r.left+r.width/2,cy:r.top+r.height/2,a:null,
+           doigt:e.pointerType!=='mouse'};wAcc=0;
     try{w.setPointerCapture(e.pointerId);}catch(err){}
   });
+  /* ─── pourquoi la molette saccadait ───
+     Chaque cran appelait `dvNav`, donc `goTo`, donc un défilement **doux** vers la
+     pochette suivante. Au doigt, un mouvement circulaire produit des évènements
+     par paquets, et le navigateur en livre jusqu'à cent vingt par seconde : on
+     déclenchait plusieurs défilements doux par image, chacun **repartant de la
+     position courante et annulant le précédent**. L'animation ne se posait jamais.
+     Ce n'est donc pas le signal tactile qui est mal retranscrit — il l'est trop
+     bien, et c'est ce qu'on en faisait qui ne suivait pas.
+
+     Le geste est maintenant découplé du travail. Le déplacement du doigt ne fait
+     qu'**accumuler un angle** ; une boucle d'images consomme cet angle et n'émet
+     **qu'un seul mouvement par image**, vers la destination finale plutôt qu'un
+     par cran. Le défilement doux a dès lors une cible stable, et il se pose.
+
+     Le cran est aussi plus large au doigt qu'à la souris : on ne trace pas un
+     cercle au millimètre avec un pouce. */
+  var wRaf=0;
+  function wTick(){
+    wRaf=0;
+    if(!wDrag)return;
+    var seuil=wDrag.doigt?30:22;
+    var n=Math.floor(Math.abs(wAcc)/seuil);
+    if(n){
+      /* Trois crans par image au plus : au-delà, un moulinet enverrait la
+         sélection à l'autre bout du catalogue d'un coup de poignet. On ne
+         **retire de l'angle que ce qu'on applique** — sinon un geste large serait
+         tronqué au lieu d'être étalé, et la molette mangerait la moitié du
+         mouvement. Le reste part à l'image suivante. */
+      var sg=wAcc>0?1:-1,pris=Math.min(n,3);
+      wAcc-=sg*pris*seuil;
+      dvNav(sg*pris);
+    }
+    wRaf=requestAnimationFrame(wTick);
+  }
   w.addEventListener('pointermove',function(e){
     if(!wDrag)return;
     var a=Math.atan2(e.clientY-wDrag.cy,e.clientX-wDrag.cx)*180/Math.PI;
@@ -1270,15 +1305,15 @@ var wDrag=null,wAcc=0;
       var d=a-wDrag.a;
       if(d>180)d-=360; else if(d<-180)d+=360;
       wAcc+=d;
-      while(Math.abs(wAcc)>=22){
-        var sg=wAcc>0?1:-1;wAcc-=sg*22;
-        dvNav(sg>0?1:-1);
-      }
     }
     wDrag.a=a;
+    if(!wRaf)wRaf=requestAnimationFrame(wTick);
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
-    w.addEventListener(ev,function(){wDrag=null;});
+    w.addEventListener(ev,function(){
+      wDrag=null;wAcc=0;
+      if(wRaf){cancelAnimationFrame(wRaf);wRaf=0;}
+    });
   });
 })();
 
