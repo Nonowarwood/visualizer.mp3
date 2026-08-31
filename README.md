@@ -658,12 +658,16 @@ lorsqu'on le choisit — et le choix est retenu d'une visite à l'autre.
 
 ## Les autocollants
 
-On en pose sur le boîtier, on les glisse où l'on veut, ils restent d'une visite à
-l'autre. Le dossier n'en contient qu'un, celui du dépôt : la **mascotte**, la même
-que celle qui guide la visite. Neuf autres avaient été dessinés en SVG pour
-l'occasion — cassette, cœur, disque, éclair, étoile, fleur, note, nuage, onde —
-puis écartés au profit de celui-là. Ils dorment dans l'historique si l'un manque
-un jour.
+On en pose sur le boîtier, on les glisse où l'on veut, on les agrandit et on les
+tourne, et ils restent d'une visite à l'autre. Le dossier en contient neuf, tous
+apportés par qui tient le dépôt — dont la **mascotte**, la même que celle qui
+guide la visite. Neuf autres avaient été dessinés en SVG pour l'occasion —
+cassette, cœur, disque, éclair, étoile, fleur, note, nuage, onde — puis écartés au
+profit de ceux-là. Ils dorment dans l'historique si l'un manque un jour.
+
+Comme les photographies des artistes, les images apportées appartiennent à leurs
+auteurs. L'outil ne fait que les préparer ; la décision de les publier appartient
+à qui tient le dépôt.
 
 Il y en avait déjà eu, et ils avaient été retirés à raison : c'étaient des
 ornements que j'avais dessinés *dans* le châssis, qui encombraient une surface
@@ -707,8 +711,27 @@ Le tiroir d'options en propose la planche sous **autocollants**. Un clic en pose
 un ; il arrive à une place libre, les places tournant en boucle pour que trois
 posés d'affilée ne se recouvrent pas. On le glisse ensuite où l'on veut.
 
-Un clic le sélectionne, un second le retire — une seule action destructrice au
-premier clic serait un piège à la souris. Un bouton *tout retirer* vide la coque.
+Un clic le prend en main, un second le repose.
+
+### La poignée
+
+Poser sans pouvoir régler, c'est poser à l'aveugle. Une poignée suit l'autocollant
+pris en main et tient tout ce qu'on veut en faire : **− +** pour la taille, de
+0,6 à 1,6 fois, par pas de 0,15 ; **↺ ↻** pour l'inclinaison, par pas de dix
+degrés ; **✕** pour retirer ; **✓** pour valider — elle s'efface, l'autocollant
+reste où il est.
+
+Elle se place sous l'autocollant, ou au-dessus s'il n'y a plus de place en bas, et
+son abscisse est bornée pour qu'elle ne sorte jamais du châssis. Elle est **sœur**
+de la molette et non sa fille : dedans, un clic dessus aurait fait tourner la roue.
+
+L'échelle entre dans le calcul de repoussement — la demi-taille suit le
+grossissement, sinon un autocollant qu'on agrandit mordrait sur l'écran ou sur la
+molette au lieu de reculer. Le maximum de 1,6 n'est pas arbitraire : au-delà, la
+bande libre sous la molette devient plus étroite que l'autocollant, et il n'y
+aurait plus nulle part où le mettre.
+
+Un bouton *tout retirer* vide la coque.
 
 ### Les vôtres
 
@@ -718,9 +741,32 @@ Déposez un fichier dans `assets/stickers/` et relancez :
 cd site && python3 tools/build-stickers.py
 ```
 
-SVG de préférence, ou PNG **à fond transparent** : un PNG à fond blanc se collera
-avec son carré blanc, et l'outil ne peut pas le deviner. Le dossier porte un
-`LISEZMOI.md` qui redit tout cela.
+L'outil fait trois choses avant de recenser.
+
+**Il renomme.** Un nom de fichier devient une adresse, et trois caractères y sont
+des pièges — dont un fatal : le **`#`** coupe l'adresse, tout ce qui suit passe
+pour un fragment, et le fichier n'est jamais demandé. Un autocollant nommé
+`𓇼 trên X_ _#juhoon id scan 🤓 https___t_co_… .png` ne se serait tout bonnement
+pas affiché. Les fichiers reçoivent donc un nom sobre, et le **nom d'affichage est
+tiré de l'ancien**, débarrassé de ce qui n'y disait rien : « sticker », « png »,
+« printable », les adresses recopiées — reconnues à ceci qu'elles mêlent lettres
+et chiffres, quand un nom propre n'en mêle pas, ce qui laisse passer
+« seonghyeon » et écarte « bci8z3gmiu ».
+
+**Il réduit.** Un autocollant s'affiche autour de 96 px, 200 sur un écran dense ;
+ceux qui arrivent font 736 px et jusqu'à 800 ko pièce. Ramenés à 420 px de côté
+long, transparence gardée, le lot est passé de 2,9 Mo à 916 ko. Les originaux ne
+sont pas perdus : ils partent dans `../stickers-originaux/`, hors du dossier
+publié — même parti que pour les photos.
+
+**Il vérifie le détourage, pour de vrai.** `sips -g hasAlpha` dit seulement qu'un
+canal alpha *existe*, pas qu'il serve : une photo sur fond blanc exportée en PNG
+répond oui et se colle pourtant avec son rectangle. L'outil regarde donc les
+quatre coins de l'image et le dit quand ils sont opaques. Ce n'est pas une erreur
+— un portrait rectangulaire à bord blanc fait un autocollant très acceptable — mais
+mieux vaut le savoir que le découvrir sur la coque.
+
+Le dossier porte un `LISEZMOI.md` qui redit tout cela.
 
 ## L'écran de l'appareil
 

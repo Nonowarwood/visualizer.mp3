@@ -1882,7 +1882,9 @@ function stkNom(f){
   return 'autocollant';
 }
 function stkClamp(p){
-  var h=STK_SIZE/2,m=h+STK_MARGE;
+  /* La demi-taille suit l'échelle : un autocollant agrandi doit être repoussé
+     d'autant, sinon il mord sur l'écran ou sur la molette en grandissant. */
+  var h=STK_SIZE*(p.s||1)/2,m=h+STK_MARGE;
   p.x=Math.min(Math.max(p.x,m),DV_W-m);
   p.y=Math.min(Math.max(p.y,m),DV_H-m);
   var bas=DV_SY+DV_SH+16+h;             /* sous l'écran, rive noire comprise */
@@ -1907,22 +1909,42 @@ function stkMark(){
   var box=$('#dvStick');if(!box)return;
   var b=box.children;
   for(var i=0;i<b.length;i++)b[i].classList.toggle('sel',i===stkSel);
+  stkBarPose();
 }
 function stkPaint(){
   var box=$('#dvStick');if(!box)return;
   box.innerHTML=POSE.map(function(p,i){
     return '<button class="stk" type="button" data-i="'+i+'"'
-      +' style="left:'+p.x+'px;top:'+p.y+'px;--r:'+(p.r||0)+'deg"'
+      +' style="left:'+p.x+'px;top:'+p.y+'px;--r:'+(p.r||0)+'deg;--s:'+(p.s||1)+'"'
       +' aria-label="Autocollant '+esc(stkNom(p.f))
-      +' — glisser pour déplacer, cliquer deux fois pour retirer">'
-      +'<img src="'+esc(p.f)+'" alt="" draggable="false">'
-      +'<i class="stkx" aria-hidden="true">\u2715</i></button>';
+      +' — glisser pour déplacer, cliquer pour régler">'
+      +'<img src="'+esc(p.f)+'" alt="" draggable="false"></button>';
   }).join('');
-  stkMark();stkCompte();
+  stkMark();stkCompte();stkBarPose();
+}
+/* ─── la poignée de réglage ───
+   Poser sans pouvoir régler, c'est poser à l'aveugle. La poignée suit
+   l'autocollant choisi et tient ce qu'on veut en faire : plus petit, plus grand,
+   tourné d'un côté ou de l'autre, retiré, ou validé — auquel cas elle s'efface et
+   l'autocollant reste où il est.
+
+   Elle se met **sous** l'autocollant, ou au-dessus s'il n'y a plus de place en
+   bas, et son abscisse est bornée pour qu'elle ne sorte jamais du châssis. */
+var STK_MIN=0.6,STK_MAX=1.6,STK_PAS=0.15,STK_ANGLE=10;
+function stkBarPose(){
+  var bar=$('#stkBar');if(!bar)return;
+  var p=POSE[stkSel];
+  if(stkSel<0||!p){bar.hidden=true;return;}
+  bar.hidden=false;
+  var h=STK_SIZE*(p.s||1)/2;
+  var y=p.y+h+16;
+  if(y>DV_H-64)y=p.y-h-16-46;
+  bar.style.left=Math.min(Math.max(p.x,148),DV_W-148)+'px';
+  bar.style.top=Math.min(Math.max(y,8),DV_H-54)+'px';
 }
 function stkAdd(f){
   var n=POSE.length,q=STK_POSES[n%STK_POSES.length];
-  var p={f:f,x:q[0],y:q[1],r:STK_TILT[n%STK_TILT.length]};
+  var p={f:f,x:q[0],y:q[1],r:STK_TILT[n%STK_TILT.length],s:1};
   stkClamp(p);
   POSE.push(p);stkSel=POSE.length-1;
   stkSave();stkPaint();
@@ -1987,13 +2009,25 @@ if(stkBox){
       if(!stkDrag)return;
       var d=stkDrag;stkDrag=null;
       if(d.bouge){stkSave();return;}
-      /* Un clic sélectionne, un second sur le même retire : une seule action
-         destructrice au premier clic serait un piège à la souris. */
-      if(stkSel===d.i){POSE.splice(d.i,1);stkSel=-1;stkSave();stkPaint();}
-      else{stkSel=d.i;stkMark();}
+      /* Un clic prend l'autocollant en main, un second le repose. Retirer se fait
+         à la croix de la poignée, jamais par un clic de trop. */
+      stkSel=(stkSel===d.i)?-1:d.i;
+      stkMark();
     });
   });
 }
+if($('#stkBar'))$('#stkBar').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-act]');
+  if(!b||stkSel<0||!POSE[stkSel])return;
+  var p=POSE[stkSel],a=b.getAttribute('data-act'),s0=p.s||1;
+  if(a==='ok'){stkSel=-1;stkSave();stkPaint();return;}
+  if(a==='non'){POSE.splice(stkSel,1);stkSel=-1;stkSave();stkPaint();return;}
+  if(a==='moins')p.s=Math.max(STK_MIN,Math.round((s0-STK_PAS)*100)/100);
+  else if(a==='plus')p.s=Math.min(STK_MAX,Math.round((s0+STK_PAS)*100)/100);
+  else if(a==='gauche')p.r=(p.r||0)-STK_ANGLE;
+  else if(a==='droite')p.r=(p.r||0)+STK_ANGLE;
+  stkClamp(p);stkSave();stkPaint();
+});
 stkPickPaint();stkPaint();
 
 /* ─────────── commandes ─────────── */

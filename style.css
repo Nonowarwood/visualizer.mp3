@@ -800,7 +800,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    et le **reflet du boîtier** qui passe dessus — un autocollant prend la même
    lumière que ce qu'il couvre, sans quoi il a l'air posé en surimpression. */
 .dv-stick{position:absolute;inset:0;pointer-events:none}
-.stk{position:absolute;width:96px;padding:0;background:none;box-shadow:none;
+.stk{position:absolute;width:calc(96px*var(--s,1));padding:0;
+  background:none;box-shadow:none;
   pointer-events:auto;cursor:grab;touch-action:none;
   transform:translate(-50%,-50%) rotate(var(--r,0deg));
   transition:filter .16s var(--e)}
@@ -812,14 +813,26 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    blanc carré sur la coque. Chaque autocollant porte déjà sa brillance, dessinée
    dans sa propre forme — c'est le seul endroit où elle peut l'être juste. */
 .stk:hover{filter:brightness(1.04)}
-/* Sélectionné : un cerne et la croix. On ne montre la croix qu'alors — un
-   autocollant n'a pas à porter en permanence de quoi l'effacer. */
-.stk .stkx{position:absolute;top:-9px;right:-9px;width:20px;height:20px;
-  display:none;place-content:center;border-radius:50%;
-  font:400 10px/20px var(--sans);font-style:normal;text-align:center;
-  color:#fff;background:#D93B4E;box-shadow:0 1px 3px rgba(0,0,0,.4)}
-.stk.sel .stkx{display:block}
+/* Pris en main : un cerne, et la poignée apparaît. */
 .stk.sel{outline:2px dashed rgba(59,130,246,.9);outline-offset:3px}
+
+/* ─── la poignée de réglage ───
+   Elle est **dans les mesures du châssis**, comme tout ce qui y vit : 42 px de
+   bouton, qui font une trentaine à l'écran une fois le boîtier réduit. Le même
+   chrome que la barre du site — c'est une commande, elle doit s'en réclamer. */
+.stkbar{position:absolute;z-index:3;display:flex;align-items:center;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  box-shadow:0 0 0 1px var(--cr-line),0 6px 16px -6px rgba(0,0,0,.5)}
+.stkbar[hidden]{display:none}
+.stkbar button{width:42px;height:42px;padding:0;background:none;box-shadow:none;
+  font:400 20px/1 var(--sans);color:var(--cr-ink);
+  text-shadow:0 1px 0 var(--cr-glow);transition:background .14s var(--e)}
+.stkbar button:hover{background:rgba(0,0,0,.06)}
+.stkbar button:active{background:rgba(0,0,0,.12)}
+.stkbar .stksep{width:1px;height:24px;background:var(--cr-line);opacity:.6}
+.stkbar .stkok{color:#1B7A3D}
+.stkbar .stkno{color:#B3283C}
 
 /* ─── le choix des autocollants, dans le tiroir ─── */
 .stkgr{display:flex;flex-wrap:wrap;gap:7px}

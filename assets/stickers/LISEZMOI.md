@@ -4,32 +4,44 @@ Déposez un fichier ici, puis relancez l'outil :
 
 ```sh
 cd site && python3 tools/build-stickers.py
+python3 tools/build-stickers.py --dry    # dit ce qu'il ferait, n'écrit rien
 ```
 
 Il apparaît dans le tiroir d'options, sous **autocollants**, prêt à être posé sur
-le boîtier. Rien d'autre n'est à écrire.
+le boîtier. Une fois posé, une poignée permet de l'agrandir, de le tourner, de le
+retirer, ou de valider sa place.
+
+## Ce que l'outil fait de votre fichier
+
+**Il le renomme.** Un nom de fichier devient une adresse, et le `#` y est fatal :
+il coupe l'adresse, et le fichier n'est jamais demandé. Les espaces, les émojis et
+les accents décomposés voyagent mal. Votre fichier reçoit donc un nom sobre — le
+**nom affiché**, lui, est tiré de l'ancien, débarrassé de ce qui n'y disait rien.
+
+**Il le réduit** à 420 px de côté long, transparence gardée. Un autocollant
+s'affiche autour de 96 px : au-delà, c'est du poids que personne ne voit.
+**L'original n'est pas perdu**, il part dans `../stickers-originaux/`, hors du
+dossier publié.
+
+**Il vérifie le détourage.** Un canal alpha peut exister sans servir : une photo
+sur fond blanc répond « oui » et se colle pourtant avec son rectangle. L'outil
+regarde les quatre coins et vous le dit. Ce n'est pas une erreur — un portrait
+rectangulaire à bord blanc fait un autocollant très acceptable — mais autant le
+savoir avant.
 
 ## Ce qui marche
 
-- **SVG** de préférence : quelques centaines d'octets, net à toutes les tailles.
-  Les neuf fournis pèsent 7,5 ko à eux tous ;
-- **PNG à fond transparent**, si vous partez d'un dessin. Comptez large — 400 px
-  de côté suffisent, l'autocollant s'affiche autour de 96.
+- **PNG à fond transparent**, le plus courant. 400 px de côté suffisent
+  largement ;
+- **SVG**, si vous en avez : quelques centaines d'octets et net à toutes les
+  tailles.
 
-## Ce qui ne marche pas
+## Le nom affiché
 
-Un PNG **à fond blanc**. Il se collera avec son carré blanc autour, et l'outil ne
-peut pas le deviner à votre place : détourez avant de déposer.
+Corrigez-le directement dans `assets/stickers.js` si celui que l'outil a deviné ne
+vous convient pas : une relance ne le défera pas.
 
-## Le nom
+## Le droit
 
-Il est tiré du nom du fichier, les tirets défaits. Les accents ne survivant pas
-toujours à un nom de fichier, vous pouvez corriger le nom directement dans
-`assets/stickers.js` : une relance de l'outil ne le défera pas.
-
-## Ce qui est fourni
-
-Neuf autocollants dessinés pour ce site — cassette, cœur, disque, éclair, étoile,
-fleur, note, nuage, onde. Ils sont originaux : aucune marque, aucun personnage ni
-aucune ressource de constructeur n'y est reproduit, comme partout ailleurs ici.
-Supprimez-en autant que vous voulez, l'outil ne les recréera pas.
+Les images que vous déposez appartiennent à leurs auteurs. L'outil ne fait que
+les préparer ; la décision de les publier appartient à qui tient le dépôt.
