@@ -2606,17 +2606,24 @@ function applyFond(){
 /* Fermé au départ, et sans mémoire : on ne vient dans les options que pour une
    chose à la fois, et quatorze vignettes dépliées mettraient la visite guidée
    hors de portée sans défiler. */
-var fondsOuvert=false;
 function pli(bouton,tiroir,on){
   var b=$(bouton),t=$(tiroir);
   if(t)t.classList.toggle('on',on);
   if(b)b.setAttribute('aria-expanded',on?'true':'false');
 }
-function fondsPli(on){fondsOuvert=on;pli('#fondsH','#fondsW',on);}
-if($('#fondsH'))$('#fondsH').addEventListener('click',function(){
-  fondsPli(!fondsOuvert);
+function fondsPli(on){pli('#fondsH','#fondsW',on);}
+/* Les cinq dépliants du tiroir se câblaient un à un, cinq fois les mêmes trois
+   lignes à un nom près. C'est peu de code et beaucoup d'occasions de se tromper :
+   le sixième aurait été copié du cinquième. Ils sont désormais nommés en une
+   liste, et la liste se câble seule. */
+['fonds','acc','surf','grav','stk'].forEach(function(n){
+  var b=$('#'+n+'H'),t=$('#'+n+'W');
+  if(!b||!t)return;
+  b.addEventListener('click',function(){
+    pli('#'+n+'H','#'+n+'W',!t.classList.contains('on'));
+  });
+  pli('#'+n+'H','#'+n+'W',false);
 });
-fondsPli(false);
 if($('#fonds'))$('#fonds').addEventListener('click',function(e){
   var b=e.target.closest('button[data-f]');if(!b)return;
   FOND=b.getAttribute('data-f');
@@ -2741,9 +2748,6 @@ function paintAcc(){
       +' title="'+n+'" aria-label="Accent : '+n+'"></button>';
   }).join('')+'</div>';
 }
-if($('#accH'))$('#accH').addEventListener('click',function(){
-  pli('#accH','#accW',!$('#accW').classList.contains('on'));
-});
 if($('#accP'))$('#accP').addEventListener('click',function(e){
   var b=e.target.closest('button[data-c]');if(!b)return;
   ACC=b.getAttribute('data-c');applyAcc();
@@ -2773,9 +2777,6 @@ function applyGrav(){
   var el=$(sel);if(!el)return;
   el.value=GRAV[i];
   el.addEventListener('input',function(){GRAV[i]=el.value;applyGrav();});
-});
-if($('#gravH'))$('#gravH').addEventListener('click',function(){
-  pli('#gravH','#gravW',!$('#gravW').classList.contains('on'));
 });
 applyGrav();
 
@@ -2811,9 +2812,6 @@ function paintSurf(){
         +'<span>'+n+'</span></button>';
     }).join('')+'</div>';
 }
-if($('#surfH'))$('#surfH').addEventListener('click',function(){
-  pli('#surfH','#surfW',!$('#surfW').classList.contains('on'));
-});
 if($('#surfP'))$('#surfP').addEventListener('click',function(e){
   var b=e.target.closest('button[data-s]');if(!b)return;
   SURF=b.getAttribute('data-s');applySurf();
@@ -2946,9 +2944,6 @@ function stkPickPaint(){
     +'<button class="fnul" type="button" data-clear="1">tout retirer</button>';
 }
 
-if($('#stkH'))$('#stkH').addEventListener('click',function(){
-  pli('#stkH','#stkW',!$('#stkW').classList.contains('on'));
-});
 if($('#stkP'))$('#stkP').addEventListener('click',function(e){
   var c=e.target.closest('button[data-clear]');
   if(c){POSE=[];stkSel=-1;stkSave();stkPaint();return;}

@@ -1716,6 +1716,35 @@ Pour héberger vos propres fichiers, déposez-les dans `assets/covers/` et rense
 L'archive renvoie `access-control-allow-origin: *`, ce qui permet d'échantillonner
 chaque pochette sur un canevas 32×32 et d'en tirer les couleurs de la nappe de fond.
 
+## Une relecture, et ce qu'elle a trouvé
+
+Après beaucoup d'ajouts, il fallait relire plutôt que grossir. Voici ce que la
+mesure a dit, y compris là où elle m'a contredit.
+
+**Il n'y a pas de code mort.** Cent cinquante-six fonctions déclarées, aucune
+jamais appelée ; cent soixante-quatorze classes CSS, aucune orpheline. La seule
+que l'outil signalait — `.w3` — était un morceau de `www.w3.org` dans une image
+SVG en ligne : un faux positif, pas une ruine.
+
+**Il n'y a pas de problème de poids.** Le site entier — script, feuille, balisage,
+titres et pochettes basse définition — pèse **98 ko compressés**, ce que le
+navigateur télécharge réellement. Les commentaires occupent 31 % du script et 39 %
+de la feuille, et ils restent : c'est la documentation de ce projet, elle se
+compresse bien, et un site qui s'explique vaut mieux qu'un site plus court.
+
+**Il y avait en revanche une vraie répétition.** Le chrome argenté était réécrit
+**vingt-deux fois** dans la feuille, le verni de sélection **quatorze**. Ce n'est
+pas le poids qui gêne — mille quatre cents signes que la compression avale — c'est
+qu'un site dont la matière est écrite trente-six fois ne peut plus changer de
+matière. Les deux sont dits une fois, en variables ; celles qu'ils citent se
+résolvent à l'usage, si bien que le verni suit le thème et la couleur d'accent
+sans qu'on l'y aide.
+
+Et **les cinq dépliants du tiroir** se câblaient un à un, cinq fois les mêmes
+trois lignes à un nom près. C'est peu de code et beaucoup d'occasions de se
+tromper : le sixième aurait été copié du cinquième. Ils sont nommés en une liste,
+et la liste se câble seule.
+
 ## Les données
 
 Toutes tirées de **MusicBrainz**, triées par date de première parution.
