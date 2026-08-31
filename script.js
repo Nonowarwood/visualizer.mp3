@@ -1846,9 +1846,15 @@ function render(){
        partirait à l'infini et finirait invisible. */
     var tz=-cw*0.44*Math.tanh(ao/0.8);
     var sc=1-0.16*Math.tanh(ao/0.9);
-    lifts[i].style.transform='translateX('+tx.toFixed(1)+'px) translateZ('
+    /* On n'écrit que si la valeur a changé. À soixante images par seconde, sur une
+       quinzaine de pochettes, c'est autant de recalculs de style évités — et sur
+       un téléphone, écrire une propriété coûte plus cher que de comparer deux
+       chaînes. Les valeurs sont arrondies au dixième, ce qui rend les répétitions
+       fréquentes : une pochette du fond de pile ne bouge presque plus. */
+    var tr='translateX('+tx.toFixed(1)+'px) translateZ('
       +tz.toFixed(1)+'px) rotateY('+(-sg*58*Math.min(1,ao/0.85)).toFixed(1)
       +'deg) scale('+sc.toFixed(3)+')';
+    if(lifts[i]._t!==tr){lifts[i]._t=tr;lifts[i].style.transform=tr;}
     /* Le fond de la pile s'assombrit, comme une rangée de disques dans un bac :
        c'est ce qui donne sa profondeur au tas, plus que l'échelle. */
     /* Le flou du fond de pile est **le poste le plus cher de la boucle** : un
@@ -1857,9 +1863,11 @@ function render(){
        le défilement devient une suite de saccades. On le retire là où il coûte —
        l'assombrissement suffit à creuser la pile, c'est même lui qui la creuse le
        plus, le flou n'ajoutait qu'une profondeur de champ. */
-    faces[i].style.filter='brightness('+(1-Math.min(ao*0.13,0.42)).toFixed(3)+')'
+    var fi='brightness('+(1-Math.min(ao*0.13,0.42)).toFixed(3)+')'
       +((!LEGER&&ao>0.7)?' blur('+Math.min((ao-0.7)*1.6,3.2).toFixed(2)+'px)':'');
-    s.style.zIndex=String(200-Math.round(ao*10));
+    if(faces[i]._f!==fi){faces[i]._f=fi;faces[i].style.filter=fi;}
+    var zi=String(200-Math.round(ao*10));
+    if(s._z!==zi){s._z=zi;s.style.zIndex=zi;}
     /* La pile tenant dans une largeur et demie, tout le catalogue peut y figurer :
        on ne masque que la queue lointaine, où plus rien ne se distingue. */
     s.style.opacity=ao>7?'0':(ao>5.5?(1-(ao-5.5)/1.5).toFixed(2):'1');

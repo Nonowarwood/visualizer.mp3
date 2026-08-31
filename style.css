@@ -121,8 +121,19 @@
 
 *{box-sizing:border-box}
 html,body{height:100%}
+/* ─── le verrou ───
+   Le site ne défile pas : il tient dans la fenêtre. `overflow:hidden` sur le corps
+   suffisait sur un ordinateur, pas sur un téléphone — le document y garde le droit
+   de bouger d'un cheveu, et les navigateurs mobiles **peignent alors les éléments
+   fixes contre la fenêtre visible tout en les touchant contre la fenêtre de mise
+   en page**. Les deux se décalent : le bouton se voit à un endroit et répond à un
+   autre, quelques pixels plus bas. C'est ce qui rendait la barre incliquable.
+
+   Le corps est donc lui-même fixe, et le rebond de fin de course refusé. */
+html{height:100%;overflow:hidden;overscroll-behavior:none}
 body{
-  margin:0;overflow:hidden;color:var(--on-1);
+  position:fixed;inset:0;
+  margin:0;overflow:hidden;overscroll-behavior:none;color:var(--on-1);
   /* Deux couches : la **surface**, dessinée et facultative, par-dessus le fond du
      thème. Elle est déclarée ici et non dans une règle à part, pour que le mode
      appareil n'ait qu'à changer le fond du dessous. */
@@ -810,8 +821,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    contenu mais du site — le thème, le son, le boîtier lui-même —, et l'unique
    endroit d'où l'on peut sortir de l'appareil sans le savoir déjà. Un baladeur
    n'a pas de bouton pour se refermer : celui-là doit rester dehors. */
+/* `#filters` porte un identifiant, donc la règle qui le met en grille sur écran
+   étroit pesait plus lourd que celle-ci — et les types de parution reparaissaient
+   dans l'appareil, où ils n'ont rien à faire. On nomme donc l'identifiant ici
+   aussi : à poids égal, c'est le mode appareil qui doit l'emporter. */
 [data-device="on"] .meter,[data-device="on"] .tail,
-[data-device="on"] .ctlbar .seg,[data-device="on"] .ctlbar .div,
+[data-device="on"] .ctlbar .seg,[data-device="on"] .ctlbar #filters,
+[data-device="on"] .ctlbar .div,
 [data-device="on"] .brandwrap{display:none}
 
 /* ─── remettre les mesures à l'échelle de l'écran ───
@@ -828,6 +844,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    d'être resserrée. Une valeur fixe plutôt que la mesure d'origine en `24vw`, qui
    se référait à la vraie fenêtre et faisait donc varier la pochette selon la
    taille du navigateur — dans un écran qui, lui, ne change pas. */
+/* Dans l'appareil, l'écran est **mis à l'échelle**. Sans avertissement, le
+   navigateur redessine son contenu à la taille réduite à chaque image du Cover
+   Flow ; prévenu, il le dessine une fois et ne fait plus que le recomposer. Sur un
+   téléphone, c'est la différence entre un défilement qui accroche et un qui
+   glisse. La déclaration ne vaut que dans ce mode : hors de lui, l'écran n'est pas
+   mis à l'échelle et la promesse ne coûterait que de la mémoire. */
+[data-device="on"] #app{will-change:transform}
 [data-device="on"] #app{--pad:10px;--cw:330px;--listw:150px}
 /* ─── la fiche tient dans l'écran, quel qu'en soit le disque ───
    Resserrer les mesures ne suffisait pas : additionnées, elles demandaient
@@ -1347,8 +1370,15 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .trk-l li.playing b::after{content:"▸";margin-left:.3em;color:var(--bl)}
 
 /* ═══════════════ interface ═══════════════ */
+/* Les marges tiennent compte des zones que le système se réserve — encoche,
+   horloge, barre de geste. Sans quoi, sur un téléphone, le premier rang de la
+   barre se dessine sous l'horloge, où le toucher ne lui appartient plus. */
 .hud{position:fixed;inset:0;z-index:30;pointer-events:none;
-  display:grid;grid-template-rows:auto 1fr auto;padding:var(--pad)}
+  display:grid;grid-template-rows:auto 1fr auto;
+  padding:calc(var(--pad) + env(safe-area-inset-top,0px))
+    calc(var(--pad) + env(safe-area-inset-right,0px))
+    calc(var(--pad) + env(safe-area-inset-bottom,0px))
+    calc(var(--pad) + env(safe-area-inset-left,0px))}
 .hud>*{display:flex;gap:var(--pad);justify-content:space-between}
 /* Le HUD est traversant pour que le Cover Flow reste saisissable au travers. Mais
    ne rendre sensibles que les `button` laissait tout le reste inerte : le panneau
