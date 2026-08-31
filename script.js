@@ -4,7 +4,13 @@
 /* ═══ les artistes — données : MusicBrainz ═══ */
 var ARTISTS=[
  {id:'89e95aa3-bd49-4af3-9c87-0d88b2093bb0', name:'wave to earth', place:'Séoul', since:2019,
-  slug:'wave-to-earth', photos:[],
+  slug:'wave-to-earth',
+  photos:[
+   {t:'0.1 FLAWS AND ALL', d:'teasers du premier album · 2023', p:['assets/photos/wave-to-earth/flaws-and-all/01.jpg','assets/photos/wave-to-earth/flaws-and-all/02.jpg','assets/photos/wave-to-earth/flaws-and-all/03.jpg','assets/photos/wave-to-earth/flaws-and-all/04.jpg','assets/photos/wave-to-earth/flaws-and-all/05.jpg','assets/photos/wave-to-earth/flaws-and-all/06.jpg','assets/photos/wave-to-earth/flaws-and-all/07.jpg','assets/photos/wave-to-earth/flaws-and-all/08.jpg','assets/photos/wave-to-earth/flaws-and-all/09.jpg','assets/photos/wave-to-earth/flaws-and-all/10.jpg']},
+   {t:'NOUVELLE VAGUE', d:'concept du single · 2021', p:['assets/photos/wave-to-earth/nouvelle-vague/01.jpg','assets/photos/wave-to-earth/nouvelle-vague/02.jpg','assets/photos/wave-to-earth/nouvelle-vague/03.jpg','assets/photos/wave-to-earth/nouvelle-vague/04.jpg','assets/photos/wave-to-earth/nouvelle-vague/05.jpg','assets/photos/wave-to-earth/nouvelle-vague/06.jpg','assets/photos/wave-to-earth/nouvelle-vague/07.jpg']},
+   {t:'SÉANCE PHOTO', d:'ajoutée à la galerie en mai 2026', p:['assets/photos/wave-to-earth/seance-2026/01.jpg','assets/photos/wave-to-earth/seance-2026/02.jpg','assets/photos/wave-to-earth/seance-2026/03.jpg','assets/photos/wave-to-earth/seance-2026/04.jpg','assets/photos/wave-to-earth/seance-2026/05.jpg','assets/photos/wave-to-earth/seance-2026/06.jpg','assets/photos/wave-to-earth/seance-2026/07.jpg','assets/photos/wave-to-earth/seance-2026/08.jpg']},
+   {t:'AUTRES', d:'W Korea et publications du groupe · 2022-2024', p:['assets/photos/wave-to-earth/autres/01.jpg','assets/photos/wave-to-earth/autres/02.jpg','assets/photos/wave-to-earth/autres/03.jpg','assets/photos/wave-to-earth/autres/04.jpg','assets/photos/wave-to-earth/autres/05.jpg']}
+  ],
   rel:[
   {id:'5ac8ad8b-81b1-4ae8-8578-c3a820d20a06', t:"wave", kind:'Single', date:'23 août 2019', y:2019, v:'', label:'',
    k:'#5B7FA6', art:'wave', tone:'d', cover:'',

@@ -318,6 +318,19 @@ que l'ordre du document où les vignettes se mêlent aux grandes images.
 
 Le motif reste disponible en quatrième argument, pour les galeries d'autrefois.
 
+**`--tout` prend toutes les grappes** au lieu de la plus fournie. Ce n'est pas le
+défaut, et pour une bonne raison : une page en porte jusqu'à douze, dont onze
+appartiennent aux articles voisins. Mais certaines en portent deux qui sont toutes
+deux légitimes — la page des teasers de `0.1 flaws and all` en cachait huit de plus
+que celles qu'on prenait.
+
+Deux réponses HTTP demandaient un traitement plutôt qu'une nouvelle tentative. Le
+**308**, redirection permanente dont la galerie se sert pour ses adresses
+canoniques : Python ne la suit pas de lui-même avant la 3.11, et l'outil s'arrêtait
+sur une page qui existait. Le **403**, qui n'est pas un refus mais un essoufflement
+quand on a trop demandé d'un coup : on attend vingt secondes plutôt que deux, et
+l'on repart.
+
 ### Récupérer une série
 
 ```bash

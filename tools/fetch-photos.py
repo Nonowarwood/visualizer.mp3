@@ -47,6 +47,7 @@ UA = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
       '(KHTML, like Gecko) Chrome/126.0 Safari/537.36')
 LONG_SIDE = 1200
 QUALITY = 72
+TOUT = False
 
 
 def get(url, binary=False, tries=4):
@@ -138,23 +139,38 @@ def collect(html, pattern):
                 break
     if not grappes:
         return []
+    if TOUT:
+        # Certaines pages portent **plusieurs séries légitimes** — les teasers d'un
+        # album y voisinent avec une seconde livraison. Les prendre toutes n'est
+        # pourtant pas le défaut : une page de galerie sert aussi les vignettes des
+        # articles voisins, et l'on en ramènerait douze grappes étrangères.
+        out = []
+        for k in sorted(grappes, key=lambda k: -len(grappes[k])):
+            out += [u for _, u in sorted(grappes[k])]
+        print('  %d séries sur la page, toutes prises (%d images)'
+              % (len(grappes), len(out)), file=sys.stderr)
+        return out
     cle = max(grappes, key=lambda k: len(grappes[k]))
     if len(grappes) > 1:
         print('  %d séries sur la page, on prend la plus fournie (%d images)'
               % (len(grappes), len(grappes[cle])), file=sys.stderr)
+        print('  (--tout pour les prendre toutes)', file=sys.stderr)
     return [u for _, u in sorted(grappes[cle])]
 
 
 def main():
-    if len(sys.argv) < 4:
+    global TOUT
+    argv = [a for a in sys.argv[1:] if a != '--tout']
+    TOUT = '--tout' in sys.argv
+    if len(argv) < 3:
         print(__doc__)
         raise SystemExit(2)
-    page, artist, series = sys.argv[1], sys.argv[2], sys.argv[3]
+    page, artist, series = argv[0], argv[1], argv[2]
     # Plus de motif par défaut : le nom de la série ne figure plus dans celui des
     # fichiers, et le déduire ne retenait qu'une image sur cent vingt-cinq. On
     # laisse le regroupement par horodatage faire son travail ; le motif reste
     # disponible en quatrième argument pour les galeries d'autrefois.
-    pattern = sys.argv[4] if len(sys.argv) > 4 else ''
+    pattern = argv[3] if len(argv) > 3 else ''
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     pub = os.path.join(root, 'assets', 'photos', artist, series)
