@@ -294,6 +294,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   transition:opacity .3s var(--e),transform .34s var(--e-out)}
 [data-state="menu"] .amenus{opacity:1;pointer-events:auto;transform:none}
 [data-state="menu"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
+/* Le titre du niveau, en bandeau collant : dans une pile de menus, savoir où
+   l'on est vaut autant que savoir où l'on va. */
+.am-t{position:sticky;top:0;z-index:1;margin:0;padding:7px 16px;
+  border-bottom:1px solid var(--cr-line);
+  background:linear-gradient(180deg,var(--cr-1) 0 48%,var(--cr-2) 49%,var(--cr-3));
+  font:700 11px/1.2 var(--sans);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cr-ink-2);text-shadow:0 1px 0 var(--cr-glow)}
 .amenus ol{list-style:none;margin:0;padding:0}
 .amenus button{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
   width:100%;text-align:left;padding:13px 16px;border-bottom:1px solid var(--pn-line);
@@ -683,7 +690,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    La barre de commandes et le guide sont sortis dans le châssis, le compteur et
    les flèches n'ont plus lieu d'être — et le sélecteur d'artiste non plus, depuis
    qu'un menu lui est consacré. */
+/* **La barre disparaît.** Elle flottait au-dessus du boîtier, et rien ne flotte
+   au-dessus d'un baladeur : tout ce qu'elle portait — les artistes, les types de
+   parution, les vues, les réglages — est descendu dans la pile de menus, où l'on
+   y va à la molette. On ne pilote plus l'appareil de l'extérieur. */
 [data-device="on"] .meter,[data-device="on"] .tail,
+[data-device="on"] .ctlbar,
 [data-device="on"] .brandwrap{display:none}
 
 /* ─── remettre les mesures à l'échelle de l'écran ───

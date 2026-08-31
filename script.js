@@ -698,9 +698,10 @@ var outMoved=[];
 function deviceMove(on){
   if(on){
     if(outMoved.length)return;
-    /* La visite ne fait plus partie du voyage : elle vit désormais hors de
-       `#app`, donc elle est déjà dehors. Restent la barre et le lecteur. */
-    ['.ctlbar','#player'].forEach(function(sel){
+    /* Seul le lecteur sort désormais. La visite vit hors de `#app`, donc elle est
+       déjà dehors ; et la barre de commandes ne sort plus du tout — elle
+       disparaît, son contenu ayant rejoint la pile de menus. */
+    ['#player'].forEach(function(sel){
       var el=document.querySelector(sel);
       if(!el)return;
       outMoved.push({el:el,par:el.parentNode,next:el.nextSibling});
@@ -830,6 +831,9 @@ function applyDevice(anim){
   var A=anim?app.getBoundingClientRect():null;
   var devWas=!dv.hidden,dvStyleWas=dv.getAttribute('style')||'';
 
+  /* La pile de menus est une affaire d'appareil : en sortir la laisserait
+     couvrir toute la page, sans molette pour la parcourir. */
+  if(!DEV&&STATE==='menu')setState('parcours');
   document.documentElement.setAttribute('data-device',DEV?'on':'off');
   deviceMove(DEV);
   $('#mDevice').setAttribute('aria-pressed',DEV?'true':'false');
@@ -843,6 +847,9 @@ function applyDevice(anim){
   /* Le champ vient de changer de largeur du tout au tout : tout ce qui se centre
      sur elle doit être refait. */
   sizeEdges();goTo(CUR,false);requestAnimationFrame(render);
+  /* La barre vient de reparaître ou de disparaître : son curseur de sélection se
+     mesure sur des largeurs qui n'existaient pas il y a un instant. */
+  glisse();
   if(STATE==='photos'&&photoList().length)placeRing();
 }
 $('#mDevice').addEventListener('click',function(){DEV=!DEV;applyDevice(true);});
@@ -865,40 +872,173 @@ addEventListener('resize',function(){
 
 /* Les quatre zones font ce que font les touches, pour que la molette ne soit pas
    un décor : elle commande vraiment. */
-/* ─────────── le menu des artistes ───────────
-   `menu` remonte d'un cran : d'une fiche au parcours, du parcours à ce menu. Le
-   Cover Flow y est **déchargé** — l'écran ne montre plus qu'une liste, comme la
-   pile de menus d'un baladeur, et l'on redescend en choisissant.
+/* ─────────── la pile de menus ───────────
+   La barre de commandes flottait au-dessus du boîtier ; rien ne flotte au-dessus
+   d'un baladeur. Tout ce qu'elle portait est descendu ici : les artistes, les
+   types de parution, les vues, les réglages. On ne pilote plus l'appareil de
+   l'extérieur — on entre dans ses menus, à la molette, et l'on en ressort par
+   `menu`, un cran à la fois.
 
-   La molette y déplace la sélection au lieu de parcourir : c'est le même geste,
-   appliqué à ce que l'écran montre. */
-var menuI=0;
-function paintMenu(){
-  menuI=A;
-  $('#amenusIn').innerHTML=ARTISTS.map(function(a,i){
-    return '<li aria-current="'+(i===A?'true':'false')+'">'
-      +'<button type="button" data-a="'+i+'"><span>'+esc(a.name)+'</span>'
-      +'<i>'+a.rel.length+' ›</i></button></li>';
+   Une **pile** plutôt qu'un menu : chaque niveau est une page, et chaque page
+   sait se refaire — un réglage qu'on bascule se relit aussitôt dans sa propre
+   ligne, sans quitter l'endroit où l'on est. Chaque niveau retient aussi **où
+   l'on en était** : revenir en arrière, c'est retrouver son rang, pas repartir du
+   premier item.
+
+   La molette y déplace la sélection au lieu de parcourir : le même geste, appliqué
+   à ce que l'écran montre. */
+var menuI=0,MPILE=[];
+
+function mIt(n,v,go){return {n:n,v:v,go:go};}
+function mNiveau(){return MPILE[MPILE.length-1];}
+
+/* ─── les pages ─── */
+function pRacine(){
+  return {t:'menu',l:[
+    mIt('Musique','›',function(){menuPush(pMusique);}),
+    mIt('Artistes',ARTISTS[A].name,function(){menuPush(pArtistes);}),
+    mIt('Images','›',function(){menuFerme();openPhotos();}),
+    mIt('Planche','›',function(){menuFerme();setState('survey');}),
+    mIt('Réglages','›',function(){menuPush(pReglages);})
+  ]};
+}
+function pArtistes(){
+  return {t:'artistes',l:ARTISTS.map(function(a,i){
+    return mIt(a.name,String(a.rel.length),function(){
+      /* On change d'artiste **sans quitter le menu** : on descend aussitôt dans
+         ses types de parution, comme un baladeur descend d'un cran. */
+      if(i!==A)buildArtist(i,false);
+      menuPush(pMusique);
+    });
+  })};
+}
+function pMusique(){
+  var c={tout:REL.length,Album:0,EP:0,Single:0};
+  REL.forEach(function(r){if(c[r.kind]!==undefined)c[r.kind]++;});
+  function f(lbl,cle){
+    return mIt(lbl,String(c[cle]||0),function(){
+      FILTER=cle;
+      [].slice.call(document.querySelectorAll('#filters button')).forEach(function(x){
+        x.setAttribute('aria-pressed',x.getAttribute('data-f')===cle?'true':'false');
+      });
+      glisse();
+      CUR=0;rebuild();hud();menuFerme();goTo(0,false);
+      requestAnimationFrame(render);
+    });
+  }
+  return {t:ARTISTS[A].name,l:[
+    f('Tout','tout'),f('Albums','Album'),f('EP','EP'),f('Singles','Single')]};
+}
+function mFondNom(){
+  var L=fondsListe();
+  if(L)for(var i=0;i<L.length;i++)if(L[i].f===FOND)return L[i].n;
+  return 'aucun';
+}
+function pFonds(){
+  var L=fondsListe()||[];
+  var l=[mIt('Aucun',FOND?'':'✓',function(){FOND='';applyFond();menuRefaire();})];
+  L.forEach(function(x){
+    l.push(mIt(x.n,FOND===x.f?'✓':x.g,function(){
+      FOND=x.f;applyFond();menuRefaire();
+    }));
+  });
+  return {t:'fond d\'écran',l:l};
+}
+function pStickers(){
+  var L=stkListe()||[];
+  var l=L.map(function(x){
+    return mIt(x.n,'poser',function(){stkAdd(x.f);menuRefaire();});
+  });
+  if(POSE.length)l.push(mIt('Tout retirer',String(POSE.length),function(){
+    POSE=[];stkSel=-1;stkSave();stkPaint();menuRefaire();
+  }));
+  if(!l.length)l.push(mIt('Aucun autocollant','',function(){}));
+  return {t:'autocollants',l:l};
+}
+function pReglages(){
+  return {t:'réglages',l:[
+    mIt('Thème',tn[tm[ti]],function(){
+      ti=(ti+1)%tm.length;applyTheme();menuRefaire();}),
+    mIt('Pochettes en pixels',PIX?'oui':'non',function(){
+      PIX=!PIX;applyPix();menuRefaire();}),
+    mIt('Liste appariée',LIST?'oui':'non',function(){
+      LIST=!LIST;applyList();menuRefaire();}),
+    mIt('Trame de l\'écran',GLASS?'oui':'non',function(){
+      GLASS=!GLASS;applyGlass();menuRefaire();}),
+    mIt('Fond d\'écran',mFondNom(),function(){menuPush(pFonds);}),
+    mIt('Autocollants',POSE.length?String(POSE.length)+' posé'+(POSE.length>1?'s':''):'aucun',
+      function(){menuPush(pStickers);}),
+    mIt('Son',sfx.on()?'activé':'coupé',function(){
+      sfx.set(!sfx.on());
+      $('#mSnd').setAttribute('aria-pressed',sfx.on()?'true':'false');
+      $('#mSndL').textContent=sfx.on()?'activé':'coupé';
+      menuRefaire();}),
+    mIt('Visite guidée','↻',function(){menuFerme();tourShow(0);}),
+    mIt('À propos','↗',function(){aboutOpen(true);}),
+    /* La seule porte de sortie : sans elle, la barre cachée enfermerait dans
+       l'appareil qui n'aurait pas trouvé la molette. */
+    mIt('Sortir de l\'appareil','✕',function(){
+      menuFerme();DEV=false;applyDevice(true);})
+  ]};
+}
+
+/* ─── la pile ─── */
+function menuPush(fn){MPILE.push({f:fn,i:0});paintMenu();}
+function menuPop(){
+  if(MPILE.length<=1)return false;
+  MPILE.pop();paintMenu();return true;
+}
+function menuOuvre(){
+  if(!MPILE.length)MPILE=[{f:pRacine,i:0}];
+  paintMenu();setState('menu');
+}
+function menuFerme(){setState('parcours');}
+function menuRefaire(){paintMenu(true);}
+
+function paintMenu(garde){
+  var e=mNiveau();
+  if(!e){MPILE=[{f:pRacine,i:0}];e=mNiveau();}
+  var p=e.f();
+  e.p=p;
+  if(!garde)menuI=e.i||0;
+  if(menuI>=p.l.length)menuI=p.l.length-1;
+  if(menuI<0)menuI=0;
+  e.i=menuI;
+  $('#amenusT').textContent=p.t;
+  $('#amenusIn').innerHTML=p.l.map(function(x,i){
+    return '<li aria-current="'+(i===menuI?'true':'false')+'">'
+      +'<button type="button" data-k="'+i+'"><span>'+esc(x.n)+'</span>'
+      +'<i>'+esc(x.v||'')+'</i></button></li>';
   }).join('');
 }
 function menuMark(){
+  var e=mNiveau();if(e)e.i=menuI;
   var r=$('#amenusIn').children;
   for(var i=0;i<r.length;i++)r[i].setAttribute('aria-current',i===menuI?'true':'false');
+  /* La ligne choisie doit rester en vue : une page de réglages est plus longue
+     que l'écran de l'appareil. */
+  var el=r[menuI],box=$('#amenus');
+  if(el&&box){
+    var top=el.offsetTop,bot=top+el.offsetHeight;
+    if(top<box.scrollTop)box.scrollTop=top-8;
+    else if(bot>box.scrollTop+box.clientHeight)box.scrollTop=bot-box.clientHeight+8;
+  }
 }
 function menuGo(d){
-  var n=ARTISTS.length;
+  var e=mNiveau();if(!e||!e.p)return;
+  var n=e.p.l.length;if(!n)return;
   menuI=((menuI+d)%n+n)%n;
   sfx.step();menuMark();
 }
 function menuPick(){
-  var i=menuI;
-  setState('parcours');
-  if(i!==A)buildArtist(i,false); else goTo(CUR,false);
+  var e=mNiveau();if(!e||!e.p)return;
+  var x=e.p.l[menuI];
+  if(x&&x.go)x.go();
 }
 $('#amenus').addEventListener('click',function(e){
-  var b=e.target.closest('button[data-a]');
+  var b=e.target.closest('button[data-k]');
   if(!b)return;
-  menuI=parseInt(b.getAttribute('data-a'),10);menuPick();
+  menuI=parseInt(b.getAttribute('data-k'),10);menuMark();menuPick();
 });
 
 /* Parcourir, et rien d'autre : ce que fait la molette quoi qu'il se joue. */
@@ -911,10 +1051,13 @@ function dvNav(d){
 
 function dvAction(z){
   if(z==='menu'){
-    if(STATE==='focus')close();
-    else if(STATE==='menu')return;             /* déjà au sommet */
-    else if(STATE!=='parcours')setState('parcours');
-    else{paintMenu();setState('menu');}
+    /* `menu` remonte d'un cran, toujours : d'une fiche au parcours, d'une page de
+       menu à celle du dessus, et du parcours — ou de la planche, ou des images,
+       où l'on n'est arrivé que par le menu — au menu lui-même. Au sommet de la
+       pile, il ne se passe rien : c'est le sommet. */
+    if(STATE==='focus'){close();return;}
+    if(STATE==='menu'){menuPop();return;}
+    menuOuvre();
     return;
   }
   if(z==='prev'||z==='next'){
@@ -1089,17 +1232,29 @@ var TOUR=[
   x:'Voilà ce que ça donne : chaque pochette réduite à 96 px et tramée, comme un '
    +'baladeur de l\'époque l\'aurait affichée. Elles sont fabriquées d\'avance, '
    +'donc l\'affichage est immédiat. Touche <kbd>P</kbd>.'},
- {t:'Le tiroir',sel:'#optmenu',delai:340,
-  avant:function(){PIX=false;applyPix();optOpen(true);},
+ {t:'Le tiroir',sel:'#optmenu',delai:820,
+  /* Hors de l'appareil : dans le boîtier, la barre n'existe pas — ses commandes
+     sont descendues dans la pile de menus, que l'étape suivante montre. */
+  avant:function(){
+    PIX=false;applyPix();
+    if(DEV){DEV=false;applyDevice(true);}
+    setTimeout(function(){optOpen(true);},reduce?0:420);
+  },
   x:'Tout le reste est là : le thème clair ou sombre, le son, la liste, les '
    +'pixels, le boîtier, les fonds, les autocollants — et les crédits.'},
  {t:'Dans l\'appareil',sel:'#device',delai:900,
   avant:function(){optOpen(false);if(!DEV){DEV=true;applyDevice(true);}},
-  x:'Le site vient d\'entrer dans un baladeur dessiné. La barre et le lecteur '
-   +'sortent de l\'écran, et <b>la molette commande vraiment</b> : on la tourne '
-   +'pour parcourir, <kbd>menu</kbd> remonte, <kbd>▸❚❚</kbd> met en pause.'},
+  x:'Le site vient d\'entrer dans un baladeur dessiné. <b>La barre a disparu</b> : '
+   +'rien ne flotte au-dessus d\'un baladeur. La molette commande vraiment — on '
+   +'la tourne pour parcourir, <kbd>menu</kbd> remonte, <kbd>▸❚❚</kbd> met en pause.'},
+ {t:'La pile de menus',sel:'#app',delai:520,
+  avant:function(){menuOuvre();},
+  x:'Tout ce que portait la barre est ici : les artistes et, sous chacun, ses '
+   +'albums, EP et singles ; les images, la planche, et les réglages jusqu\'au '
+   +'fond d\'écran. On descend au bouton central, on remonte par <kbd>menu</kbd>.'},
  {t:'Le fond d\'écran',sel:'#app',delai:640,
   avant:function(){
+    menuFerme();
     var L=fondsListe();
     if(L&&L.length){FOND=L[Math.min(8,L.length-1)].f;applyFond();}
   },

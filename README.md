@@ -1315,21 +1315,51 @@ d'aller, il rend l'identité.
 
 Sous mouvement réduit, le passage reste instantané.
 
-### Remonter jusqu'aux artistes
+### La pile de menus, et la barre qui disparaît
 
-`menu` remonte d'un cran : d'une fiche au parcours, du parcours à un **menu des
-artistes**. Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de
-remplacer ce qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus
-qu'une liste, la ligne courante vernie, un chevron pour dire qu'on descendra.
+**Rien ne flotte au-dessus d'un baladeur.** La barre de commandes le faisait
+pourtant : on pilotait l'appareil de l'extérieur, à la souris, sur des boutons qui
+n'étaient pas les siens. Elle disparaît donc en mode appareil, et tout ce qu'elle
+portait est descendu dans une **pile de menus** :
 
-La molette y déplace la sélection au lieu de parcourir : le même geste, appliqué à
-ce que l'écran montre. Le centre choisit et redescend.
+```
+menu
+├─ Musique ▸        tout · albums · EP · singles, avec leur compte
+├─ Artistes ▸       chaque artiste, puis ses types de parution
+├─ Images           les séries de photos
+├─ Planche          la grille
+└─ Réglages ▸       thème · pixels · liste · trame · fond d'écran ▸
+                    autocollants ▸ · son · visite · à propos
+                    · sortir de l'appareil
+```
+
+Le Cover Flow y est **déchargé** — c'est le propre d'un menu que de remplacer ce
+qu'il surmonte, non de flotter par-dessus. L'écran ne montre plus qu'une liste, la
+ligne courante vernie, sa valeur à droite : le nom de l'artiste courant, le nombre
+de parutions, l'état d'un réglage.
+
+`menu` remonte d'un cran, toujours : d'une fiche au parcours, d'une page de menu à
+celle du dessus, et du parcours au menu. Au sommet de la pile, il ne se passe
+rien — c'est le sommet. La molette déplace la sélection au lieu de parcourir, le
+centre choisit.
+
+**Chaque page sait se refaire.** Un réglage qu'on bascule se relit aussitôt dans
+sa propre ligne, sans quitter l'endroit où l'on est — parce qu'une page n'est pas
+un tableau figé mais la fonction qui la produit, rejouée. Et **chaque niveau
+retient son rang** : revenir en arrière, c'est retrouver la ligne qu'on avait
+laissée, pas repartir de la première.
+
+Une entrée compte plus que les autres : *sortir de l'appareil*. Sans elle, la
+barre cachée enfermerait dans le boîtier qui n'aurait pas trouvé la molette.
+
+La planche et les images n'existent sur aucun baladeur — elles restent, mais à
+leur place : deux entrées du menu racine, comme le reste.
 
 ## La visite guidée
 
 Elle ne décrit plus, elle **montre en faisant**. Chaque étape peut ouvrir une
 fiche, lancer une piste, entrer dans le boîtier, poser un autocollant : on voit la
-fonction marcher plutôt qu'on n'en lit la promesse. Dix-sept étapes, un bouton
+fonction marcher plutôt qu'on n'en lit la promesse. Dix-huit étapes, un bouton
 *passer* à chacune, et *retour* pour revenir sur ses pas.
 
 C'est le renversement d'un parti pris que ce fichier défendait : la visite avait
