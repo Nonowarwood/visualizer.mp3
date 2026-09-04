@@ -1,1 +1,5 @@
 .DS_Store
+# Les images et le profil de navigateur que `tools/apercu.mjs` produit : on les
+# regarde, on ne les publie pas.
+apercus/
+.apercu-profil/

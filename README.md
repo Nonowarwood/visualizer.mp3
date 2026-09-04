@@ -1779,6 +1779,54 @@ Pour héberger vos propres fichiers, déposez-les dans `assets/covers/` et rense
 L'archive renvoie `access-control-allow-origin: *`, ce qui permet d'échantillonner
 chaque pochette sur un canevas 32×32 et d'en tirer les couleurs de la nappe de fond.
 
+## Vérifier
+
+Trois outils, et ils ne voient pas les mêmes choses. Aucun n'est un navigateur
+qu'on regarde ; les trois ensemble en tiennent lieu.
+
+```sh
+cd site
+node tools/verif-dom.mjs           la charpente, dans un faux DOM
+node tools/apercu.mjs --mesure     les mesures qui doivent tenir
+node tools/essai-navigateur.mjs    appuyer sur tout, pour de bon
+node tools/apercu.mjs              les vues, en images, dans ./apercus/
+```
+
+**`verif-dom.mjs`** exécute `script.js` hors navigateur, dans un faux DOM.
+`node --check` ne lit que la grammaire : il ne voit ni une variable jamais
+déclarée, ni un `$('#truc')` qui ne vise rien, ni une méthode mal orthographiée.
+Le fichier s'exécute donc ici, et l'on déclenche les commandes une à une — c'est
+là que les `ReferenceError` d'un renommage se voient. Il attrape les fautes de
+charpente, jamais les fautes d'œil.
+
+**`apercu.mjs`** ouvre un vrai navigateur sans fenêtre, sert le dossier comme
+GitHub Pages le sert — `file://` ne suffit pas, les pochettes portent
+`crossorigin` et l'origine les refuserait toutes — et rend le site. Sans
+argument, il écrit une image par vue dans `apercus/`, qui n'est pas publié.
+Avec `--mesure`, il vérifie les mesures qui doivent tenir : le tiroir replié qui
+ne laisse rien paraître, la planche qui ne passe pas sous le compteur, l'hélice
+qui tient dans la fenêtre, et l'écran qui reste dans son trou pendant le passage
+d'un mode à l'autre.
+
+Ces mesures ne sont pas décoratives : **les trois défauts les plus coûteux de
+cette passe ont été trouvés là, et aucun n'aurait pu l'être autrement.** Les
+dépliants du tiroir qui gardaient 22 px, l'hélice qui réservait la place d'une
+image et en dessinait une 1,68 fois plus grande, le châssis qui s'écartait de
+1 300 px de son propre écran. Chacune est un défaut qu'on a eu et qu'on ne veut
+pas revoir.
+
+**`essai-navigateur.mjs`** appuie sur tout, dans ce même navigateur : les trois
+vues, les filtres, les artistes, tous les réglages, la molette, la recherche, et
+les dix-huit étapes de la visite. La page tient son propre journal d'erreurs et
+l'on regarde après chaque appui s'il en est arrivé une — un `ReferenceError`
+dans un gestionnaire ne remonte nulle part ailleurs.
+
+Il faut un navigateur bâti sur Chromium — Chrome, Chromium, Brave, Edge. Le
+premier trouvé sert ; `NAVIGATEUR=/chemin/vers/le/binaire` passe outre.
+
+Et toujours : relancer aussi sur le fichier **déployé**, récupéré avec un
+paramètre anti-cache. Ce qui tourne ici n'est pas ce que le visiteur reçoit.
+
 ## Une relecture, et ce qu'elle a trouvé
 
 Après beaucoup d'ajouts, il fallait relire plutôt que grossir. Voici ce que la
