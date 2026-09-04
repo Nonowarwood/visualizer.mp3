@@ -919,64 +919,163 @@ function deviceLayout(){
    Le châssis subit le mouvement **inverse** : si l'écran grandit d'un facteur k,
    il s'écarte de 1/k. Les deux restent ainsi solidaires — on ne voit pas un cadre
    qui se déforme, mais une caméra qui avance. */
-function zoomModes(A,dvStyleWas,devWas){
-  var app=$('#app'),dv=$('#device'),out=$('#outside');
+/* Le mouvement est écrit avec l'**API d'animation** plutôt qu'en transitions
+   posées à la main. Ce n'est pas une coquetterie : la version en transitions
+   demandait de couper la transition, d'écrire l'état de départ, de **forcer un
+   recalcul** — `app.offsetWidth`, la ligne dont personne ne se souvient
+   pourquoi elle est là —, de réécrire la transition, puis de nettoyer sur un
+   `setTimeout` de 700 ms qu'il fallait garder d'accord avec une durée écrite
+   ailleurs. Six choses à tenir justes pour un seul geste. Ici : les deux bouts,
+   la durée, et une promesse qui dit quand c'est fini.
+
+   Trois pièces bougent ensemble, et c'est ce qui fait la caméra :
+   l'écran, sa **vitre**, et le châssis à l'envers. La vitre ne suivait pas — elle
+   se posait d'un coup à sa taille finale pendant que le reste voyageait, ce qui
+   n'était visible que trame allumée, donc jamais remarqué. */
+var dvAnims=[];
+/* Une caméra transporte **tout le monde du même mouvement**. C'est la phrase
+   qui manquait : le code posait la transformée d'aller sur l'écran, et son
+   inverse sur le châssis, comme si les deux se répondaient. Ils ne se
+   répondent pas — ils n'ont pas la même boîte, et une transformée d'échelle
+   posée sur des boîtes différentes ne donne pas le même déplacement.
+
+   Mesuré : en entrant, le châssis partait **125 px à côté** de son propre
+   écran ; en sortant, il s'en écartait jusqu'à **1 300 px**, à pleine encre,
+   avant de revenir. On ne voyait pas une caméra reculer, on voyait un boîtier
+   glisser hors du cadre et rentrer. Ce que l'œil lisait comme « ça saute un
+   peu » était cela.
+
+   Voici le mouvement écrit une fois pour toutes. Pour un élément dont la boîte
+   est posée en `e` et qui porte déjà une échelle `z`, la transformée qui
+   l'emmène de la caméra cadrée sur `de` à la caméra cadrée sur `vers` est un
+   agrandissement de `s = vers.largeur / de.largeur` autour de l'origine du
+   cadre, ramené dans les coordonnées de sa propre boîte. Les trois pièces —
+   l'écran, sa vitre, le châssis — la reçoivent, et l'écran ne quitte plus son
+   trou d'un pixel. */
+function camDe(e,z,de,vers){
+  var s=vers.width/de.width;
+  return 'translate('+(vers.left+(e.left-de.left)*s-e.left).toFixed(1)+'px,'
+                     +(vers.top +(e.top -de.top )*s-e.top ).toFixed(1)+'px) '
+        +'scale('+(z*s).toFixed(5)+')';
+}
+/* La boîte d'un élément, **avant** sa transformée : avec une origine au coin
+   haut-gauche et une simple mise à l'échelle, le coin ne bouge pas — le
+   rectangle mesuré donne donc directement l'origine cherchée. */
+function boite(el){var r=el.getBoundingClientRect();return {left:r.left,top:r.top};}
+
+function zoomModes(A,dvStyleWas,devWas,glStyleWas,glWas){
+  var app=$('#app'),dv=$('#device'),out=$('#outside'),gl=$('#dvGlass');
   var B=app.getBoundingClientRect();
   if(!A.width||!B.width)return;
-  var k=A.width/B.width;
-  var dx=A.left-B.left,dy=A.top-B.top;
-  var base=DEV?('scale('+dvZ.toFixed(4)+')'):'';
-  var pre='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+k.toFixed(5)+') ';
-  /* L'inverse exact de `pre` : scale(1/k) puis la translation opposée. */
-  var inv='scale('+(1/k).toFixed(5)+') translate('+(-dx).toFixed(1)+'px,'+(-dy).toFixed(1)+'px) ';
 
-  app.style.transition='none';
+  /* Les durées et les courbes viennent de la feuille : le temps du site est tenu
+     à un seul endroit, et un nettoyage calé sur un nombre écrit ici finirait par
+     se décaler de l'animation qu'il nettoie. */
+  var cs=getComputedStyle(document.documentElement);
+  var ms=function(n){return parseFloat(cs.getPropertyValue(n))||0;};
+  var T=ms('--t-5'),T4=ms('--t-4'),T3=ms('--t-3'),T1=ms('--t-1');
+  var OUT=cs.getPropertyValue('--e-out').trim()||'ease-out';
+  var IN=cs.getPropertyValue('--e-in').trim()||'ease-in';
+  /* Le déplacement des trois pièces suit la courbe du travelling ; ce qui les
+     accompagne — une opacité, un bandeau — garde les courbes ordinaires. */
+  var CAM=cs.getPropertyValue('--e-cam').trim()||'ease-in-out';
+
+  dvAnims.forEach(function(a){try{a.cancel();}catch(e){}});
+  dvAnims=[];
+  /* `fill:'both'` tient les deux bouts : sans lui, l'élément reprendrait sa
+     place d'origine l'espace d'une image avant que le nettoyage ne passe. */
+  var joue=function(el,pas,duree,courbe,retard){
+    if(!el)return null;
+    var a=el.animate(pas,{duration:duree,easing:courbe||OUT,
+      delay:retard||0,fill:'both'});
+    dvAnims.push(a);return a;
+  };
+
+  /* L'écran d'abord. Sa boîte, après la bascule, est celle d'arrivée : la
+     caméra l'emmène donc de `B` à `A` pour le premier temps, et le laisse chez
+     lui pour le second. */
   app.style.transformOrigin='0 0';
-  app.style.transform=pre+base;
+  var zApp=DEV?dvZ:1,eApp=boite(app);
+  var repos=DEV?('scale('+dvZ.toFixed(4)+')'):'none';
+  joue(app,[{transform:camDe(eApp,zApp,B,A)},{transform:repos}],T,CAM);
+
+  /* La vitre est posée sur l'écran et ne le quitte pas — même boîte en entrant,
+     et en sortant le rectangle de l'écran qu'on abandonne. */
+  if(gl&&!gl.hidden&&DEV){
+    gl.style.transformOrigin='0 0';
+    joue(gl,[{transform:camDe(boite(gl),dvZ,B,A)},{transform:repos}],T,CAM);
+  }
 
   if(DEV){
+    /* On entre : le châssis se découvre à mesure que la caméra recule. Sa
+       clarté ne commence qu'une fois la caméra en mouvement — le premier tiers
+       du travelling ne bouge presque pas — et finit avec elle : un objet qui se
+       révèle pendant qu'on s'en éloigne, plutôt qu'un objet déjà là. */
     dv.hidden=false;
-    dv.style.transition='none';dv.style.opacity='0';
     dv.style.transformOrigin='0 0';
-    dv.style.transform=pre+'scale('+dvZ.toFixed(4)+')';
+    var eDv=boite(dv),zDv='scale('+dvZ.toFixed(4)+')';
+    joue(dv,[{transform:camDe(eDv,dvZ,B,A)},{transform:zDv}],T,CAM);
+    joue(dv,[{opacity:0},{opacity:1}],T4,CAM,T-T4);
   }else if(devWas){
+    /* On sort : la caméra avance dans l'écran, et le châssis s'ouvre autour
+       d'elle du même mouvement. Le facteur du boîtier est **celui qu'on a en
+       mémoire** : `deviceLayout` rend la main avant d'y toucher quand on quitte
+       le mode, si bien que `dvZ` est resté celui du boîtier qu'on abandonne.
+       Il était relu dans la chaîne de style, à l'expression
+       `transform:scale(…)` — que le navigateur rend normalisée, avec une
+       espace après le deux-points. Elle ne trouvait jamais rien et rendait 1. */
     dv.hidden=false;
     dv.setAttribute('style',dvStyleWas);
-    dv.style.transition='none';dv.style.opacity='1';dv.style.transformOrigin='0 0';
+    dv.style.transformOrigin='0 0';
+    var z0='scale('+dvZ.toFixed(4)+')';
+    joue(dv,[{transform:z0},{transform:camDe(boite(dv),dvZ,A,B)}],T,CAM);
+    joue(dv,[{opacity:1},{opacity:0}],T4,IN);
+    if(gl&&glWas){
+      gl.hidden=false;gl.setAttribute('style',glStyleWas);
+      gl.style.transformOrigin='0 0';
+      joue(gl,[{transform:z0},{transform:camDe(boite(gl),dvZ,A,B)}],T,CAM);
+      joue(gl,[{opacity:1},{opacity:0}],T4,IN);
+    }
   }
-  out.style.transition='none';out.style.opacity='0';
 
-  app.offsetWidth;                       /* on force le calcul avant d'animer */
+  /* Le bandeau du haut — la barre sortie et le lecteur. Il arrive en dernier,
+     quand le châssis a pris sa place, et il part le premier : c'est ce qui doit
+     être vrai de tout ce qui accompagne un mouvement plutôt que de le porter. */
+  if(DEV)joue(out,[{opacity:0,transform:'translateY(-6px)'},
+                   {opacity:1,transform:'none'}],T3,OUT,T-T3);
+  else joue(out,[{opacity:1},{opacity:0}],T1,IN);
 
-  var D='.66s cubic-bezier(.16,1,.3,1)';
-  app.style.transition='transform '+D;
-  app.style.transform=base;
-  out.style.transition='opacity .34s var(--e) .24s';
-  out.style.opacity='1';
-  if(DEV){
-    dv.style.transition='transform '+D+',opacity .38s ease .1s';
-    dv.style.transform='scale('+dvZ.toFixed(4)+')';
-    dv.style.opacity='1';
-  }else if(devWas){
-    var m=/transform:scale\(([\d.]+)\)/.exec(dvStyleWas);
-    dv.style.transition='transform '+D+',opacity .4s ease';
-    dv.style.transform=inv+'scale('+(m?m[1]:'1')+')';
-    dv.style.opacity='0';
-  }
+  /* En sortant, la barre de commandes rentre dans le HUD : elle y apparaîtrait
+     d'un coup, à pleine encre, sur une page encore en mouvement. Elle se pose
+     comme le reste du HUD se pose. */
+  if(!DEV&&devWas)joue(document.querySelector('.ctlbar'),
+    [{opacity:0,transform:'translateY(-7px)',offset:0},
+     {opacity:0,transform:'translateY(-7px)',offset:.4},
+     {opacity:1,transform:'none',offset:1}],T,OUT);
 
   clearTimeout(dvT);
   dvT=setTimeout(function(){
-    app.style.transition='';out.style.transition='';out.style.opacity='';
-    dv.style.transition='';
-    if(!DEV){dv.hidden=true;dv.removeAttribute('style');}
-    else dv.style.opacity='';
-  },700);
+    dvAnims.forEach(function(a){try{a.cancel();}catch(e){}});
+    dvAnims=[];
+    app.style.transform='';app.style.transformOrigin='';
+    out.style.opacity='';out.style.transform='';
+    dv.style.transform='';dv.style.opacity='';dv.style.transformOrigin='';
+    if(!DEV){dv.hidden=true;dv.removeAttribute('style');
+             if(gl){gl.hidden=true;gl.removeAttribute('style');}}
+    /* La mise en page a bougé pendant le vol : la vitre et l'écran sont redits
+       depuis leurs mesures, non depuis ce que l'animation a laissé. */
+    else deviceLayout();
+  },T+40);
 }
 
 function applyDevice(anim){
-  var app=$('#app'),dv=$('#device');
+  var app=$('#app'),dv=$('#device'),gl=$('#dvGlass');
   var A=anim?app.getBoundingClientRect():null;
   var devWas=!dv.hidden,dvStyleWas=dv.getAttribute('style')||'';
+  /* La vitre est relevée avec le châssis : `deviceLayout` la cache dans l'instant
+     qui suit, et sans cette copie elle disparaîtrait d'un coup au lieu de partir
+     avec l'écran auquel elle appartient. */
+  var glWas=!gl.hidden,glStyleWas=gl.getAttribute('style')||'';
 
   /* La pile de menus est une affaire d'appareil : en sortir la laisserait
      couvrir toute la page, sans molette pour la parcourir. */
@@ -988,7 +1087,7 @@ function applyDevice(anim){
   deviceLayout();
   if(!DEV&&!anim){dv.hidden=true;dv.removeAttribute('style');}
 
-  if(anim&&!reduce&&A)zoomModes(A,dvStyleWas,devWas);
+  if(anim&&!reduce&&A)zoomModes(A,dvStyleWas,devWas,glStyleWas,glWas);
   else if(!DEV){dv.hidden=true;dv.removeAttribute('style');}
 
   /* Le champ vient de changer de largeur du tout au tout : tout ce qui se centre

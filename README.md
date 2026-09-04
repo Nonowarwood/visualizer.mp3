@@ -1568,14 +1568,79 @@ découvrir le boîtier.
 
 C'est le vol FLIP appliqué à la page entière : on mesure l'écran **avant**, on
 bascule — la mise en page change d'un coup —, on le mesure **après**, et l'on
-repart visuellement de la première position pour rejoindre la seconde. Rien n'est
-interpolé en mise en page, donc rien ne se recalcule à chaque image.
+repart visuellement de la première position pour rejoindre la seconde. Rien
+n'est interpolé en mise en page, donc rien ne se recalcule à chaque image.
 
-Le châssis subit le mouvement **exactement inverse** : si l'écran grandit d'un
-facteur k, il s'écarte de 1/k. Les deux restent solidaires — on ne voit pas un
-cadre qui se déforme, mais une caméra qui avance. L'inverse est composé à la main,
-`scale(1/k)` puis la translation opposée, et vérifié : appliqué à la transformation
-d'aller, il rend l'identité.
+#### Une caméra transporte tout le monde du même mouvement
+
+C'est la phrase qui manquait. Le code posait la transformée d'aller sur l'écran
+et **son inverse** sur le châssis, comme si les deux se répondaient. Ils ne se
+répondent pas : ils n'ont pas la même boîte, et une même transformée d'échelle
+posée sur des boîtes différentes ne donne pas le même déplacement.
+
+Mesuré, image par image, l'écart entre le rectangle de l'écran et la découpe
+que le châssis lui réserve :
+
+| | en entrant | en sortant |
+|---|---|---|
+| avant | jusqu'à **125 px** | jusqu'à **1 300 px** |
+| après | 0,1 px | 0,1 px |
+
+En sortant, le boîtier glissait donc de plus de mille pixels hors de son propre
+écran, à pleine encre, avant de revenir se poser. On ne voyait pas une caméra
+reculer, on voyait un cadre partir et rentrer. Ce que l'œil lisait comme « ça
+saute un peu », c'était cela — et aucune relecture du fichier ne pouvait le
+trouver, parce que les deux formules étaient justes chacune de son côté.
+
+Le mouvement est maintenant écrit **une fois**, dans `camDe()` : pour un élément
+dont la boîte est posée en `e` et qui porte déjà une échelle `z`, la transformée
+qui l'emmène de la caméra cadrée sur un rectangle à la caméra cadrée sur un
+autre. Les trois pièces la reçoivent — l'écran, sa vitre, le châssis — et
+l'écran ne quitte plus son trou d'un pixel. `tools/apercu.mjs --mesure` le
+vérifie.
+
+#### La vitre ne suivait pas
+
+La trame de points et le reflet se posaient d'un coup à leur taille finale
+pendant que le reste voyageait. Cela ne se voyait que trame allumée, donc jamais
+remarqué. Elle est du voyage, dans les deux sens : c'est la vitre de l'écran, et
+la caméra la traverse.
+
+#### Le facteur du boîtier était lu dans une chaîne
+
+Une expression cherchait `transform:scale(…)` dans l'attribut de style du
+châssis — que le navigateur rend **normalisé**, `transform: scale(…)`, avec une
+espace après le deux-points. Elle ne trouvait donc jamais rien et rendait 1 :
+depuis toujours, le châssis s'écartait d'un facteur faux. Il vient maintenant de
+la mémoire, `dvZ`, qui n'a pas bougé — `deviceLayout` rend la main avant d'y
+toucher quand on quitte le mode.
+
+#### Ce qui accompagne, et ce qui porte
+
+Trois pièces portent le mouvement ; le reste l'accompagne, et n'arrive ni ne
+part en même temps.
+
+- **le châssis se découvre** à mesure que la caméra recule : sa clarté ne
+  commence qu'une fois le travelling lancé — son premier tiers ne bouge presque
+  pas — et finit avec lui. Un objet qui se révèle pendant qu'on s'en éloigne,
+  plutôt qu'un objet déjà là ;
+- **le bandeau du haut** — la barre sortie, le lecteur — arrive en dernier, quand
+  le châssis a pris sa place, et part le premier ;
+- **la barre de commandes qui rentre dans le HUD** ne s'y allume plus d'un coup,
+  à pleine encre, sur une page encore en mouvement : elle se pose comme le reste
+  du HUD se pose.
+
+#### Écrit avec l'API d'animation
+
+La version en transitions posées à la main demandait de couper la transition,
+d'écrire l'état de départ, de **forcer un recalcul** — `app.offsetWidth`, la
+ligne dont personne ne se souvient pourquoi elle est là —, de réécrire la
+transition, puis de nettoyer sur un `setTimeout` de 700 ms qu'il fallait garder
+d'accord avec une durée écrite ailleurs. Six choses à tenir justes pour un seul
+geste. Il en reste trois : les deux bouts, la durée. Les durées et les courbes
+sont **lues dans la feuille** — le temps du site est tenu à un seul endroit, et
+un nettoyage calé sur un nombre écrit dans le script finirait par se décaler de
+l'animation qu'il nettoie.
 
 Sous mouvement réduit, le passage reste instantané.
 
