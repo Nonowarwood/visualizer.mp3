@@ -143,9 +143,30 @@ réapparaître ailleurs.
 
 **La carte est taillée pour que l'hélice tienne dans la fenêtre**, et non l'inverse.
 Une taille fixe la faisait déborder en haut et en bas ; les débords se calculent
-maintenant en côtés de carte, et la taille s'en déduit. La perspective n'entre pas
-dans le calcul parce qu'elle ne fait que **rétrécir** : la carte de devant, seule
-à l'échelle 1, est déjà le pire cas.
+en côtés de carte, et la taille s'en déduit.
+
+Ce calcul disait longtemps que « la perspective n'entre pas dans le calcul parce
+qu'elle ne fait que rétrécir : la carte de devant, seule à l'échelle 1, est déjà
+le pire cas ». **C'est faux, et l'hélice débordait des quatre côtés.** C'est vrai
+d'un anneau centré sur l'œil ; le nôtre ne l'est pas. Chaque carte porte
+`translateZ(R)` : l'anneau entier est poussé vers l'œil de tout son rayon, et la
+carte de devant s'en trouve **agrandie** de `p/(p−R)` — pour un rayon de 650 px
+sous une perspective de 1600, **1,68 fois**. On réservait la place d'une hélice,
+on en dessinait une de moitié plus grande, et les cartes des rangs 2 et 3
+sortaient du cadre à pleine encre, coupées net par le bord.
+
+Le facteur dépend du rayon, et le rayon de la taille cherchée : on ne peut plus
+diviser une bonne fois. On cherche donc par dichotomie la plus grande carte dont
+les coins tiennent dans le cadre **une fois projetés** — vingt-deux passes
+suffisent au dixième de pixel, et le résultat est gardé, puisqu'il ne dépend que
+de la fenêtre et des proportions relevées. Une rotation autour de l'axe vertical
+fait varier la profondeur *le long de la largeur* : les deux bords d'une même
+carte ne sont pas au même grossissement, et c'est le coin qui décide, pas le
+centre.
+
+La carte de devant passe de 527 à 445 px de large sur une fenêtre de 1440 × 900.
+C'est le prix, et il est juste : une photo un sixième plus petite vaut mieux
+qu'une photo coupée.
 
 Ce calcul réservait au départ bien plus de place qu'il n'en fallait. Deux
 corrections ont rendu les photos **un tiers plus grandes**, sans rien retirer de
@@ -158,9 +179,8 @@ ce qu'on voit :
 - **le fondu s'achève franchement au dernier cran**, au lieu de s'arrêter à 6 %.
   Deux cartes traînaient aux extrémités, invisibles mais bien comptées dans la
   place à réserver — elles rapetissaient toute l'hélice pour rester dans le cadre.
-
-Sur une fenêtre de 1710 px, la carte de base passe ainsi de 221 à 290 px : une
-photo en 4:3 mesure 335 × 251 au lieu de 255 × 191.
+  Le seuil est monté de 0,15 à 0,45 : au-delà du troisième cran une carte est
+  tournée de 88° et ne montre qu'une tranche, la laisser dépasser ne coûte rien.
 
 **La fenêtre de cartes boucle.** Sans cela, en début et en fin de liste elle était
 tronquée d'un côté et l'hélice partait de travers. Elle ne peut pas dépasser la

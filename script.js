@@ -2257,35 +2257,88 @@ function cardBox(k,S){
    grandes — on n'a rien perdu qu'on pouvait voir. */
 function pOpacity(a){return 1-Math.min(Math.max(Math.abs(a)-40,0)/70,1);}
 
-/* La carte est taillée pour que l'hélice tienne dans la fenêtre. Les débords se
-   comptent en côtés de carte ; la perspective n'entre pas dans le calcul parce
-   qu'elle ne fait que **rétrécir** — la carte de devant, seule à l'échelle 1,
-   est déjà le pire cas.
+/* La carte est taillée pour que l'hélice tienne dans la fenêtre — et elle n'y
+   tenait pas. Mesuré sur 1440 × 900 : les cartes des rangs 2 et 3 sortaient du
+   cadre à droite et en haut, à pleine encre, coupées net par le bord.
 
-   Deux corrections ont rendu les photos un quart plus grandes :
+   La cause tenait en une phrase, écrite ici et qui semblait juste : « la
+   perspective n'entre pas dans le calcul parce qu'elle ne fait que rétrécir ».
+   C'est vrai d'un anneau centré sur l'œil. Le nôtre ne l'est pas : chaque carte
+   porte `translateZ(R)`, l'anneau entier est **poussé vers l'œil de tout son
+   rayon**, et la carte de devant s'en trouve agrandie de `p/(p−R)` — pour un
+   rayon de 650 px sous une perspective de 1600, **1,68 fois**. On réservait la
+   place d'une hélice, on en dessinait une de moitié plus grande.
 
-   - une carte tournée ne prend pas sa largeur entière à l'écran mais sa largeur
-     **projetée**, `w·|cos a|`. À 88° elle ne montre qu'une tranche, et on lui
-     réservait pourtant toute sa largeur. La hauteur, elle, ne bouge pas : une
-     rotation autour de l'axe vertical ne raccourcit rien verticalement ;
-   - les cartes trop pâles pour être vues ne comptent plus. Aux deux bouts de la
-     chaîne, l'opacité tombe sous 8 % ; ces cartes-là rapetissaient toute
-     l'hélice pour rester dans le cadre alors que personne ne les distingue. Si
-     elles débordent maintenant, nul ne le verra. */
-function fitCard(W,H,win){
-  var ex=0,ey=0,qw=Math.sqrt(pARmax),qh=1/Math.sqrt(pARmin);
+   Le facteur dépend du rayon, et le rayon de la taille cherchée : on ne peut
+   plus diviser une bonne fois. On cherche donc par dichotomie la plus grande
+   carte dont les coins tiennent dans le cadre, une fois projetés. Vingt-deux
+   passes suffisent au dixième de pixel.
+
+   Deux choses ne comptent toujours pas dans la place à réserver :
+   - **les cartes trop pâles pour être vues**. Le seuil monte de 0,15 à 0,45 :
+     au-delà du troisième cran une carte est tournée de 88° et ne montre qu'une
+     tranche — la laisser dépasser ne coûte rien, l'inclure rapetissait toute
+     l'hélice pour une lamelle ;
+   - **le cadre est borné en proportions**, pas l'image : un panorama de rapport
+     6 se pose en entier dans un cadre de 2,2. */
+
+/* La perspective de l'anneau, en pixels. Elle est écrite dans la feuille, sur
+   `.pring` ; les deux doivent dire la même chose, et c'est la feuille qui a
+   raison — on va donc l'y lire. */
+var P_PERSP=0;
+function persp(){
+  if(P_PERSP)return P_PERSP;
+  var el=document.querySelector('.pring');
+  var v=el?parseFloat(getComputedStyle(el).perspective):0;
+  /* L'anneau n'est bâti qu'à l'ouverture de la vue : tant qu'il n'existe pas,
+     on garde la valeur de la feuille sans la retenir, pour la relire ensuite. */
+  return v>0?(P_PERSP=v):1600;
+}
+
+/* L'encombrement de l'hélice, en pixels, pour une carte de côté S : le plus
+   grand écart au centre parmi les quatre coins de chaque rang, une fois la
+   projection faite. Une rotation autour de l'axe vertical fait varier la
+   profondeur **le long de la largeur** — les deux bords d'une même carte ne
+   sont donc pas au même grossissement, et c'est le coin qui décide, pas le
+   centre. */
+function ringExtent(S,win){
+  var P=persp();
+  var qw=Math.sqrt(pARmax),qh=1/Math.sqrt(pARmin),ex=0,ey=0;
+  var R=S*P_R,hw=S*qw/2,hh=S*qh/2;
   for(var n=-win;n<=win;n++){
-    var a=n*P_STEP,r=a*Math.PI/180;
-    if(pOpacity(a)<0.15)continue;
-    ex=Math.max(ex,Math.abs(P_R*Math.sin(r))+0.5*qw*Math.abs(Math.cos(r)));
-    ey=Math.max(ey,Math.abs(n*P_RISE)+0.5*qh);
+    var a=n*P_STEP;
+    if(pOpacity(a)<0.45)continue;
+    var r=a*Math.PI/180,ca=Math.cos(r),sa=Math.sin(r),y0=-n*S*P_RISE;
+    for(var c=-1;c<=1;c+=2){
+      var x=R*sa+c*hw*ca,z=R*ca-c*hw*sa;
+      /* Une profondeur qui approche le plan de projection ferait diverger le
+         grossissement : on la borne, ce que le navigateur fait aussi. */
+      var d=P/Math.max(P*0.2,P-z);
+      if(Math.abs(x*d)>ex)ex=Math.abs(x*d);
+      if(Math.abs((y0+hh)*d)>ey)ey=Math.abs((y0+hh)*d);
+      if(Math.abs((y0-hh)*d)>ey)ey=Math.abs((y0-hh)*d);
+    }
   }
+  return [ex,ey];
+}
+/* Le résultat ne dépend que de la fenêtre, du nombre de crans et des
+   proportions relevées : il est gardé, sans quoi vingt-deux passes seraient
+   refaites à chaque image de la boucle. */
+var fitMemo={};
+function fitCard(W,H,win){
+  var cle=W+'|'+H+'|'+win+'|'+pARmin.toFixed(3)+'|'+pARmax.toFixed(3);
+  if(fitMemo[cle])return fitMemo[cle];
   /* Un peu plus de marge en hauteur qu'en largeur : le compteur et le nom de
      l'artiste occupent le haut et le bas. */
-  if(!ex||!ey)return 120;
-  /* Pas de plancher au-dessus de ce que la fenêtre permet : mieux vaut de
-     petites cartes qu'une hélice qui déborde. */
-  return Math.max(40,Math.min(P_MAXS,(W*0.97)/(2*ex),(H*0.90)/(2*ey)));
+  var maxX=W*0.97/2,maxY=H*0.90/2;
+  var bas=24,haut=P_MAXS,S=bas;
+  if(ringExtent(haut,win)[0]<=maxX&&ringExtent(haut,win)[1]<=maxY)S=haut;
+  else for(var i=0;i<22;i++){
+    var mi=(bas+haut)/2,e=ringExtent(mi,win);
+    if(e[0]<=maxX&&e[1]<=maxY){bas=mi;S=mi;}else haut=mi;
+  }
+  fitMemo[cle]=S;
+  return S;
 }
 
 function placeRing(){
