@@ -609,12 +609,23 @@ function rebuild(){
     return '<li aria-current="false"><button type="button" data-p="'+p+'">'
       +'<b>'+pad(p+1)+'</b><span>'+esc(r.t)+'</span><i>'+r.y+'</i></button></li>';
   }).join('');
+  /* La réglette dit **où l'on en est**, et pouvait dire un peu plus. Elle
+     alignait cinquante-huit traits identiques : une position, et rien du temps
+     qu'elle parcourt. Le premier trait de chaque année est marqué — plus haut,
+     plus sombre —, et la rangée devient une frise. C'est la donnée qu'on avait
+     déjà sous la main, montrée là où elle a un sens. */
+  var anPrec=null;
   $('#scrub').innerHTML=view.map(function(idx,p){
-    return '<button type="button" data-p="'+p+'" aria-current="false" aria-label="'
-      +esc(REL[idx].t)+', '+(REL[idx].y||'')+'"></button>';
+    var an=REL[idx].y,neuve=(an&&an!==anPrec);anPrec=an;
+    return '<button type="button" data-p="'+p+'" aria-current="false"'
+      +(neuve?' data-an="'+an+'"':'')+' aria-label="'
+      +esc(REL[idx].t)+', '+(an||'')+'"></button>';
   }).join('');
   CUR=Math.min(CUR,Math.max(0,view.length-1));
   sizeEdges();
+  /* Le filtre et le changement d'artiste refont les lignes et les cases : le
+     témoin partirait avec elles s'il n'était pas reposé ici. */
+  if(typeof plSonne==='function')plSonne();
 }
 
 /* ─────────── compteur ─────────── */
@@ -666,6 +677,12 @@ function hud(){
   setLine([r.kind,r.date,r.label].filter(Boolean).join(' · '));
   $('#edgeL').textContent=$('#edgeR').textContent=r.kind;
   slots.forEach(function(s,i){s.setAttribute('aria-selected',i===view[CUR]?'true':'false');});
+  /* La planche marque elle aussi la parution courante. Elle ne le faisait pas :
+     les flèches et la molette y changeaient le rang sans que rien ne bouge à
+     l'écran, et l'on revenait au parcours sur une pochette qu'on n'avait pas
+     choisie. Une même chose désignée de la même façon dans les quatre vues —
+     c'est ce qui fait qu'elles parlent du même catalogue. */
+  cells.forEach(function(c,i){c.setAttribute('aria-current',i===view[CUR]?'true':'false');});
   [].slice.call($('#scrub').children).forEach(function(b,p){
     b.setAttribute('aria-current',p===CUR?'true':'false');
   });
@@ -771,7 +788,7 @@ function fiche(i){
     /* La fiche affichée expose sa liste, mais ne la donne pas au lecteur : sinon
        ouvrir une autre parution pendant l'écoute déplacerait « suivant » vers un
        disque qu'on n'écoute pas. Le lecteur ne prend le fil qu'au moment du clic. */
-    SHOWN={list:flat,rel:r.t,key:r.rid||r.id};
+    SHOWN={list:flat,rel:r.t,key:r.rid||r.id,art:A,ri:i};
     plMark();
   });
 
@@ -1719,7 +1736,7 @@ $('#about').addEventListener('click',function(e){if(e.target===this)aboutOpen(fa
    Le domaine `youtube-nocookie.com` est celui qui dépose le moins. Il n'annule
    pas tout : intégrer YouTube, c'est faire entrer un tiers dans la page, et le
    README le dit maintenant sans détour. */
-var PL={list:[],i:-1,rel:'',key:''},SHOWN={list:[],rel:'',key:''};
+var PL={list:[],i:-1,rel:'',key:'',art:-1,ri:-1},SHOWN={list:[],rel:'',key:'',art:-1,ri:-1};
 function plMark(){
   /* On ne surligne que si la fiche ouverte est bien celle qu'on écoute. */
   var same=PL.key&&PL.key===SHOWN.key;
@@ -1730,6 +1747,47 @@ function plMark(){
       same&&!!b&&PL.i>=0&&parseInt(b.getAttribute('data-k'),10)===PL.i);
   }
 }
+/* ─── ce qu'on écoute se voit partout ───
+   Le lecteur vivait à part. On lançait une piste, il se posait dans son coin, et
+   plus rien ailleurs ne disait de quel disque elle venait : on pouvait parcourir
+   dix parutions sans retrouver celle qui joue. C'était la seule chose du site
+   qui ne se raccordait à rien.
+
+   Un témoin — trois barres qui montent et descendent — se pose donc sur la
+   pochette qui sonne, **aux trois endroits où une parution se montre** : le
+   parcours, la planche, la liste appariée. C'est le même objet aux trois, et il
+   ne paraît que pour l'artiste dont c'est la parution — marquer un disque de
+   wave to earth dans la discographie de CORTIS ne voudrait rien dire.
+
+   Les barres s'arrêtent quand la lecture s'arrête : un témoin qui continue de
+   danser sur une pause ment. */
+function eqNoeud(){
+  var e=document.createElement('span');
+  e.className='eq';e.setAttribute('aria-hidden','true');
+  e.innerHTML='<i></i><i></i><i></i>';
+  return e;
+}
+function plSonne(){
+  if(!slots.length)return;
+  var actif=(PL.i>=0&&PL.art===A)?PL.ri:-1;
+  document.documentElement.setAttribute('data-joue',PLAY?'on':'off');
+  var pose=function(el,on){
+    if(!el||!el.querySelector)return;
+    var e=el.querySelector('.eq');
+    if(on&&!e)el.appendChild(eqNoeud());
+    else if(!on&&e&&e.remove)e.remove();
+    if(el.classList)el.classList.toggle('sonne',!!on);
+  };
+  /* Sur le parcours, le témoin se pose sur le **relief** et non sur le créneau :
+     le créneau fait toute la hauteur du champ, le relief fait la pochette — et
+     c'est lui qui porte la transformée de la pile, donc le témoin voyage avec
+     la jaquette au lieu de rester planté dans le vide. */
+  lifts.forEach(function(x,i){pose(x,i===actif);});
+  cells.forEach(function(x,i){pose(x,i===actif);});
+  var rows=$('#rlistIn').children;
+  for(var q=0;q<rows.length;q++)pose(rows[q],view[q]===actif);
+}
+
 function plPlay(k){
   if(k<0||k>=PL.list.length)return;
   PL.i=k;
@@ -1762,13 +1820,13 @@ function plPlay(k){
   $('#plPrev').disabled=k<=0;
   $('#plNext').disabled=k>=PL.list.length-1;
   $('#player').hidden=false;
-  plMark();
+  plMark();plSonne();
 }
 function plStop(){
   /* Vider la source coupe le son : masquer l'iframe ne l'aurait pas fait. */
   $('#plFrame').src='';
   $('#player').hidden=true;
-  PL.i=-1;PL.key='';PLAY=false;plMark();
+  PL.i=-1;PL.key='';PL.art=-1;PL.ri=-1;PLAY=false;plMark();plSonne();
 }
 
 /* ─── pause et reprise ───
@@ -1792,6 +1850,7 @@ function plBtn(){
   var b=$('#plPP');if(!b)return;
   b.textContent=PLAY?'\u275A\u275A':'\u25B8';
   b.setAttribute('aria-label',PLAY?'Mettre en pause':'Reprendre');
+  plSonne();
 }
 function plToggle(){
   if($('#player').hidden||PL.i<0)return false;
@@ -1952,7 +2011,37 @@ function setState(s){
   $('#amenus').setAttribute('aria-hidden',s==='menu'?'false':'true');
   /* En quittant les images, le compteur revient aux parutions. */
   if(s!=='photos'&&view.length)hud();
+  aide();
   if(s==='parcours')try{field.focus({preventScroll:true});}catch(e){}
+}
+
+/* ─── la ligne d'aide dit la vue où l'on est ───
+   Elle annonçait « ← → parcourir · ↵ ouvrir · G planche » partout, y compris
+   dans la planche — où l'on est déjà — et dans les images, où `G` ne mène pas
+   là où elle le dit. Une aide qui parle d'ailleurs vaut moins que pas d'aide :
+   c'est une des trois choses que le bas de l'écran affirme, et la seule qui
+   pouvait se tromper. */
+var AIDES={
+  parcours:'<kbd>←</kbd><kbd>→</kbd> parcourir · <kbd>↵</kbd> ouvrir · <kbd>G</kbd> planche',
+  survey:'<kbd>clic</kbd> ouvrir · <kbd>G</kbd> revenir au parcours · <kbd>/</kbd> chercher',
+  photos:'<kbd>←</kbd><kbd>→</kbd> parcourir · <kbd>↵</kbd> voir en grand · <kbd>esc</kbd> revenir',
+  focus:'<kbd>←</kbd><kbd>→</kbd> parution suivante · <kbd>esc</kbd> refermer',
+  menu:'<kbd>menu</kbd> remonter · la molette parcourt · le centre choisit'
+};
+var aideT=0;
+function aide(montrer){
+  var h=$('#hint');if(!h)return;
+  var t=AIDES[STATE]||AIDES.parcours;
+  if(h.innerHTML===t)return;
+  h.innerHTML=t;
+  /* Elle se montre un instant à chaque changement de vue, puis se retire. Une
+     aide permanente devient du décor qu'on ne lit plus ; une aide qui ne paraît
+     jamais ne sert à personne. Elle revient au survol du coin, pour qui la
+     cherche. */
+  if(montrer===false||reduce)return;
+  h.classList.add('on');
+  clearTimeout(aideT);
+  aideT=setTimeout(function(){h.classList.remove('on');},2600);
 }
 function open(p){
   if(!view.length)return;
@@ -3217,6 +3306,7 @@ $('#focus').addEventListener('click',function(e){
   var t=e.target.closest('.tp');
   if(t){
     PL.list=SHOWN.list;PL.rel=SHOWN.rel;PL.key=SHOWN.key;
+    PL.art=SHOWN.art;PL.ri=SHOWN.ri;
     plPlay(parseInt(t.getAttribute('data-k'),10));
   }
 });
@@ -3483,7 +3573,8 @@ function enter(){
   if(window.requestIdleCallback)requestIdleCallback(prefetchOthers,{timeout:2500});
   else setTimeout(prefetchOthers,1200);
   var h=$('#hint');
-  if(h){h.classList.add('on');setTimeout(function(){h.classList.remove('on');},6500);}
+  if(h){h.classList.add('on');clearTimeout(aideT);
+        aideT=setTimeout(function(){h.classList.remove('on');},6500);}
 }
 /* filet de sécurité : on n'attend jamais plus de quatre secondes */
 setTimeout(ready,4000);

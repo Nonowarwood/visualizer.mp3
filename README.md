@@ -5,6 +5,15 @@ Les parutions de **wave to earth** et de **CORTIS**, parcourues une à une.
 Site statique : `index.html`, `style.css`, `script.js`, et `assets/tracks.js`
 pour les titres. Aucune dépendance à compiler, aucun script tiers.
 
+**Une seconde passe** a repris le mouvement d'un bout à l'autre — six durées
+nommées au lieu de vingt-six écrites au jugé, une courbe pour ce qui s'en va,
+une pour le travelling —, remis la caméra du mode appareil d'aplomb, et raccordé
+les vues les unes aux autres : ce qu'on écoute se voit dans les trois vues où
+une parution se montre, la parution courante se voit dans la planche, la ligne
+d'aide parle de la vue où l'on est. Ce qu'elle a corrigé se lit dans
+« Le mouvement », « Ce qui relie les vues entre elles » et « Le passage d'un mode
+à l'autre » ; ce qui l'a rendue possible se lit dans « Vérifier ».
+
 **Une réserve, et elle est réelle** : le lecteur intègre une vidéo YouTube. Tant
 qu'on ne lance rien, rien n'est chargé depuis YouTube ; dès qu'on joue une piste,
 un tiers entre dans la page et peut déposer. Le domaine `youtube-nocookie.com`
@@ -1290,6 +1299,13 @@ s'éteint, le **lancer** ne prolonge plus le geste — on se pose où l'on est �
 suivi image par image du champ n'a plus lieu, la transition CSS y durant déjà une
 milliseconde.
 
+Deux ajouts de la seconde passe s'y plient aussi. Le **passage d'un mode à
+l'autre** reste instantané, comme avant. Et les barres du **témoin de lecture**
+s'arrêtent **debout** : la règle générale les laisserait sur la dernière image de
+leur cycle, c'est-à-dire au tiers de leur hauteur — trois moignons alignés, qu'on
+prendrait pour un défaut d'affichage. C'est le piège de la règle générale qu'on
+écrit une fois et qu'on oublie, et il se referme à chaque nouvelle animation.
+
 ## Partager un lien
 
 Les adresses par parution ont été faites pour qu'un disque se partage ; sans
@@ -1720,6 +1736,82 @@ portes valent mieux qu'une pour qui n'aurait trouvé ni la molette ni la barre.
 
 La planche et les images n'existent sur aucun baladeur — elles restent, mais à
 leur place : deux entrées du menu racine, comme le reste.
+
+## Ce qui relie les vues entre elles
+
+Quatre vues montrent le même catalogue. Elles ne se le disaient pas.
+
+### Le compteur restait allumé sous la planche
+
+Il devait s'effacer dans la planche et dans la fiche, et une règle le
+demandait — elle ne s'appliquait pas. La séquence d'entrée du HUD pose
+`.hud.lit .bot>*{opacity:1}` : trois classes contre deux, elle l'emportait quel
+que soit l'ordre. Le compteur restait donc posé dans la planche, où il barrait
+la dernière rangée dès que la fenêtre descendait sous 800 px. C'est le genre de
+défaut qu'aucune relecture ne trouve : les deux règles sont justes, c'est leur
+rencontre qui ne l'est pas.
+
+Et la planche elle-même se centrait dans son cadre : centré, un contenu plus
+haut que son cadre déborde **des deux côtés**, et le haut d'un débordement n'est
+pas atteignable au défilement. `align-content: safe center` recentre tant que ça
+tient et cale au début dès que ça ne tient plus.
+
+### La parution courante se voit dans la planche
+
+Elle n'y était marquée nulle part : les flèches, la molette et la réglette y
+changeaient le rang sans que rien ne bouge à l'écran, et l'on revenait au
+parcours sur une pochette qu'on n'avait pas choisie. Un filet du verni de
+sélection sous la légende — et non un fond plein, qui est réservé au survol : le
+survol est une **intention**, la sélection un **état**, et deux choses
+différentes ne doivent pas se dire pareil.
+
+Le libellé en tranche, lui, a fait le chemin inverse : il nomme le type de la
+parution courante, donc il n'a de sens que là où il y en a une à l'écran. Dans
+la planche, où quinze pochettes portent chacune son type, il annonçait celui
+d'une seizième qu'on ne regarde pas.
+
+### Ce qu'on écoute se voit partout
+
+Le lecteur vivait à part. On lançait une piste, il se posait dans son coin, et
+plus rien ailleurs ne disait de quel disque elle venait : on pouvait parcourir
+dix parutions sans retrouver celle qui joue. C'était la seule chose du site qui
+ne se raccordait à rien.
+
+Un témoin — trois barres qui montent et descendent — se pose sur la pochette qui
+sonne, **aux trois endroits où une parution se montre** : le parcours, la
+planche, la liste appariée. C'est le même objet aux trois, et il ne paraît que
+pour l'artiste dont c'est la parution — marquer un disque de wave to earth dans
+la discographie de CORTIS ne voudrait rien dire. Les barres s'arrêtent quand la
+lecture s'arrête : un témoin qui continue de danser sur une pause ment, et c'est
+ce défaut-là qui rend un détail bon marché.
+
+Dans la liste, la ligne lui fait de la place plutôt qu'il ne se pose dessus —
+sans quoi il recouvrait l'année, la seule autre chose écrite à droite.
+
+### La ligne d'aide dit la vue où l'on est
+
+Elle annonçait « ← → parcourir · ↵ ouvrir · G planche » partout, y compris dans
+la planche — où l'on est déjà — et dans les images, où `G` ne mène pas là où
+elle le dit. Une aide qui parle d'ailleurs vaut moins que pas d'aide. Chaque vue
+a la sienne, et elle se montre un instant à chaque changement avant de se
+retirer : une aide permanente devient du décor qu'on ne lit plus, une aide qui
+ne paraît jamais ne sert à personne. Elle revient au survol du coin, pour qui la
+cherche.
+
+### La réglette est devenue une frise
+
+Elle alignait cinquante-huit traits identiques : une position, et rien du temps
+qu'elle parcourt. Le premier trait de chaque année est marqué — plus haut, plus
+sombre. Quatre hauteurs en tout, et elles ne se confondent pas : 10 px pour un
+trait ordinaire, 15 pour une année qui commence, 18 au survol, 26 pour l'endroit
+où l'on est. C'est une donnée qu'on avait déjà sous la main, montrée là où elle
+a un sens.
+
+Et la ligne de métadonnées ne se coupe plus à 44 signes : le nom d'une série de
+photos — « COLOR OUTSIDE THE LINES · CONCEPT · SEPTEMBRE 2025 » — s'y terminait
+en points de suspension alors que trois cent soixante-dix pixels restaient
+libres à sa droite. La coupure revient à la place disponible, qui est la seule
+mesure juste.
 
 ## La visite guidée
 

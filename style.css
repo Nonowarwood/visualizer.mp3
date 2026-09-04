@@ -589,33 +589,49 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   box-shadow:0 0 0 1px rgba(0,0,0,.26) inset,0 44px 66px -34px rgba(0,0,0,.72)}
 
 /* ─── planche ─── */
-.survey{position:absolute;inset:0;transform:scale(.986);z-index:2;display:grid;place-content:center;overflow-y:auto;
+/* `safe center` et non `center` : centré, un contenu plus haut que son cadre
+   déborde **des deux côtés**, et le haut d'un débordement n'est pas atteignable
+   au défilement. Sur une fenêtre de 763 px la dernière rangée passait ainsi
+   sous le compteur, qui la barrait. `safe` recentre tant que ça tient, et cale
+   au début dès que ça ne tient plus. */
+.survey{position:absolute;inset:0;transform:scale(.986);z-index:2;display:grid;
+  align-content:safe center;justify-content:center;overflow-y:auto;
   padding:calc(var(--pad)*4.4) var(--pad);
-  opacity:0;pointer-events:none;transition:opacity .5s var(--e),transform .6s var(--e-out)}
+  opacity:0;pointer-events:none}
 .survey .grid{display:grid;gap:clamp(10px,1.5vw,22px);
   grid-template-columns:repeat(auto-fit,minmax(clamp(96px,11vw,168px),1fr));
   width:min(1240px,92vw)}
 .survey .cell{display:block;text-align:left;opacity:0;transform:translateY(16px);padding:5px}
 [data-state="survey"] .survey .cell{opacity:1;transform:none;
-  transition:opacity .55s var(--e-out) var(--d,0ms),transform .65s var(--e-out) var(--d,0ms),
-             background .2s var(--e)}
+  transition:opacity var(--t-5) var(--e-out) var(--d,0ms),transform var(--t-5) var(--e-out) var(--d,0ms),
+             background var(--t-2) var(--e)}
 .survey .cell:hover,.survey .cell:focus-visible{
   background:var(--verni);
   outline:none}
+/* ─── la parution courante, dans la planche ───
+   Elle n'y était marquée nulle part : les flèches, la molette et la réglette y
+   changeaient le rang sans que rien ne bouge, et l'on revenait au parcours sur
+   une pochette qu'on n'avait pas choisie. Un filet du verni de sélection sous la
+   légende, et non un fond plein — le fond plein est réservé au survol, qui est
+   une **intention** ; celle-ci n'est qu'un **état**, et deux choses différentes
+   ne doivent pas se dire pareil. */
+.survey .cell[aria-current="true"] .cap{border-top-color:var(--bl);
+  border-top-width:2px;padding-top:6px}
+.survey .cell[aria-current="true"] .cap b{color:var(--bl)}
 .survey .cell:hover .cap,.survey .cell:focus-visible .cap{color:#fff;border-top-color:rgba(255,255,255,.45)}
 .survey .cell:hover .cap b,.survey .cell:focus-visible .cap b{color:#fff}
 .survey .cap{display:flex;justify-content:space-between;gap:8px;margin-top:8px;padding-top:7px;
   border-top:1px solid var(--on-line);
   font:400 11px/1.4 var(--sans);color:var(--on-2);font-variant-numeric:tabular-nums;
-  transition:color .2s var(--e),border-color .2s var(--e)}
+  transition:color var(--t-2) var(--e),border-color var(--t-2) var(--e)}
 .survey .cap b{font-weight:600;color:var(--on-1);overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;transition:color .2s var(--e)}
+  white-space:nowrap;transition:color var(--t-2) var(--e)}
 
 /* ─── images : une page incurvée à la fois ─── */
 /* Sans fond propre : celui de la page traverse, et la vue suit donc le thème. */
 .photos{position:absolute;inset:0;transform:scale(.986);z-index:4;overflow:hidden;
   display:grid;place-content:center;touch-action:pan-y;
-  opacity:0;pointer-events:none;transition:opacity .5s var(--e),transform .6s var(--e-out)}
+  opacity:0;pointer-events:none}
 [data-state="photos"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
 [data-state="photos"] .photos{opacity:1;pointer-events:auto;transform:none}
 /* Le compteur reste dans les images — il y dit le rang de la photo. La réglette
@@ -711,10 +727,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .pempty code{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--bl)}
 
 /* ─── fiche ─── */
-.focus{position:absolute;inset:0;transform:scale(.986);z-index:3;display:grid;align-content:center;justify-content:center;
+.focus{position:absolute;inset:0;transform:scale(.986);z-index:3;display:grid;
+  align-content:safe center;justify-content:safe center;
   grid-template-columns:1fr;gap:clamp(22px,3.6vw,52px);
   padding:calc(var(--pad)*4.2) var(--pad);overflow-y:auto;
-  opacity:0;pointer-events:none;transition:opacity .45s var(--e),transform .6s var(--e-out)}
+  opacity:0;pointer-events:none}
 @media(min-width:900px){
   .focus{grid-template-columns:minmax(0,clamp(210px,26vw,340px)) minmax(0,min(30rem,44vw));
     align-items:center}
@@ -859,16 +876,20 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    flux de la grille du HUD : ils n'ont pas de place à y prendre. */
 .edgelab{position:absolute;top:50%;z-index:1;pointer-events:none;
   font:600 10px/1 var(--sans);letter-spacing:.34em;text-transform:uppercase;
-  color:var(--on-3);opacity:0;transition:opacity .5s var(--e)}
+  color:var(--on-3);opacity:0;transition:opacity var(--t-4) var(--e)}
 .edgelab.l{left:0;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl}
 .edgelab.r{right:0;transform:translateY(-50%);writing-mode:vertical-rl}
-[data-state="parcours"] .edgelab,[data-state="survey"] .edgelab{opacity:1}
+/* Il nomme le type de la **parution courante** : il n'a donc de sens que là où
+   il y a une parution courante à l'écran. Dans la planche, où quinze pochettes
+   portent chacune son type, il annonçait celui d'une seizième qu'on ne regarde
+   pas. */
+[data-state="parcours"] .edgelab{opacity:1}
 @media(max-width:900px){.edgelab{display:none}}
 
 /* ─── la pochette en grand ─── */
 .loupe{position:fixed;inset:0;z-index:70;display:grid;place-content:center;gap:14px;
   padding:var(--pad);background:var(--scrim);cursor:zoom-out;
-  opacity:0;transition:opacity .26s var(--e)}
+  opacity:0;transition:opacity var(--t-2) var(--e)}
 .loupe.on{opacity:1}
 .loupe[hidden]{display:none}
 .loupe img{display:block;max-width:min(86vw,860px);max-height:78vh;width:auto;height:auto;
@@ -885,6 +906,43 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background:var(--verni);
   text-shadow:0 1px 1px rgba(0,30,70,.5)}
 .survey .cell{position:relative}
+
+/* ═══════════════ le témoin de lecture ═══════════════
+   Trois barres qui montent et descendent, posées sur la pochette qui sonne. Le
+   même objet dans les trois vues où une parution se montre — le parcours, la
+   planche, la liste appariée —, parce que c'est la même chose qu'il y dit.
+
+   Il ne danse que pendant la lecture : `data-joue` le fige sur une pause. Un
+   témoin qui continue de danser quand plus rien ne joue est un témoin qui ment,
+   et c'est ce défaut-là qui rend un détail bon marché. */
+.eq{position:absolute;left:6px;top:6px;z-index:6;display:flex;align-items:flex-end;
+  gap:2px;height:13px;padding:3px;
+  background:var(--verni);
+  box-shadow:0 0 0 1px rgba(0,0,0,.34),0 1px 3px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.25);
+  pointer-events:none}
+.eq i{display:block;width:2px;height:100%;background:var(--pn);
+  transform-origin:50% 100%;
+  animation:eqBat var(--t-berce) ease-in-out infinite}
+.eq i:nth-child(2){animation-duration:calc(var(--t-berce)*.62);animation-delay:-.4s}
+.eq i:nth-child(3){animation-duration:calc(var(--t-berce)*.81);animation-delay:-.8s}
+@keyframes eqBat{
+  0%,100%{transform:scaleY(.34)}
+  28%{transform:scaleY(1)}
+  52%{transform:scaleY(.5)}
+  74%{transform:scaleY(.86)}}
+[data-joue="off"] .eq i{animation-play-state:paused}
+/* Dans la liste, la place est prise par la ligne : le témoin se range à droite,
+   dans le flux, et non par-dessus. */
+.rlist li{position:relative}
+.rlist li .eq{left:auto;right:9px;top:50%;transform:translateY(-50%);height:11px}
+/* La ligne lui fait de la place plutôt qu'il ne se pose dessus : sans quoi il
+   recouvrait l'année, qui est la seule autre chose écrite à droite. */
+.rlist li.sonne button{padding-right:34px}
+.rlist li[aria-current="true"] .eq i{background:var(--bl-1)}
+/* Sur une pochette du parcours, il se pose au coin haut-gauche de la jaquette et
+   non du créneau : le créneau fait toute la hauteur du champ. */
+.lift>.eq{left:5px;top:5px}
 
 /* ─── le mode appareil ───
    Le site vient loger dans l'écran d'un châssis dessiné. Rien n'est emprunté : ni
@@ -921,6 +979,19 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 [data-device="on"] .ctlbar .seg,[data-device="on"] .ctlbar #filters,
 [data-device="on"] .ctlbar .div,
 [data-device="on"] .brandwrap{display:none}
+/* La réglette dit où l'on en est **dans le parcours** : dans une pile de menus,
+   elle disait la position d'un Cover Flow qu'on a justement déchargé, et elle
+   restait posée en bas de l'écran comme un reste. */
+[data-state="menu"] .scrub{display:none}
+/* Le compteur et la queue partis, la réglette restait **seule dans une rangée
+   distribuée aux deux bouts** : elle se rangeait donc à gauche, contre la rive
+   de l'écran, quand elle est centrée partout ailleurs. Une rangée d'un seul
+   élément se centre. */
+[data-device="on"] .hud .bot{justify-content:center}
+/* Le libellé en tranche est fait pour les marges d'une page : contre la rive
+   noire d'un écran de 595 px, il devient une salissure verticale de dix pixels
+   de large. Un baladeur n'écrit pas dans sa bordure. */
+[data-device="on"] .edgelab{display:none}
 
 /* ─── remettre les mesures à l'échelle de l'écran ───
    Le site exprime ses tailles en unités de fenêtre — `vw`, `vh`. Or **ces unités
@@ -1829,20 +1900,36 @@ button,a,input,[role="option"]{touch-action:manipulation}
   font-variant-numeric:tabular-nums}
 .roll,.roll span{line-height:1}
 .roll{height:1em;vertical-align:top;display:inline-block;overflow:hidden;position:relative}
-.roll span{display:block;transition:transform .5s var(--e-out)}
+.roll span{display:block;transition:transform var(--t-4) var(--e-out)}
 .count i{font-style:normal;font-size:.3em;letter-spacing:.02em;color:var(--on-3);
   transform:translateY(.6em);margin-left:.5em}
 .nowline{margin-top:7px;padding-top:6px;border-top:1px solid var(--on-line);
-  transition:opacity .22s var(--e);
+  transition:opacity var(--t-2) var(--e);
   font:400 11px/1.5 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--on-2);
-  max-width:44ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* Elle était plafonnée à 44 signes, quand la place qu'elle occupe en fait
+     plus du double : le nom d'une série de photos — « COLOR OUTSIDE THE LINES ·
+     CONCEPT · SEPTEMBRE 2025 » — s'y coupait sur des points de suspension alors
+     que trois cent soixante-dix pixels restaient libres à sa droite. La coupure
+     revient à la place disponible, qui est la seule mesure juste. */
+  /* `width:max-content` avec `max-width:100%` : le filet du dessus épouse le
+     texte au lieu de traverser toute la place réservée, et le texte dispose
+     quand même de toute cette place avant de se couper. Élargir la coupure sans
+     cela tirait le filet jusqu'à la réglette. */
+  width:max-content;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .scrub{display:flex;align-items:flex-end;gap:5px;flex:0 0 auto;justify-content:center;
   padding-bottom:6px;min-width:0;pointer-events:auto}
 .scrub button{width:2px;height:10px;background:var(--on-3);flex:none;
-  transition:height .35s var(--e),background .35s var(--e)}
-.scrub button:hover{background:var(--on-1);height:16px}
-.scrub button[aria-current="true"]{height:24px;background:var(--bl-3)}
+  transition:height var(--t-3) var(--e),background var(--t-3) var(--e)}
+/* Le premier trait d'une année est plus haut et plus sombre : la rangée cesse
+   d'être une suite de repères identiques et devient une frise, sans qu'un seul
+   chiffre soit écrit. Quatre hauteurs en tout, et elles ne se confondent pas —
+   10 pour un trait ordinaire, 15 pour une année qui commence, 18 au survol,
+   26 pour l'endroit où l'on est. */
+.scrub button[data-an]{height:15px;background:var(--on-2)}
+.scrub button:hover{background:var(--on-1);height:18px}
+.scrub button[aria-current="true"]{height:26px;background:var(--bl-3)}
 @media(max-width:720px){.scrub{display:none}}
 
 /* ═══════════════ l'étroit ═══════════════
@@ -1940,19 +2027,35 @@ button,a,input,[role="option"]{touch-action:manipulation}
   box-shadow:0 0 0 1px rgba(0,0,0,.32),0 2px 8px -4px rgba(0,0,0,.5)}
 .arrows button{width:26px;height:22px;font-size:13px;line-height:1;color:var(--cr-ink-2);
   background:var(--chrome);
-  transition:color .18s var(--e),filter .18s var(--e)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .arrows button+button{border-left:1px solid var(--cr-line)}
 .arrows button:hover{color:var(--cr-ink);filter:brightness(1.03)}
 .arrows button:active{filter:brightness(.96)}
-[data-state="focus"] .meter,[data-state="survey"] .meter,
-[data-state="focus"] .scrub,[data-state="survey"] .scrub{opacity:0;pointer-events:none}
-.meter,.scrub{transition:opacity .4s var(--e)}
+/* Le compteur et la réglette parlent de la parution **courante** : dans la
+   planche, où toutes sont là, et dans la fiche, qui la dit mieux, ils n'ont
+   rien à ajouter.
+
+   Ils étaient déjà censés s'effacer, et ne le faisaient pas : la séquence
+   d'entrée du HUD pose `.hud.lit .bot>*{opacity:1}` — trois classes contre deux,
+   elle l'emportait sur la règle d'état quel que soit l'ordre. Le compteur
+   restait donc allumé dans la planche, où il barrait la dernière rangée sur une
+   fenêtre basse. C'est le genre de défaut qu'aucune relecture du fichier ne
+   trouve : les deux règles sont justes, c'est leur rencontre qui ne l'est pas.
+   Ici, `.hud` remet les deux à égalité et l'ordre tranche. */
+[data-state="focus"] .hud .meter,[data-state="survey"] .hud .meter,
+[data-state="focus"] .hud .scrub,[data-state="survey"] .hud .scrub{
+  opacity:0;pointer-events:none}
+.meter,.scrub{transition:opacity var(--t-4) var(--e)}
 
 @media (prefers-reduced-motion:reduce){
   *,*::after,*::before{animation-duration:.01ms!important;animation-iteration-count:1!important;
     transition-duration:.01ms!important}
   .field{scroll-behavior:auto}
   .slot,.survey .cell,.focus .txt>*{opacity:1;transform:none}
+  /* Les barres du témoin s'arrêtent **debout**. La règle générale les laisserait
+     sur la dernière image de leur cycle, c'est-à-dire au tiers de leur hauteur :
+     trois moignons alignés, qu'on prendrait pour un défaut d'affichage. */
+  .eq i{transform:none;animation:none}
   /* Les retards en cascade doivent tomber aussi : une durée mise à zéro sans le
      retard laisserait les lignes apparaître l'une après l'autre, par saccades. */
   *{transition-delay:0ms!important;animation-delay:0ms!important}
