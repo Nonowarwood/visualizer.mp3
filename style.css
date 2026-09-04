@@ -83,7 +83,15 @@
   --e-out:cubic-bezier(.16,1,.3,1);
   /* le retour d'un appui : il dépasse d'un cheveu avant de se poser */
   --ressort:cubic-bezier(.34,1.4,.64,1);
-  --cw:clamp(168px,24vw,340px);
+  /* La largeur d'une pochette, et donc sa hauteur : la jaquette est carrée.
+     Elle était plafonnée à 340 px et ne tenait compte que de la largeur — au-delà
+     de 1417 px de fenêtre, la pochette cessait de grandir pendant que le vide
+     autour d'elle continuait, et le parcours flottait dans son cadre au lieu de
+     l'occuper. Le `min(…vh)` est la vraie garde : c'est lui qui empêche la
+     jaquette de déborder en hauteur sur une fenêtre large et basse, ce que
+     `32vw` seul ne savait pas faire. Centrée, une pochette de 52 vh ne touche
+     ni la barre de commandes ni le compteur. */
+  --cw:clamp(168px,min(32vw,52vh),520px);
   --listw:clamp(196px,19vw,282px);
 }
 /* Le sombre reprend **toute** la palette, chrome et panneaux compris. Il n'en

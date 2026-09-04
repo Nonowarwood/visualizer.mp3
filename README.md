@@ -65,6 +65,30 @@ depuis une fiche la laisserait parler d'une liste qu'on ne voit plus.
 Souris : molette, glisser, clic, et la réglette de position en bas.
 Filtres par type : tout / albums / EP / singles. Thème : clair / sombre.
 
+### La pochette occupe le cadre
+
+`--cw` donne la largeur d'une jaquette, et donc sa hauteur : elle est carrée.
+Elle valait `clamp(168px, 24vw, 340px)`, et ce plafond de 340 px avait un effet
+qu'on ne voit qu'en grand : **au-delà de 1417 px de fenêtre, la pochette cesse
+de grandir pendant que le vide autour d'elle continue.** Sur un écran large, le
+parcours flottait dans son cadre au lieu de l'occuper — mesuré sur une fenêtre
+de 1440 × 900, la bande des pochettes tenait 340 px sur 900, soit 38 % de la
+hauteur, avec 220 px de vide au-dessus et 155 px en dessous.
+
+    --cw: clamp(168px, min(32vw, 52vh), 520px)
+
+Le `min(…vh)` compte autant que le plafond : c'est lui qui empêche la jaquette
+de déborder en hauteur sur une fenêtre large et basse, ce que `32vw` seul ne
+savait pas faire. Le champ occupe tout le cadre — la barre de commandes et le
+compteur flottent par-dessus — donc une pochette de 52 vh, centrée, s'arrête à
+24 vh du haut et ne touche ni l'une ni l'autre.
+
+Le mode appareil n'est pas concerné : `[data-device="on"]` fixe `--cw` à 330 px,
+puisque là le parcours tient dans un écran dessiné, pas dans la fenêtre.
+
+Trois valeurs ont été rendues côte à côte et jugées à l'œil — 340, 396 et 461 px
+sur une fenêtre de 1440 × 900. La troisième l'a emporté sans hésitation.
+
 ## L'introduction — un collage
 
 Repris d'une animation de référence : des images arrivent une à une, se chevauchent
