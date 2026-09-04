@@ -407,11 +407,68 @@ Les commandes marchaient sans répondre : on appuyait, la fonction se faisait, e
 rien dans le bouton ne disait qu'on l'avait touché. Trois règles, prises dans ce
 qui se pratique et vérifiées à l'usage.
 
+### Le temps, en six crans
+
+La feuille comptait **vingt-six durées distinctes** — .14, .15, .16, .18, .2,
+.22, .24, .25, .26, .28, .3, .32, .34, .35, .38… — écrites au jugé, l'une après
+l'autre, au fil des ajouts. Deux commandes voisines ne répondaient donc pas à la
+même vitesse, et l'écart de vingt millisecondes entre elles ne voulait rien
+dire : personne ne l'avait décidé.
+
+C'est le même défaut que le chrome argenté réécrit vingt-deux fois, et il
+appelle le même remède. Un site dont le temps est écrit vingt-six fois ne peut
+plus changer d'allure.
+
+| | | |
+|---|---|---|
+| `--t-tap` | 90 ms | l'aller d'un appui : au-delà de 100 ms, on sent le retard |
+| `--t-1` | 160 ms | une teinte qui change, un survol — le grain du mouvement |
+| `--t-2` | 240 ms | le retour d'un appui, une bascule, un menu qui se retire |
+| `--t-3` | 340 ms | ce qui apparaît sur place : une ligne, un dépliant |
+| `--t-4` | 460 ms | ce qui traverse : un panneau, une vue, un vol |
+| `--t-5` | 660 ms | la caméra, et le thème : les deux seuls gestes de fond |
+
+Chaque cran vaut à peu près 1,4 fois le précédent — un rapport constant, comme
+une gamme, de sorte que deux crans voisins se distinguent sans se contredire.
+Restent hors gamme les deux respirations lentes — l'anneau du projecteur, le
+balancement de la mascotte —, qui ne sont pas des réponses à un geste mais des
+états, et les deux pas de cascade : `--pas` (18 ms) pour une liste serrée,
+`--pas-l` (54 ms) pour quelques blocs larges.
+
+### Une quatrième courbe : ce qui s'en va
+
+Il y en avait trois — le train courant, la décélération, le ressort de l'appui —
+et **aucune pour une sortie**. Tout partait donc en `--e`, c'est-à-dire en
+entrant à l'envers. `--e-in` accélère : ce qui s'en va file.
+
+Et une cinquième pour le travelling, `--e-cam`. Les autres **n'ont pas de
+départ** : elles démarrent à pleine vitesse, ce qui va très bien pour un panneau
+— il n'a pas de masse — et très mal pour une caméra, qui part du repos et s'y
+remet. Mesuré sur l'ancienne : au cinquième du temps, la caméra avait déjà fait
+**la moitié** de la distance, et les quatre cents dernières millisecondes ne
+servaient qu'à ramper.
+
+### Les vues se relaient, et pas n'importe comment
+
+Cinq vues occupent le même cadre — le parcours, la planche, les images, la
+fiche, la pile de menus — et chacune avait sa propre durée : le champ sortait en
+550 ms, la planche entrait en 500 pour l'opacité et 600 pour l'échelle, la pile
+de menus en 300. Passer de la planche aux images n'avait pas la même allure que
+d'y revenir, sans qu'aucune raison ne le justifie.
+
+Elles partagent maintenant une seule façon d'entrer et de sortir, et les deux ne
+sont pas symétriques : **ce qui arrive se pose, ce qui part file** — la règle de
+l'appui, appliquée à ce qui occupe l'écran entier. Le sens de lecture tombe
+juste tout seul : la transition écrite sur l'état **caché** est celle qui joue
+quand on va s'y cacher, celle de l'état **montré** joue quand on vient. Il n'y a
+rien à recopier.
+
 ### La réponse à l'appui doit être immédiate
 
 Au-delà de 200 ms de latence, une interface **paraît cassée** ; les
 micro-réactions — un appui, une bascule — se jouent en 100 à 200 ms. L'aller dure
-donc **90 ms**, le retour **260**. On appuie sec, on relâche en souplesse.
+donc **90 ms** (`--t-tap`), le retour **240** (`--t-2`). On appuie sec, on relâche
+en souplesse.
 
 C'est une seule ligne qui le fait : la transition longue est sur l'état de repos,
 et l'état `:active` la raccourcit. Le sens de lecture est le bon — ce qui doit
@@ -447,10 +504,31 @@ plutôt que de rester bêtement sur la dernière.
 
 ### Les lignes du tiroir arrivent l'une après l'autre
 
-Décalées de 18 ms, elles se lisent dans l'ordre où elles sont écrites, et le
-retard cumulé reste sous un quart de seconde : l'ouverture ne traîne pas. À la
+Décalées d'un pas, elles se lisent dans l'ordre où elles sont écrites, et le
+retard cumulé reste sous un quart de seconde : l'ouverture ne traîne pas. C'est
+le **pas qui se resserre**, non le retard qui se plafonne — plafonné, tout ce
+qui dépassait le budget arrivait ensemble, et avec vingt-trois lignes les neuf
+dernières tombaient d'un bloc au bout d'une cascade. À 240 / (n−1), chaque ligne
+a son propre instant et le budget tient. À la
 fermeture, aucune transition — la sortie doit être plus rapide que l'entrée, et
 personne ne regarde partir un menu.
+
+**La cascade se lisait à l'envers par le bas.** Les retards étaient écrits rang
+par rang dans la feuille, seize règles `nth-child`, quand le tiroir en compte
+aujourd'hui vingt-trois. Les sept dernières — la recherche, le lien de réglage,
+la visite, à propos — n'avaient donc aucun retard et arrivaient **avant** celles
+du milieu. Personne ne l'avait vu parce que cela ne se voit qu'en bas du tiroir.
+Ils sont posés en JavaScript, une fois, sur chaque ligne : une ligne ajoutée
+demain prend sa place sans qu'on y pense.
+
+**Et les cinq dépliants ne se repliaient pas tout à fait.** Une rangée de grille
+à `0fr` vaut `minmax(auto, 0fr)` : son minimum reste la taille *min-content* de
+l'enfant, et `min-height:0` ne remet à zéro que la boîte de contenu — **la marge
+intérieure s'y ajoute encore**. Chacun gardait 22 px de haut une fois fermé,
+soit 110 px de tiroir occupés par cinq bandes de rien, et l'on apercevait le
+haut des vignettes sous chaque ligne repliée. Mesuré, pas deviné : la rangée se
+calculait à `22px` là où elle s'annonçait à `0fr`. La marge est désormais posée
+par l'ouverture et retirée par la fermeture, sur la même durée que la rangée.
 
 Sous mouvement réduit, **les retards tombent aussi**. Une durée mise à zéro sans
 son retard laisserait les lignes apparaître l'une après l'autre, par saccades :
@@ -1855,6 +1933,11 @@ Et **les cinq dépliants du tiroir** se câblaient un à un, cinq fois les même
 trois lignes à un nom près. C'est peu de code et beaucoup d'occasions de se
 tromper : le sixième aurait été copié du cinquième. Ils sont nommés en une liste,
 et la liste se câble seule.
+
+*La seconde passe a trouvé la même faute une troisième fois, dans le temps :
+vingt-six durées écrites au jugé, six crans nommés à la place. Voir « Le temps,
+en six crans ». C'est apparemment la faute qui revient le plus dans ce projet —
+dire trente-six fois ce qui ne devrait se dire qu'une.*
 
 ## Les données
 

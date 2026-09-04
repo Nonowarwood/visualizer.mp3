@@ -79,8 +79,52 @@
     var(--bl-3) 52%,var(--bl-4));
   --sans:"Source Sans 3","Helvetica Neue",Helvetica,Arial,sans-serif;
   --pad:clamp(14px,2.4vw,32px);
-  --e:cubic-bezier(.24,.9,.3,1);
-  --e-out:cubic-bezier(.16,1,.3,1);
+
+  /* ═══ le temps, en six crans ═══
+     La feuille comptait **vingt-six durées distinctes** — .14, .15, .16, .18,
+     .2, .22, .24, .25, .26, .28, .3… — écrites au jugé, l'une après l'autre, au
+     fil des ajouts. Deux commandes voisines ne répondaient donc pas à la même
+     vitesse, et l'écart de vingt millisecondes entre elles ne voulait rien dire :
+     personne ne l'avait décidé.
+
+     C'est le même défaut que le chrome argenté réécrit vingt-deux fois, et il
+     appelle le même remède. Un site dont le temps est écrit vingt-six fois ne
+     peut plus changer d'allure ; six crans nommés, et l'on tient le mouvement du
+     site entier d'une main. Chaque cran vaut à peu près 1,4 fois le précédent —
+     un rapport constant, comme une gamme, de sorte que deux crans voisins se
+     distinguent sans se contredire.
+
+       --t-tap   90ms   l'aller d'un appui : au-delà de 100 ms, on sent le retard
+       --t-1    160ms   une teinte qui change, un survol — le grain du mouvement
+       --t-2    240ms   le retour d'un appui, une bascule, un menu qui se retire
+       --t-3    340ms   ce qui apparaît sur place : une ligne, un dépliant
+       --t-4    460ms   ce qui traverse : un panneau, une vue, un vol
+       --t-5    660ms   la caméra, et le thème : les deux seuls gestes de fond
+
+     Restent hors gamme les deux respirations lentes — l'anneau du projecteur et
+     le balancement de la mascotte —, qui ne sont pas des réponses à un geste
+     mais des états, et les deux pas de cascade — `--pas` pour une liste serrée,
+     `--pas-l` pour quelques blocs larges. */
+  --t-tap:90ms; --t-1:160ms; --t-2:240ms; --t-3:340ms; --t-4:460ms; --t-5:660ms;
+  --t-souffle:2.4s; --t-berce:3.4s;
+  /* le pas d'une cascade : dix-huit millisecondes, et le retard cumulé plafonné
+     à un quart de seconde — une entrée ne doit pas se faire attendre */
+  --pas:18ms; --pas-l:54ms;
+
+  /* ═══ les quatre courbes ═══
+     L'aller et le retour n'ont pas la même : ce qui **entre** décélère et se
+     pose, ce qui **sort** accélère et s'en va. La feuille n'avait pas de courbe
+     de sortie — tout partait en `--e`, c'est-à-dire en entrant à l'envers. */
+  --e:cubic-bezier(.24,.9,.3,1);          /* le train courant */
+  --e-out:cubic-bezier(.16,1,.3,1);       /* ce qui arrive : ça se pose */
+  --e-in:cubic-bezier(.5,0,.86,.4);       /* ce qui s'en va : ça file */
+  /* Le travelling. Les deux courbes ci-dessus n'ont **pas de départ** : elles
+     démarrent à pleine vitesse, ce qui va très bien pour un panneau — il n'a pas
+     de masse — et très mal pour une caméra, qui part du repos et s'y remet.
+     Mesuré sur l'ancienne : au cinquième du chemin parcouru dans le temps, la
+     caméra avait déjà fait **la moitié** de la distance, et les quatre cents
+     dernières millisecondes ne servaient qu'à ramper. */
+  --e-cam:cubic-bezier(.45,.05,.15,1);
   /* le retour d'un appui : il dépasse d'un cheveu avant de se poser */
   --ressort:cubic-bezier(.34,1.4,.64,1);
   /* La largeur d'une pochette, et donc sa hauteur : la jaquette est carrée.
@@ -161,7 +205,7 @@ body{
   background-repeat:repeat,no-repeat;
   background-position:0 0,center;
   font:400 16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;
-  transition:background-color .7s var(--e),color .7s var(--e);
+  transition:background-color var(--t-5) var(--e),color var(--t-5) var(--e);
 }
 h1,h2,h3,p,dl,dd,ul{margin:0}
 h1,h2,h3{font-weight:600}
@@ -281,7 +325,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   position:fixed;inset:0;z-index:90;
   background:radial-gradient(122% 104% at 50% 0%,var(--st-1),var(--st-2) 56%,var(--st-3));
   display:grid;place-content:center;justify-items:center;gap:24px;
-  transition:opacity .45s var(--e),visibility .45s;
+  transition:opacity var(--t-4) var(--e),visibility var(--t-4);
 }
 .splash.done{opacity:0;visibility:hidden;pointer-events:none}
 /* ─── le collage d'attente ───
@@ -292,9 +336,9 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .coll{position:relative;width:min(560px,80vw);aspect-ratio:1}
 .coll i{position:absolute;aspect-ratio:1;display:block;
   box-shadow:0 0 0 1px rgba(0,0,0,.28),0 20px 40px -22px rgba(0,0,0,.55);
-  opacity:0;animation:collIn .3s var(--e-out) var(--d,0ms) both}
+  opacity:0;animation:collIn var(--t-3) var(--e-out) var(--d,0ms) both}
 .coll i img{display:block;width:100%;height:100%;object-fit:cover}
-.coll.out i{animation:collOut .24s var(--e) var(--od,0ms) both}
+.coll.out i{animation:collOut var(--t-2) var(--e) var(--od,0ms) both}
 @keyframes collIn{from{opacity:0;transform:translateY(12px) scale(.94)}
                   to{opacity:1;transform:none}}
 @keyframes collOut{from{opacity:1;transform:none}
@@ -315,11 +359,11 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 var(--cr-glow)}
 .sw::before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;
   background:linear-gradient(180deg,#F0902A,#C4510C);
-  transition:width .28s var(--e-out)}
+  transition:width var(--t-2) var(--e-out)}
 .sw i{position:absolute;top:1px;left:1px;width:10px;height:9px;
   background:var(--chrome);
   box-shadow:0 0 0 1px rgba(0,0,0,.45),0 1px 1px rgba(0,0,0,.3);
-  transition:transform .28s var(--e-out)}
+  transition:transform var(--t-2) var(--e-out)}
 #mTheme[data-t="dark"] .sw::before{width:17px}
 #mTheme[data-t="dark"] .sw i{transform:translateX(16px)}
 
@@ -350,7 +394,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    quand on appuie. */
 .cur{position:fixed;left:0;top:0;width:0;height:0;z-index:100;pointer-events:none;
   opacity:0;--d:11px;--h:28px;--o:.32;--e2:1.5px;
-  transition:opacity .22s var(--e)}
+  transition:opacity var(--t-2) var(--e)}
 .has-cur .cur{opacity:1}
 .cur b,.cur i{position:absolute;left:0;top:0;border-radius:50%;
   will-change:transform}
@@ -360,16 +404,16 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
     var(--cu-3) 52%,var(--cu-4) 100%);
   box-shadow:0 0 0 1px rgba(10,42,74,.45),0 1px 3px rgba(0,0,0,.34),
     inset 0 1px 0 rgba(255,255,255,.55);
-  transition:width .2s var(--e-out),height .2s var(--e-out),
-    margin .2s var(--e-out)}
+  transition:width var(--t-2) var(--e-out),height var(--t-2) var(--e-out),
+    margin var(--t-2) var(--e-out)}
 /* la brillance, dans la bille : c'est elle qui en fait du verre */
 .cur b::after{content:"";position:absolute;left:23%;top:13%;width:42%;height:26%;
   border-radius:50%;background:rgba(255,255,255,.72)}
 /* le halo */
 .cur i{width:var(--h);height:var(--h);margin:calc(var(--h)/-2) 0 0 calc(var(--h)/-2);
   border:var(--e2) solid var(--cu-3);opacity:var(--o);
-  transition:width .28s var(--e-out),height .28s var(--e-out),
-    margin .28s var(--e-out),opacity .28s var(--e),border-width .28s var(--e)}
+  transition:width var(--t-2) var(--e-out),height var(--t-2) var(--e-out),
+    margin var(--t-2) var(--e-out),opacity var(--t-2) var(--e),border-width var(--t-2) var(--e)}
 /* Sur ce qui se clique, le halo s'ouvre et la bille se retire un peu : c'est le
    halo qui désigne, elle n'a plus qu'à pointer. */
 .cur.hot{--d:8px;--h:44px;--o:.52}
@@ -385,7 +429,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .stage{position:fixed;inset:0;overflow:hidden;z-index:1}
 .stage::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(78% 66% at 50% 44%,transparent 40%,rgba(0,0,0,var(--vig)));
-  transition:background .7s var(--e)}
+  transition:background var(--t-5) var(--e)}
 
 /* ─── le fond d'écran ───
    Il vit dans `#app`, sous tout le reste : il tapisse donc l'écran de l'appareil
@@ -407,7 +451,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
      tout le raccourci invalide, et la règle sauterait en silence. */
   --fond-a:none;--fond-b:none;
   background:var(--fond-a) center/cover no-repeat;
-  opacity:0;transition:opacity .5s var(--e)}
+  opacity:0;transition:opacity var(--t-4) var(--e)}
 /* **Seulement dans l'appareil.** Ces images font 1200 px de large : dans l'écran
    de l'appareil, où elles sont réduites à 595, elles sont nettes ; étalées sur
    une fenêtre de 1700, elles se voient agrandies et le grain saute aux yeux. Le
@@ -415,7 +459,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 [data-fond="on"][data-device="on"] .fond{opacity:1}
 .fond::before{content:"";position:absolute;inset:0;
   background:var(--fond-b) center/cover no-repeat;
-  opacity:0;transition:opacity .45s var(--e)}
+  opacity:0;transition:opacity var(--t-4) var(--e)}
 .fond.b::before{opacity:1}
 .fond::after{content:"";position:absolute;inset:0;background:var(--voile)}
 .grain{position:fixed;inset:0;z-index:55;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
@@ -430,8 +474,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    qu'il surmonte, non de flotter par-dessus. */
 .amenus{position:absolute;inset:0;z-index:5;overflow-y:auto;
   background:var(--pn);
-  opacity:0;pointer-events:none;transform:translateY(-8px);
-  transition:opacity .3s var(--e),transform .34s var(--e-out)}
+  opacity:0;pointer-events:none;transform:translateY(-8px)}
 [data-state="menu"] .amenus{opacity:1;pointer-events:auto;transform:none}
 [data-state="menu"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
 /* Le titre du niveau, en bandeau collant : dans une pile de menus, savoir où
@@ -445,7 +488,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .amenus button{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
   width:100%;text-align:left;padding:13px 16px;border-bottom:1px solid var(--pn-line);
   font:400 17px/1.25 var(--sans);color:var(--ink);
-  transition:background .15s var(--e),color .15s var(--e)}
+  transition:background var(--t-1) var(--e),color var(--t-1) var(--e)}
 .amenus i{font-style:normal;font-size:12px;letter-spacing:.06em;color:var(--ink-3);
   font-variant-numeric:tabular-nums;flex:none}
 .amenus button:hover{background:var(--pn-2)}
@@ -470,7 +513,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   box-shadow:2px 0 12px -6px rgba(0,0,0,.5);
   overflow-y:auto;overscroll-behavior:contain;
   transform:translateX(-101%);opacity:0;pointer-events:none;
-  transition:transform .42s var(--e-out),opacity .3s var(--e)}
+  transition:transform var(--t-4) var(--e-out),opacity var(--t-3) var(--e)}
 .rlist::-webkit-scrollbar{width:0}
 [data-list="on"][data-state="parcours"] .rlist{transform:none;opacity:1;pointer-events:auto}
 [data-list="on"][data-state="parcours"] .field{left:var(--listw)}
@@ -478,7 +521,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .rlist button{display:flex;align-items:baseline;gap:9px;width:100%;text-align:left;
   padding:7px 12px;border-bottom:1px solid var(--pn-line);
   font:400 13px/1.35 var(--sans);color:var(--ink-2);
-  transition:background .16s var(--e),color .16s var(--e)}
+  transition:background var(--t-1) var(--e),color var(--t-1) var(--e)}
 .rlist b{flex:none;font-weight:400;color:var(--ink-3);font-variant-numeric:tabular-nums;
   font-size:11.5px}
 .rlist span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;
@@ -506,8 +549,10 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
   perspective:1500px;perspective-origin:50% 45%;
   scrollbar-width:none;-ms-overflow-style:none;cursor:grab;
-  transition:opacity .55s var(--e),filter .55s var(--e),transform .55s var(--e),
-    left .42s var(--e-out);
+  /* Le champ n'a plus de transition d'entrée ni de sortie ici : les quatre vues
+     les partagent, plus bas, sous « les vues se relaient ». Reste `left`, qui
+     n'est pas un changement de vue mais l'ouverture de la liste appariée. */
+  transition:left var(--t-4) var(--e-out);
 }
 .field::-webkit-scrollbar{display:none}
 .field:active{cursor:grabbing}
@@ -518,14 +563,14 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .slot{flex:0 0 auto;width:var(--cw);scroll-snap-align:center;scroll-snap-stop:always;
   transform-style:preserve-3d;position:relative;opacity:0;transform:translateY(18px)}
 .is-live .slot{opacity:1;transform:none;
-  transition:opacity .8s var(--e-out) var(--d,0ms),transform .9s var(--e-out) var(--d,0ms)}
+  transition:opacity var(--t-5) var(--e-out) var(--d,0ms),transform var(--t-5) var(--e-out) var(--d,0ms)}
 .lift{display:block;position:relative;transform-style:preserve-3d;will-change:transform}
 
 .sleeve{position:relative;display:block;aspect-ratio:1;overflow:hidden;background:var(--sv-bg);
   box-shadow:0 0 0 1px rgba(0,0,0,.22) inset,0 26px 44px -30px rgba(0,0,0,.6);
-  transition:background .7s var(--e)}
+  transition:background var(--t-5) var(--e)}
 .sleeve img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:3;
-  opacity:0;transition:opacity .7s var(--e)}
+  opacity:0;transition:opacity var(--t-5) var(--e)}
 /* La pochette est réduite à 96 px puis remontée : sans ce rendu, le navigateur
    la lisserait à l'interpolation et rendrait la réduction invisible. C'est la
    marche d'escalier qu'on veut voir. */
@@ -588,7 +633,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--cr-ink-2);
   background:var(--chrome);
   text-shadow:0 1px 0 var(--cr-glow);
-  transition:color .18s var(--e),filter .18s var(--e)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .psets button+button{border-left:1px solid var(--cr-line)}
 .psets button:hover{color:var(--cr-ink)}
 .psets button:active{filter:brightness(.94)}
@@ -640,8 +685,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
      boucle réécrit les cartes à chaque image — une transition se battrait avec
      elle et traînerait d'une image sur l'autre. Seules la taille, qui ne change
      qu'à la mesure de l'image, et l'entrée en fondu en gardent une. */
-  transition:width .35s var(--e-out),height .35s var(--e-out),
-    filter .25s var(--e),opacity .25s var(--e)}
+  transition:width var(--t-3) var(--e-out),height var(--t-3) var(--e-out),
+    filter var(--t-2) var(--e),opacity var(--t-2) var(--e)}
 .pcard[hidden]{display:none}
 .pcard:focus-visible{outline:2px solid var(--bl);outline-offset:3px}
 .pcard img{width:100%;height:100%;object-fit:contain;display:block}
@@ -649,7 +694,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   box-shadow:0 0 0 1px rgba(0,0,0,.5),0 44px 70px -28px rgba(0,0,0,.9)}
 .pnav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;
   width:44px;height:44px;font:400 24px/1 var(--sans);color:var(--on-3);
-  transition:color .2s var(--e),transform .2s var(--e)}
+  transition:color var(--t-2) var(--e),transform var(--t-2) var(--e)}
 .pnav:hover{color:var(--on-1)}
 .p-prev{left:clamp(8px,3vw,44px)}
 .p-next{right:clamp(8px,3vw,44px)}
@@ -684,12 +729,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background:var(--chrome);
   box-shadow:0 0 0 1px rgba(0,0,0,.32),0 2px 8px -4px rgba(0,0,0,.5);
   text-shadow:0 1px 0 var(--cr-glow);
-  transition:color .18s var(--e),filter .18s var(--e)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .fclose:hover{color:var(--cr-ink);filter:brightness(1.03)}
 .fclose:active{filter:brightness(.94)}
 .focus .txt>*{opacity:0;transform:translateY(12px)}
 [data-state="focus"] .focus .txt>*{opacity:1;transform:none;
-  transition:opacity .6s var(--e-out) var(--d,0ms),transform .65s var(--e-out) var(--d,0ms)}
+  transition:opacity var(--t-5) var(--e-out) var(--d,0ms),transform var(--t-5) var(--e-out) var(--d,0ms)}
 .focus .idx{display:block;font:600 clamp(2rem,5vw,3.1rem)/.9 var(--sans);letter-spacing:-.04em;
   color:var(--on-1);font-variant-numeric:tabular-nums}
 .focus .idx i{font-style:normal;font-size:.3em;letter-spacing:.02em;color:var(--on-3);
@@ -707,18 +752,20 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   padding:9px 14px;border-bottom:1px solid var(--pn-line);font-size:14px;
   opacity:0;transform:translateY(6px)}
 [data-state="focus"] .rows div{opacity:1;transform:none;
-  transition:opacity .5s var(--e-out),transform .55s var(--e-out)}
-[data-state="focus"] .rows div:nth-child(1){transition-delay:.20s}
-[data-state="focus"] .rows div:nth-child(2){transition-delay:.26s}
-[data-state="focus"] .rows div:nth-child(3){transition-delay:.32s}
-[data-state="focus"] .rows div:nth-child(4){transition-delay:.38s}
-[data-state="focus"] .rows div:nth-child(5){transition-delay:.44s}
+  transition:opacity var(--t-4) var(--e-out),transform var(--t-5) var(--e-out)}
+/* Cinq lignes, cinq retards d'un pas long : elles sont peu nombreuses et
+   larges, là où le tiroir en aligne vingt-trois et serrées. */
+[data-state="focus"] .rows div:nth-child(1){transition-delay:var(--t-1)}
+[data-state="focus"] .rows div:nth-child(2){transition-delay:calc(var(--t-1) + var(--pas-l))}
+[data-state="focus"] .rows div:nth-child(3){transition-delay:calc(var(--t-1) + var(--pas-l)*2)}
+[data-state="focus"] .rows div:nth-child(4){transition-delay:calc(var(--t-1) + var(--pas-l)*3)}
+[data-state="focus"] .rows div:nth-child(5){transition-delay:calc(var(--t-1) + var(--pas-l)*4)}
 .rows div:last-child{border-bottom:none}
 .rows dt{color:var(--ink-2)}
 .rows dd{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
 /* ─── les titres du disque ─── */
 .trk{border-top:1px solid var(--pn-line);padding:10px 14px 12px;
-  opacity:.45;transition:opacity .45s var(--e)}
+  opacity:.45;transition:opacity var(--t-4) var(--e)}
 .trk.on{opacity:1}
 .trk-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   font:600 10.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
@@ -736,7 +783,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .trk-l li a,.trk-l li .tp{flex:1 1 auto;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;color:var(--ink);text-decoration:none;
   text-align:left;font:inherit;border-bottom:1px solid transparent;
-  transition:color .18s var(--e)}
+  transition:color var(--t-1) var(--e)}
 .trk-l li a:hover,.trk-l li a:focus-visible,
 .trk-l li .tp:hover,.trk-l li .tp:focus-visible{color:var(--bl);border-bottom-color:var(--bl)}
 /* Le repère ne décore pas : il dit que la piste se joue ici même. Celles qui
@@ -753,7 +800,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   text-transform:uppercase;color:var(--cr-ink-2);text-decoration:none;
   background:var(--chrome);
   box-shadow:0 0 0 1px rgba(0,0,0,.3);text-shadow:0 1px 0 var(--cr-glow);
-  transition:color .18s var(--e),filter .18s var(--e)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .play a:hover{color:var(--cr-ink);filter:brightness(1.03)}
 .play a:active{filter:brightness(.94)}
 .trk-l li i{font-style:normal;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
@@ -768,6 +815,30 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 
 .flip{position:fixed;z-index:45;pointer-events:none;will-change:transform,opacity}
 
+/* ─── les vues se relaient ───
+   Cinq vues occupent le même cadre — le parcours, la planche, les images, la
+   fiche, la pile de menus — et chacune avait sa propre durée : le champ sortait
+   en 550 ms, la planche entrait en 500 pour l'opacité et 600 pour l'échelle, la
+   pile de menus en 300. Passer de la planche aux images n'avait donc pas la
+   même allure que d'y revenir, sans qu'aucune raison ne le justifie.
+
+   Elles partagent maintenant une seule façon d'entrer et de sortir, et les deux
+   ne sont pas symétriques : **ce qui arrive se pose, ce qui part file.** C'est
+   la règle que le site tient déjà pour un appui — l'aller sec, le retour en
+   souplesse — appliquée à ce qui occupe l'écran entier.
+
+   Le sens de lecture tombe juste tout seul : la transition écrite sur l'état
+   **caché** est celle qui joue quand on va s'y cacher, celle de l'état
+   **montré** joue quand on vient. Il n'y a donc rien à recopier. */
+.survey,.photos,.focus,.amenus,
+[data-state]:not([data-state="parcours"]) .field{
+  transition:opacity var(--t-3) var(--e-in),transform var(--t-3) var(--e-in),
+    filter var(--t-3) var(--e-in),left var(--t-4) var(--e-out)}
+[data-state="survey"] .survey,[data-state="photos"] .photos,
+[data-state="focus"] .focus,[data-state="menu"] .amenus,
+[data-state="parcours"] .field{
+  transition:opacity var(--t-4) var(--e-out),transform var(--t-4) var(--e-out),
+    filter var(--t-4) var(--e-out),left var(--t-4) var(--e-out)}
 /* ─── états ─── */
 [data-state="survey"] .field{opacity:0;pointer-events:none;filter:blur(8px);transform:scale(1.04)}
 [data-state="survey"] .survey{opacity:1;pointer-events:auto;transform:none}
@@ -777,7 +848,10 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    cette échelle fausse la mesure d'arrivée : la pochette viserait une place que
    la fiche n'occupe pas encore, et sauterait de quelques pixels en atterrissant.
    On la neutralise le temps du vol — le vol tient lieu de transition. */
-.focus.flipping{transform:none;transition:opacity .45s var(--e)}
+/* La règle vient **après** la commune des vues, et il le faut : celle-ci
+   rendrait sa transformée animée, et la pochette viserait une place qui bouge
+   encore. */
+.focus.flipping{transform:none;transition:opacity var(--t-4) var(--e-out)}
 [data-state="intro"] .field{opacity:0;pointer-events:none;transform:scale(1.07)}
 
 /* ─── les libellés en tranche ───
@@ -1024,7 +1098,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   background:none;box-shadow:none;
   pointer-events:auto;cursor:grab;touch-action:none;
   transform:translate(-50%,-50%) rotate(var(--r,0deg));
-  transition:filter .16s var(--e)}
+  transition:filter var(--t-1) var(--e)}
 .stk:active{cursor:grabbing}
 .stk img{display:block;width:100%;height:auto;
   filter:drop-shadow(0 2px 2px rgba(0,0,0,.28))}
@@ -1047,7 +1121,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .stkbar[hidden]{display:none}
 .stkbar button{width:42px;height:42px;padding:0;background:none;box-shadow:none;
   font:400 20px/1 var(--sans);color:var(--cr-ink);
-  text-shadow:0 1px 0 var(--cr-glow);transition:background .14s var(--e)}
+  text-shadow:0 1px 0 var(--cr-glow);transition:background var(--t-1) var(--e)}
 .stkbar button:hover{background:rgba(0,0,0,.06)}
 .stkbar button:active{background:rgba(0,0,0,.12)}
 .stkbar .stksep{width:1px;height:24px;background:var(--cr-line);opacity:.6}
@@ -1071,7 +1145,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .optmenu .accp button{display:block;width:auto;padding:0;border-bottom:none}
 .optmenu .accgr .accb{height:34px;box-shadow:0 0 0 1px var(--pn-line);
   background:var(--verni);
-  transition:box-shadow .16s var(--e),transform .16s var(--ressort)}
+  transition:box-shadow var(--t-1) var(--e),transform var(--t-1) var(--ressort)}
 .optmenu .accgr .accb:hover{box-shadow:0 0 0 1px var(--ink-3)}
 .optmenu .accgr .accb[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink),
   inset 0 1px 0 rgba(255,255,255,.35)}
@@ -1082,7 +1156,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .surfgr{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .optmenu .surfp button{display:block;width:auto;padding:0;border-bottom:none}
 .optmenu .surfgr .surfb{position:relative;box-shadow:0 0 0 1px var(--pn-line);
-  transition:box-shadow .16s var(--e)}
+  transition:box-shadow var(--t-1) var(--e)}
 .optmenu .surfgr .surfb:hover{box-shadow:0 0 0 1px var(--ink-3)}
 .optmenu .surfgr .surfb[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bl-3)}
 .surfgr .surfb i{display:block;height:46px;background-color:var(--pn-2);
@@ -1100,7 +1174,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .optmenu .stkp button{display:block;width:auto;padding:0;border-bottom:none}
 .optmenu .stkgr .stkb{padding:7px;background:var(--pn-2);
   box-shadow:0 0 0 1px var(--pn-line);
-  transition:box-shadow .16s var(--e),background .16s var(--e)}
+  transition:box-shadow var(--t-1) var(--e),background var(--t-1) var(--e)}
 .optmenu .stkgr .stkb:hover{background:var(--pn);box-shadow:0 0 0 1px var(--ink-3)}
 .stkgr .stkb img{display:block;width:100%;height:34px;object-fit:contain}
 .optmenu .stkp .fnul{margin-top:9px}
@@ -1150,7 +1224,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .dv-z{position:absolute;padding:0;line-height:1;color:var(--dv-ink);
   font:400 30px/1 var(--sans);
   text-shadow:0 1px 0 var(--dv-edge);
-  transition:color .15s var(--e)}
+  transition:color var(--t-1) var(--e)}
 /* Les formes prennent la couleur du bouton, donc le survol les suit ; l'ombre
    d'une forme se pose au filtre, un `text-shadow` ne les atteindrait pas. */
 .dv-z svg{display:block;height:22px;width:auto;fill:currentColor;
@@ -1228,13 +1302,13 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .spot[hidden]{display:none}
 .spot i{position:fixed;background:var(--tour-dim);
   backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
-  transition:left .46s var(--e-out),top .46s var(--e-out),
-    width .46s var(--e-out),height .46s var(--e-out)}
+  transition:left var(--t-4) var(--e-out),top var(--t-4) var(--e-out),
+    width var(--t-4) var(--e-out),height var(--t-4) var(--e-out)}
 .spot u{position:fixed;border-radius:9px;box-shadow:0 0 0 2px var(--cu-3),
   0 0 26px 5px rgba(72,168,252,.42);
-  transition:left .46s var(--e-out),top .46s var(--e-out),
-    width .46s var(--e-out),height .46s var(--e-out),opacity .3s var(--e);
-  animation:spotBat 2.4s ease-in-out infinite}
+  transition:left var(--t-4) var(--e-out),top var(--t-4) var(--e-out),
+    width var(--t-4) var(--e-out),height var(--t-4) var(--e-out),opacity var(--t-3) var(--e);
+  animation:spotBat var(--t-souffle) ease-in-out infinite}
 .spot.plein u{opacity:0}
 @keyframes spotBat{0%,100%{box-shadow:0 0 0 2px var(--cu-3),0 0 26px 5px rgba(72,168,252,.42)}
   50%{box-shadow:0 0 0 2px var(--cu-3),0 0 34px 9px rgba(72,168,252,.62)}}
@@ -1247,8 +1321,8 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .tour{position:fixed;left:0;top:0;z-index:66;
   display:flex;align-items:flex-end;gap:12px;width:min(400px,86vw);
   opacity:0;
-  transition:opacity .3s var(--e),
-    left .5s var(--e-out),top .5s var(--e-out)}
+  transition:opacity var(--t-3) var(--e),
+    left var(--t-4) var(--e-out),top var(--t-4) var(--e-out)}
 .tour.on{opacity:1}
 
 .tour[hidden]{display:none}
@@ -1256,7 +1330,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    `object-fit:contain` l'y ajuste sans la déformer, quel que soit son format. */
 .tour-m{flex:none;width:66px;height:82px;object-fit:contain;object-position:bottom;
   filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));
-  animation:bob 3.4s ease-in-out infinite}
+  animation:bob var(--t-berce) ease-in-out infinite}
 /* Deux tons du même verni plutôt que deux couleurs : le côté clair porte le
    visage, le côté sombre fait l'ombre. Les yeux se lisent donc toujours, ce qui
    ne serait pas le cas si la coupure passait entre eux avec cette palette-là. */
@@ -1284,7 +1358,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .tour-jauge{height:3px;margin:0 12px 9px;background:var(--pn-line)}
 .tour-jauge i{display:block;height:100%;width:0;
   background:linear-gradient(90deg,var(--cu-3),var(--cu-4));
-  transition:width .4s var(--e-out)}
+  transition:width var(--t-4) var(--e-out)}
 .tour-bar{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
   padding:6px 11px;border-bottom:1px solid var(--cr-line);
   background:var(--chrome);
@@ -1299,7 +1373,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   text-transform:uppercase;color:var(--cr-ink-2);
   background:var(--chrome);
   box-shadow:0 0 0 1px rgba(0,0,0,.3);text-shadow:0 1px 0 var(--cr-glow);
-  transition:color .18s var(--e),filter .18s var(--e)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .tour-foot button:hover{color:var(--cr-ink)}
 .tour-foot button:active{filter:brightness(.94)}
 .tour-foot button[disabled]{opacity:.38;pointer-events:none}
@@ -1321,12 +1395,12 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    réduire aux 595 px de l'écran, où l'on ne lirait rien. */
 .quete{position:fixed;inset:0;z-index:78;display:grid;
   align-content:start;justify-items:center;padding:max(6vh,40px) var(--pad) var(--pad);
-  background:var(--scrim);opacity:0;transition:opacity .2s var(--e)}
+  background:var(--scrim);opacity:0;transition:opacity var(--t-2) var(--e)}
 .quete.on{opacity:1}
 .quete[hidden]{display:none}
 .q-pan{width:min(620px,100%);background:var(--pn);
   box-shadow:0 0 0 1px rgba(0,0,0,.34),0 26px 60px -28px rgba(0,0,0,.6);
-  transform:translateY(-10px);transition:transform .3s var(--e-out)}
+  transform:translateY(-10px);transition:transform var(--t-3) var(--e-out)}
 .quete.on .q-pan{transform:none}
 .q-bar{display:flex;align-items:center;gap:9px;padding:9px 11px;
   border-bottom:1px solid var(--cr-line);
@@ -1344,7 +1418,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
 .q-res li button{display:flex;align-items:baseline;gap:12px;width:100%;text-align:left;
   padding:9px 12px;border-bottom:1px solid var(--pn-line);background:none;
   font:400 14.5px/1.25 var(--sans);color:var(--ink);
-  transition:background .14s var(--e)}
+  transition:background var(--t-1) var(--e)}
 .q-res li button:hover{background:var(--pn-2)}
 /* Le rang courant est verni comme partout : c'est une sélection, elle doit se
    reconnaître au premier coup d'œil. */
@@ -1368,7 +1442,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
    Même panneau à filets que la fiche : c'est un document, pas une commande. */
 .about{position:fixed;inset:0;z-index:75;display:grid;place-content:center;
   padding:var(--pad);background:var(--scrim);
-  opacity:0;transition:opacity .22s var(--e)}
+  opacity:0;transition:opacity var(--t-2) var(--e)}
 .about.on{opacity:1}
 .about[hidden]{display:none}
 .ab-pan{width:min(520px,92vw);max-height:84vh;overflow-y:auto;background:var(--pn);
@@ -1404,7 +1478,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   width:min(340px,calc(100vw - var(--pad)*2));
   background:var(--pn);
   box-shadow:0 0 0 1px rgba(0,0,0,.38),0 22px 44px -20px rgba(0,0,0,.6);
-  animation:plIn .45s var(--e-out) both}
+  animation:plIn var(--t-4) var(--e-out) both}
 .player[hidden]{display:none}
 @keyframes plIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .pl-bar{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 11px;
@@ -1415,7 +1489,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   text-shadow:0 1px 0 var(--cr-glow)}
 .pl-x{flex:none;width:22px;height:18px;font:400 11px/1 var(--sans);color:var(--cr-ink-2);
   background:var(--chrome);
-  box-shadow:0 0 0 1px rgba(0,0,0,.3);transition:color .18s var(--e)}
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);transition:color var(--t-1) var(--e)}
 .pl-x:hover{color:var(--cr-ink)}
 /* Le cadre de la vidéo garde son rapport 16/9 quoi qu'il arrive : sans hauteur
    imposée, une iframe se replie sur 150px et coupe l'image. */
@@ -1425,7 +1499,7 @@ kbd{font:inherit;font-size:.92em;border:1px solid var(--on-line);padding:0 4px}
   padding:5px 8px;border-top:1px solid var(--pn-line);background:var(--pn-2)}
 .pl-foot button{width:34px;height:20px;font:400 11px/1 var(--sans);color:var(--cr-ink-2);
   background:var(--chrome);
-  box-shadow:0 0 0 1px rgba(0,0,0,.3);transition:color .18s var(--e),filter .18s var(--e)}
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .pl-foot button:hover{color:var(--cr-ink);filter:brightness(1.03)}
 .pl-foot button:active{filter:brightness(.94)}
 .pl-foot button[disabled]{opacity:.4;pointer-events:none}
@@ -1472,7 +1546,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
 .hud .top>*,.hud .bot>*{opacity:0;transform:translateY(-8px)}
 .hud .bot>*{transform:translateY(10px)}
 .hud.lit .top>*,.hud.lit .bot>*{opacity:1;transform:none;
-  transition:opacity .7s var(--e-out) var(--d,0ms),transform .8s var(--e-out) var(--d,0ms)}
+  transition:opacity var(--t-5) var(--e-out) var(--d,0ms),transform var(--t-5) var(--e-out) var(--d,0ms)}
 .hud .bot{align-items:flex-end;gap:clamp(12px,2vw,26px)}
 
 /* barre de titre chromée — angles nets */
@@ -1485,7 +1559,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
 .brand .bt span{display:block;margin-top:2px;font:400 10.5px/1 var(--sans);letter-spacing:.13em;
   text-transform:uppercase;color:var(--cr-ink-2)}
 .brand .car{font-size:10px;line-height:1;color:var(--cr-ink-2);
-  transition:transform .28s var(--e-out),color .18s var(--e)}
+  transition:transform var(--t-2) var(--e-out),color var(--t-1) var(--e)}
 .brand:hover .car{color:var(--cr-ink)}
 .brand[aria-expanded="true"] .car{transform:rotate(180deg)}
 
@@ -1495,7 +1569,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
   box-shadow:0 0 0 1px rgba(0,0,0,.32),0 14px 30px -14px rgba(0,0,0,.55);
   transform-origin:top left;opacity:0;transform:scaleY(.82) translateY(-7px);
   pointer-events:none;visibility:hidden;
-  transition:opacity .2s var(--e),transform .3s var(--e-out),visibility .3s}
+  transition:opacity var(--t-2) var(--e),transform var(--t-3) var(--e-out),visibility var(--t-3)}
 .amenu.on{opacity:1;transform:none;pointer-events:auto;visibility:visible}
 .amenu .ah{padding:6px 12px;border-bottom:1px solid var(--cr-line);
   background:var(--chrome);
@@ -1505,8 +1579,8 @@ button,a,input,[role="option"]{touch-action:manipulation}
   text-align:left;padding:9px 12px;border-bottom:1px solid var(--pn-line);
   color:var(--ink);font-size:14px;
   opacity:0;transform:translateY(-6px);
-  transition:opacity .26s var(--e-out) var(--d,0ms),transform .32s var(--e-out) var(--d,0ms),
-             background .15s var(--e),color .15s var(--e)}
+  transition:opacity var(--t-2) var(--e-out) var(--d,0ms),transform var(--t-3) var(--e-out) var(--d,0ms),
+             background var(--t-1) var(--e),color var(--t-1) var(--e)}
 .amenu.on button{opacity:1;transform:none}
 .amenu button:last-child{border-bottom:none}
 .amenu button .n{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
@@ -1537,14 +1611,14 @@ button,a,input,[role="option"]{touch-action:manipulation}
    Aucune couleur ne bouge : le monochrome tient. */
 .ctlbar button,.optmenu button,.tour-foot button,.pl-foot button,
 .stkbar button,.fclose,.card .src,.play a,.amenu button{
-  transition:color .18s var(--e),filter .18s var(--e),
-    box-shadow .26s var(--e-out),transform .26s var(--ressort)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e),
+    box-shadow var(--t-2) var(--e-out),transform var(--t-2) var(--ressort)}
 .ctlbar button:active,.optmenu button:active,.tour-foot button:active,
 .pl-foot button:active,.stkbar button:active,.fclose:active,
 .card .src:active,.play a:active,.amenu button:active{
   transform:translateY(1px);
   box-shadow:inset 0 2px 4px rgba(0,0,0,.20),0 0 0 1px rgba(0,0,0,.28);
-  transition-duration:.09s,.09s,.09s,.09s}
+  transition-duration:var(--t-tap),var(--t-tap),var(--t-tap),var(--t-tap)}
 
 /* ─── la sélection glisse ───
    Elle s'allumait ici et s'éteignait là : deux évènements sans rapport, et l'œil
@@ -1565,8 +1639,8 @@ button,a,input,[role="option"]{touch-action:manipulation}
   opacity:0;pointer-events:none;
   background:var(--verni);
   box-shadow:0 1px 0 rgba(255,255,255,.35) inset;
-  transition:transform .44s var(--e-out),width .44s var(--e-out),
-    opacity .22s var(--e)}
+  transition:transform var(--t-4) var(--e-out),width var(--t-4) var(--e-out),
+    opacity var(--t-2) var(--e)}
 .ctlbar .seg button{position:relative;z-index:1;background:none;box-shadow:none}
 .ctlbar .seg button:hover{background:rgba(0,0,0,.05)}
 .ctlbar .seg button[aria-pressed="true"]:hover{background:none}
@@ -1576,7 +1650,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
   font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--cr-ink-2);
   background:var(--chrome);
   text-shadow:0 1px 0 var(--cr-glow);
-  transition:color .18s var(--e),filter .18s var(--e)}
+  transition:color var(--t-1) var(--e),filter var(--t-1) var(--e)}
 .ctlbar .seg button+button{border-left:1px solid var(--cr-line)}
 .ctlbar button:hover{color:var(--cr-ink)}
 .ctlbar button:active{filter:brightness(.94)}
@@ -1596,7 +1670,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
    sinon hors de la fenêtre. */
 .optwrap{position:relative;display:flex}
 .optb{display:flex;align-items:center;gap:7px}
-.optb .car{font-size:9px;color:var(--cr-ink-2);transition:transform .25s var(--e-out)}
+.optb .car{font-size:9px;color:var(--cr-ink-2);transition:transform var(--t-2) var(--e-out)}
 .optb[aria-expanded="true"] .car{transform:rotate(180deg)}
 /* Le tiroir est **plus large que le bouton qui l'ouvre** : quatorze vignettes ne
    se regardent pas dans 268 px, elles s'y écrasent. Comme il flotte au-dessus de
@@ -1608,7 +1682,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
   box-shadow:0 0 0 1px rgba(0,0,0,.32),0 18px 40px -16px rgba(0,0,0,.55);
   transform-origin:top right;opacity:0;transform:scale(.64,.84) translateY(-8px);
   pointer-events:none;visibility:hidden;
-  transition:opacity .2s var(--e),transform .34s var(--e-out),visibility .34s}
+  transition:opacity var(--t-2) var(--e),transform var(--t-3) var(--e-out),visibility var(--t-3)}
 .optmenu.on{opacity:1;transform:none;pointer-events:auto;visibility:visible}
 /* ─── les lignes arrivent l'une après l'autre ───
    Un tiroir dont tout le contenu apparaît d'un bloc se lit d'un bloc. Décalées de
@@ -1619,24 +1693,16 @@ button,a,input,[role="option"]{touch-action:manipulation}
    l'entrée, et personne ne regarde partir un menu. */
 .optmenu>*{opacity:0;transform:translateY(-7px)}
 .optmenu.on>*{opacity:1;transform:none;
-  transition:opacity .24s var(--e) var(--d,0ms),
-    transform .34s var(--e-out) var(--d,0ms)}
-.optmenu.on>*:nth-child(1){--d:0ms}
-.optmenu.on>*:nth-child(2){--d:18ms}
-.optmenu.on>*:nth-child(3){--d:36ms}
-.optmenu.on>*:nth-child(4){--d:54ms}
-.optmenu.on>*:nth-child(5){--d:72ms}
-.optmenu.on>*:nth-child(6){--d:90ms}
-.optmenu.on>*:nth-child(7){--d:108ms}
-.optmenu.on>*:nth-child(8){--d:126ms}
-.optmenu.on>*:nth-child(9){--d:144ms}
-.optmenu.on>*:nth-child(10){--d:162ms}
-.optmenu.on>*:nth-child(11){--d:180ms}
-.optmenu.on>*:nth-child(12){--d:198ms}
-.optmenu.on>*:nth-child(13){--d:216ms}
-.optmenu.on>*:nth-child(14){--d:234ms}
-.optmenu.on>*:nth-child(15){--d:240ms}
-.optmenu.on>*:nth-child(16){--d:240ms}
+  transition:opacity var(--t-2) var(--e) var(--d,0ms),
+    transform var(--t-3) var(--e-out) var(--d,0ms)}
+/* Les retards sont posés **en JavaScript**, une fois pour toutes, et non écrits
+   ici rang par rang. Ils l'étaient : seize règles `nth-child`, quand le tiroir
+   compte aujourd'hui vingt-trois lignes. Les sept dernières — la recherche, le
+   lien de réglage, la visite, à propos — n'avaient donc aucun retard et
+   arrivaient **avant** celles du milieu. Une cascade à l'envers, que personne
+   n'avait vue parce qu'elle ne se voit qu'en bas du tiroir. Le pas s'y resserre
+   pour que le retard cumulé tienne dans le quart de seconde, et une ligne
+   ajoutée demain prend sa place sans qu'on y pense. */
 
 .optmenu .ah{padding:6px 12px;border-bottom:1px solid var(--cr-line);
   background:var(--chrome);
@@ -1646,7 +1712,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
   width:100%;text-align:left;padding:9px 12px;border-bottom:1px solid var(--pn-line);
   background:none;box-shadow:none;text-shadow:none;text-transform:none;
   font:400 14px/1.2 var(--sans);letter-spacing:0;color:var(--ink);
-  transition:background .15s var(--e)}
+  transition:background var(--t-1) var(--e)}
 .optmenu button:last-child{border-bottom:none}
 .optmenu button:hover{background:var(--pn-2)}
 .optmenu .lbl{flex:1 1 auto}
@@ -1657,7 +1723,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
 .optmenu button[aria-pressed] .lbl::after{content:"";display:inline-block;
   width:11px;height:11px;margin-left:9px;vertical-align:-1px;
   background:var(--pn-2);box-shadow:inset 0 1px 2px rgba(0,0,0,.35),0 1px 0 var(--cr-glow);
-  transition:background .18s var(--e)}
+  transition:background var(--t-1) var(--e)}
 .optmenu button[aria-pressed="true"] .lbl::after{
   background:linear-gradient(180deg,var(--bl-1) 0,var(--bl-3) 55%,var(--bl-4))}
 /* L'interrupteur du thème garde le sien : il dit déjà son état. */
@@ -1682,21 +1748,37 @@ button,a,input,[role="option"]{touch-action:manipulation}
    Le dépliement anime `grid-template-rows` de `0fr` à `1fr` : c'est la seule
    façon de faire glisser une hauteur qu'on ne connaît pas d'avance sans la
    mesurer en JavaScript. */
-/* `overflow:hidden` sur le **conteneur**, et pas seulement sur l'enfant : la
-   rangée à `0fr` met bien la hauteur de contenu à zéro, mais les 21 px de
-   marge intérieure de l'enfant restent, et son texte s'y voyait — replié,
-   l'onglet débordait quand même sur la section suivante. */
+/* Deux pièges, et le second a survécu au premier.
+
+   `overflow:hidden` doit être sur le **conteneur** et pas seulement sur
+   l'enfant : la rangée à `0fr` met bien la hauteur de contenu à zéro, mais son
+   texte se voyait quand même par-dessous.
+
+   Et cela ne suffisait pas. Une rangée `0fr` vaut `minmax(auto,0fr)` : son
+   minimum reste la taille **min-content** de l'enfant, et `min-height:0` ne
+   remet à zéro que la boîte de contenu — **la marge intérieure s'y ajoute
+   encore**. Les cinq dépliants gardaient donc 22 px de haut une fois repliés,
+   soit 110 px de tiroir occupés par cinq bandes de rien, et l'on apercevait le
+   haut des vignettes sous chaque ligne fermée. Mesuré, pas deviné : la rangée
+   se calculait à `22px` là où elle s'annonçait à `0fr`.
+
+   La marge est donc **posée par l'ouverture** et retirée par la fermeture, sur
+   la même durée que la rangée. Replié, il ne reste rien. */
 .plie{display:grid;grid-template-rows:0fr;overflow:hidden;
-  transition:grid-template-rows .34s var(--e-out)}
+  transition:grid-template-rows var(--t-3) var(--e-out)}
 .plie.on{grid-template-rows:1fr}
-.plie>*{overflow:hidden;min-height:0}
+/* La règle porte le tiroir en tête : sans lui, `.plie>*` et `.fonds` pèsent
+   pareil et c'est la dernière écrite qui gagne — c'est-à-dire la marge. */
+.optmenu .plie>*{overflow:hidden;min-height:0;padding-block:0;
+  transition:padding-block var(--t-3) var(--e-out)}
+.optmenu .plie.on>*{padding-block:9px 12px}
 /* Le dépliant est une **ligne du menu**, pas une catégorie. En bandeau de
    catégorie il gardait sa hauteur de bandeau et son filet quoi qu'il arrive : une
    catégorie ne se replie pas, elle annonce. En ligne ordinaire — même hauteur que
    « thème » ou « son », et le nom du fond choisi à droite comme eux — il se
    replie jusqu'à ne plus rien laisser paraître. */
 .optmenu #fondsH .car,.optmenu #stkH .car{font-size:9px;color:var(--ink-3);
-  flex:none;transition:transform .3s var(--e-out)}
+  flex:none;transition:transform var(--t-3) var(--e-out)}
 .optmenu #fondsH[aria-expanded="true"] .car,
 .optmenu #stkH[aria-expanded="true"] .car{transform:rotate(180deg)}
 .fonds{padding:9px 12px 12px;border-bottom:1px solid var(--pn-line)}
@@ -1715,7 +1797,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
   text-align:left}
 .optmenu .fonds .fv{position:relative;overflow:hidden;
   box-shadow:0 0 0 1px var(--pn-line);
-  transition:box-shadow .16s var(--e),transform .16s var(--e)}
+  transition:box-shadow var(--t-1) var(--e),transform var(--t-1) var(--e)}
 .optmenu .fonds .fv:hover{box-shadow:0 0 0 1px var(--ink-3)}
 .fonds .fv img{display:block;width:100%;aspect-ratio:8/5;object-fit:cover}
 .fonds .fv span{display:block;padding:4px 7px 5px;background:var(--pn-2);
@@ -1849,7 +1931,7 @@ button,a,input,[role="option"]{touch-action:manipulation}
 .tail{text-align:right;flex:1 1 0;min-width:0}
 .hint{font:400 10.5px/1.8 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--on-3);
   white-space:nowrap;
-  opacity:0;transition:opacity .7s var(--e);pointer-events:none}
+  opacity:0;transition:opacity var(--t-5) var(--e);pointer-events:none}
 .hint.on,.tail:hover .hint,.tail:focus-within .hint{opacity:1}
 @media(max-width:720px){.hint{display:none}}
 /* width:max-content — sinon le conteneur prend la largeur de la légende

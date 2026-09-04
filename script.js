@@ -2534,6 +2534,30 @@ if($('#mQuete'))$('#mQuete').addEventListener('click',function(){
    qu'on y ajoutera. Un clic sur une option ne le referme pas — on en règle
    souvent deux à la suite. */
 var optmenu=$('#optmenu'),optBtn=$('#mOpt');
+/* Les lignes arrivent l'une après l'autre, décalées d'un pas — mais le retard
+   est posé **ici**, sur chaque ligne, plutôt qu'écrit rang par rang dans la
+   feuille. Il l'était : seize règles `nth-child` pour un tiroir qui en compte
+   aujourd'hui vingt-trois, si bien que les sept dernières n'avaient aucun
+   retard et arrivaient avant celles du milieu. La cascade se lisait à l'envers
+   par le bas. Une ligne ajoutée demain prend sa place sans qu'on y pense.
+
+   Le pas et le plafond viennent de la feuille : c'est elle qui tient le temps
+   du site, et une valeur écrite en double finirait par mentir. */
+(function(){
+  var cs=getComputedStyle(document.documentElement);
+  var n=optmenu.children.length;
+  var pas=parseFloat(cs.getPropertyValue('--pas'))||18;
+  /* Le pas se **resserre** plutôt que le retard ne se plafonne. Plafonné, tout
+     ce qui dépassait le quart de seconde arrivait ensemble : avec vingt-trois
+     lignes, les neuf dernières partageaient le même retard et tombaient d'un
+     bloc au bout d'une cascade. Un pas de 240 / (n−1) donne à chaque ligne son
+     propre instant sans dépasser le budget, et il se règle tout seul le jour
+     où l'on en ajoute une. */
+  if(n>1)pas=Math.min(pas,240/(n-1));
+  [].slice.call(optmenu.children).forEach(function(el,i){
+    el.style.setProperty('--d',Math.round(i*pas)+'ms');
+  });
+})();
 function optOpen(on){
   optmenu.classList.toggle('on',on);
   optBtn.setAttribute('aria-expanded',on?'true':'false');
