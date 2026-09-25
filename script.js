@@ -220,6 +220,22 @@ var ARTISTS=[
    k:'#8090A8', art:'ring', tone:'d', cover:'',
    note:""},
   ]},
+ {id:'2baf3276-ed6a-4349-8d2e-f4601e7b2167', name:'Playboi Carti', place:'Atlanta', since:2011,
+  slug:'playboi-carti', photos:[],
+  rel:[
+  {id:'0d70a1d7-5465-4fa6-8520-9891527fbe6e', rid:'0d70a1d7-5465-4fa6-8520-9891527fbe6e', t:"Playboi Carti", kind:'Album', date:'14 avril 2017', y:2017, v:'', label:'AWGE / Interscope Records',
+   k:'#5B7FA6', art:'wave', tone:'l', cover:'',
+   note:"Le premier projet éponyme, avec « Magnolia » et « wokeuplikethis* »."},
+  {id:'c8cf2491-a79c-4b08-a2a8-9f365bb06047', rid:'c8cf2491-a79c-4b08-a2a8-9f365bb06047', t:"Die Lit", kind:'Album', date:'11 mai 2018', y:2018, v:'', label:'AWGE / Interscope Records',
+   k:'#C8A45C', art:'ring', tone:'d', cover:'',
+   note:"Deuxième album, paru en 2018."},
+  {id:'097e45e9-7c38-4134-82b1-b9a00c322008', rid:'097e45e9-7c38-4134-82b1-b9a00c322008', t:"Whole Lotta Red", kind:'Album', date:'25 décembre 2020', y:2020, v:'', label:'AWGE / Interscope Records',
+   k:'#8E9E8A', art:'split', tone:'l', cover:'',
+   note:"Troisième album, sorti le 25 décembre 2020."},
+  {id:'fa4bbf26-8f97-48d6-add2-4e7c028d39af', rid:'b2999e1c-a9ee-489b-b8c9-2acc33c1f82f', t:"MUSIC", kind:'Album', date:'14 mars 2025', y:2025, v:'', label:'AWGE / Interscope Records',
+   k:'#9A8FA6', art:'grid', tone:'d', cover:'',
+   note:"Album de 2025, publié sous le titre MUSIC."}
+  ]},
 ];
 var A=0, REL=ARTISTS[0].rel;
 
@@ -2661,7 +2677,7 @@ function qCherche(txt){
   qRes=[];qI=0;
   if(!q){
     box.innerHTML='';
-    vide.textContent='Cinq artistes, '+REL_TOTAL()+' parutions. Tapez un titre, '
+    vide.textContent=ARTISTS.length+' artistes, '+REL_TOTAL()+' parutions. Tapez un titre, '
       +'un disque ou un nom.';
     return;
   }
